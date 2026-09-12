@@ -5,9 +5,9 @@
 import { useState } from "react";
 import type { TestimonialItem } from "@/lib/queries/home";
 
-type TestimonialsProps = { items: TestimonialItem[] };
+type TestimonialsProps = { items: TestimonialItem[]; labels: { previous: string; next: string; of: string } };
 
-export function Testimonials({ items }: TestimonialsProps) {
+export function Testimonials({ items, labels }: TestimonialsProps) {
   const [i, setI] = useState(0);
   if (items.length === 0) return null;
   const item = items[i];
@@ -18,13 +18,13 @@ export function Testimonials({ items }: TestimonialsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)] gap-3 lg:gap-5">
       <div className="flex items-center lg:items-start lg:flex-col gap-2">
-        <p className="data text-ash max-w-none" aria-live="polite">{i + 1} of {items.length}</p>
+        <p className="data text-ash max-w-none" aria-live="polite">{i + 1} {labels.of} {items.length}</p>
         {canNav ? (
           <div className="flex gap-1">
-            <button type="button" className={btn} onClick={() => setI((i - 1 + items.length) % items.length)} aria-label="Previous quote">
+            <button type="button" className={btn} onClick={() => setI((i - 1 + items.length) % items.length)} aria-label={labels.previous}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M10 3L5 8l5 5" /></svg>
             </button>
-            <button type="button" className={btn} onClick={() => setI((i + 1) % items.length)} aria-label="Next quote">
+            <button type="button" className={btn} onClick={() => setI((i + 1) % items.length)} aria-label={labels.next}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M6 3l5 5-5 5" /></svg>
             </button>
           </div>

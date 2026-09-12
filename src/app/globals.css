@@ -325,3 +325,41 @@
   border-right: 1px solid var(--divider-light);
   border-bottom: 1px solid var(--divider-light);
 }
+
+/* Light-surface variant of the index row: background steps to paper. */
+.work-row-light:hover,
+.work-row-light:focus-within {
+  background: var(--color-paper);
+}
+
+/* View transitions: the cover image is the shared element between the
+   index and the case page. Reduced motion disables the animation. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-base);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* FAQ disclosure: plus that turns to a minus. */
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::marker { content: ""; }
+.faq-icon::before,
+.faq-icon::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+  left: 0; top: 7px; width: 16px; height: 1.5px;
+}
+.faq-icon::after { transform: rotate(90deg); transition: transform var(--duration-base) var(--ease-in-out); }
+.faq[open] .faq-icon::after { transform: rotate(0deg); }
+
+/* Case cover fallback: fade in only where View Transitions are unsupported. */
+@supports not (view-transition-name: none) {
+  .cover-in { animation: rise var(--duration-base) var(--ease-out) both; }
+}

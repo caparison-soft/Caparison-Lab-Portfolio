@@ -32,7 +32,7 @@ export default async function HomePage() {
       <ProcessStrip blocks={blocks} steps={steps} />
       <Section id="clients" pad="tall">
         <Spine sticky={false} rail={<SectionMarker as="h2">{t(blocks, "home.testimonials.marker")}</SectionMarker>}>
-          <Testimonials items={testimonials.featured} />
+          <Testimonials items={testimonials.featured} labels={{ previous: t(blocks, "home.testimonials.prevLabel"), next: t(blocks, "home.testimonials.nextLabel"), of: t(blocks, "home.testimonials.ofLabel") }} />
           {testimonials.companies.length > 0 ? (
             <p className="mt-5 text-body text-ash max-w-none">
               {t(blocks, "home.testimonials.rosterPrefix")} {formatList(testimonials.companies)}.

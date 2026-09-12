@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
+import { ViewTransitions } from "@/components/site/view-transitions";
 import { getBlocks, getSettings, t } from "@/lib/queries/content";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,7 +23,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <>
       <a href="#main" className="skip-link">{t(blocks, "nav.skipToContent")}</a>
       <Nav blocks={blocks} siteName={settings.siteName} />
-      {children}
+      <ViewTransitions>{children}</ViewTransitions>
       <Footer blocks={blocks} settings={settings} />
     </>
   );
