@@ -48,6 +48,15 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   caparison_dev with a stub auth.users table and anon/authenticated roles.
 - `.env` holds local values (gitignored). `.env.example` is the contract.
 - `npm run dev`, `/styleguide` for the token sheet.
+- Auth locally: `npm run dev:auth` runs scripts/dev-auth.mjs, a stand-in for the
+  Supabase Auth API on :54321 (.env points NEXT_PUBLIC_SUPABASE_URL there).
+  Sign in at /login as arif@caparisonsoft.com / caparison-dev. The matching
+  auth.users row exists in caparison_dev so the Profile trigger created the
+  ADMIN profile. Never point production at this.
+- Authorisation: middleware checks the session; src/lib/auth.ts requireAdmin()
+  (layouts) and assertAdmin() (every server action) check Profile.role with
+  Prisma. Middleware runs on the edge and cannot use Prisma.
+- Login is rate-limited from AuditLog (5 failures per 15 minutes per email or IP).
 
 ## Voice
 Plain, specific, understated. Numbers over adjectives. Sentence case.

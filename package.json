@@ -15,7 +15,8 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "verify:rls": "tsx scripts/verify-rls.ts",
-    "verify:bundle": "bash scripts/check-bundle.sh"
+    "verify:bundle": "bash scripts/check-bundle.sh",
+    "dev:auth": "node scripts/dev-auth.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1131.0",
