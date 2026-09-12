@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import {
+  Button, Field, Input, Select, Textarea, Tag, TagList, StatusDot, DataLine, Divider,
+  MediaFrame, SectionMarker, Spine, SpineIndex, Section,
+} from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Styleguide",
@@ -6,9 +10,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * Phase 1 styleguide: every token, type size, button variant and form
- * state, rendered with plain utilities so the system can be checked before
- * pages exist. Phase 2 replaces the raw markup with the real primitives.
+ * The system, on one page. Every primitive in every state on both surfaces.
+ * Focus-visible is shown statically with the .sg-focus class so it can be
+ * screenshotted; hover states are live.
  */
 
 const swatches = [
@@ -25,30 +29,18 @@ const swatches = [
   { name: "cobalt", cls: "bg-cobalt", hex: "#2033A6", onDark: true },
 ];
 
-const statuses = [
-  { name: "live", cls: "bg-status-live", label: "Live / available" },
-  { name: "progress", cls: "bg-status-progress", label: "In progress" },
-  { name: "draft", cls: "bg-status-draft", label: "Draft" },
-  { name: "info", cls: "bg-status-info", label: "Info" },
-  { name: "warn", cls: "bg-status-warn", label: "Warning" },
-  { name: "error", cls: "bg-status-error", label: "Error" },
-];
-
 const typeScale = [
-  { token: "display-xl", cls: "text-display-xl", spec: "clamp(44–84px) / 0.95 / -0.03em / 900" },
-  { token: "display-l", cls: "text-display-l", spec: "clamp(36–60px) / 1.0 / -0.025em / 700" },
-  { token: "h2", cls: "text-h2", spec: "clamp(28–40px) / 1.1 / -0.02em / 700" },
-  { token: "h3", cls: "text-h3", spec: "26px / 1.25 / -0.01em / 700" },
-  { token: "h4", cls: "text-h4", spec: "20px / 1.3 / -0.005em / 500" },
-  { token: "body-l", cls: "text-body-l", spec: "19px / 1.6 / 0 / 400" },
-  { token: "body", cls: "text-body", spec: "16px / 1.65 / 0 / 400" },
-  { token: "small", cls: "text-small", spec: "14px / 1.5 / 0 / 400" },
+  { token: "display-xl", cls: "text-display-xl", spec: "44–84px  0.95  -0.03em  900" },
+  { token: "display-l", cls: "text-display-l", spec: "36–60px  1.0  -0.025em  700" },
+  { token: "h2", cls: "text-h2", spec: "28–40px  1.1  -0.02em  700" },
+  { token: "h3", cls: "text-h3", spec: "26px  1.25  -0.01em  700" },
+  { token: "h4", cls: "text-h4", spec: "20px  1.3  -0.005em  500" },
+  { token: "body-l", cls: "text-body-l", spec: "19px  1.6  0  400" },
+  { token: "body", cls: "text-body", spec: "16px  1.65  0  400" },
+  { token: "small", cls: "text-small", spec: "14px  1.5  0  400" },
 ];
 
-const spacing = [
-  { token: "1", px: 8 }, { token: "2", px: 16 }, { token: "3", px: 24 }, { token: "4", px: 40 },
-  { token: "5", px: 64 }, { token: "6", px: 96 }, { token: "7", px: 160 },
-];
+const spacing = [8, 16, 24, 40, 64, 96, 160];
 
 const radii = [
   { token: "none", cls: "rounded-none", use: "rules, dividers, table cells, data blocks" },
@@ -57,49 +49,55 @@ const radii = [
   { token: "full", cls: "rounded-full", use: "status dot and pill filters only" },
 ];
 
-const btn = "inline-flex items-center justify-center whitespace-nowrap h-[40px] px-3 rounded-sm font-medium text-body leading-none transition-colors dur-fast ease-out disabled:opacity-50 disabled:cursor-not-allowed";
-const btnPrimary = `${btn} bg-lime text-ink hover:bg-olive-400`;
-const btnSecondaryLight = `${btn} bg-transparent text-ink border border-ink hover:bg-ink hover:text-bone`;
-const btnSecondaryDark = `${btn} bg-transparent text-bone border border-olive-600 hover:bg-olive-800 hover:border-lime`;
-const btnGhostLight = `${btn} bg-transparent text-ash hover:text-ink px-2`;
-const btnGhostDark = `${btn} bg-transparent text-sage hover:text-lime px-2`;
-const btnDestructive = `${btn} bg-status-error text-white hover:bg-status-error-hover`;
+const indexItems = [
+  { href: "#colour", label: "colour" },
+  { href: "#type", label: "type" },
+  { href: "#space", label: "space and radius" },
+  { href: "#buttons", label: "buttons" },
+  { href: "#forms", label: "forms" },
+  { href: "#data", label: "data and status" },
+  { href: "#structure", label: "structure" },
+  { href: "#media", label: "media" },
+  { href: "#motion", label: "motion" },
+];
 
-const input = "block w-full h-[40px] px-2 rounded-sm bg-paper text-ink border border-divider-light placeholder:text-ash transition-colors dur-fast hover:border-ash disabled:opacity-50 disabled:cursor-not-allowed";
-const inputError = `${input} border-status-error`;
-const label = "block text-small text-ash mb-1";
-
-function Section({ marker, title, children }: { marker: string; title: string; children: React.ReactNode }) {
+function Block({ id, marker, title, children, tone = "bone" as const }: { id: string; marker: string; title: string; children: React.ReactNode; tone?: "bone" | "paper" | "dark" }) {
+  const surface = tone === "dark" ? "dark" : "light";
   return (
-    <section className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-3 py-5 border-t border-divider-light">
-      <div>
-        <p className="font-medium text-ash md:sticky md:top-3">{marker}</p>
-      </div>
-      <div>
+    <Section id={id} tone={tone} pad="base" className={tone === "bone" ? "border-t border-divider-light" : undefined}>
+      <Spine sticky={false} rail={<SectionMarker surface={surface}>{marker}</SectionMarker>}>
         <h2 className="mb-3">{title}</h2>
         {children}
-      </div>
-    </section>
+      </Spine>
+    </Section>
   );
 }
 
 export default function StyleguidePage() {
   return (
-    <main id="main" className="px-3 md:px-[48px] max-w-layout mx-auto">
-      <header className="py-5">
-        <p className="data text-ash">styleguide</p>
-        <h1 className="mt-2">Every token, in one place.</h1>
-        <p className="mt-3 text-body-l text-ash">
-          Two families, ten colours, three radii, seven spacing steps, three durations. Everything on the site is built from what is on this page.
-        </p>
-      </header>
+    <main id="main">
+      <style>{`.sg-focus{outline:2px solid var(--color-cobalt);outline-offset:2px}.on-dark .sg-focus{outline-color:var(--color-lime)}`}</style>
 
-      <Section marker="colour" title="Palette">
-        <ul className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      <Section as="header" pad="tall" className="pb-4">
+        <Spine
+          rail={
+            <SpineIndex items={indexItems.map((i, n) => ({ ...i, active: n === 0 }))} />
+          }
+        >
+          <SectionMarker>styleguide</SectionMarker>
+          <h1 className="mt-2">Every token, in one place.</h1>
+          <p className="mt-3 text-body-l text-ash">
+            Two families, ten colours, three radii, seven spacing steps, three durations. Thirteen primitives. Everything on the site is built from what is on this page.
+          </p>
+        </Spine>
+      </Section>
+
+      <Block id="colour" marker="colour" title="Palette">
+        <ul className="grid grid-cols-2 md:grid-cols-4 gap-2 list-none p-0 m-0">
           {swatches.map((s) => (
             <li key={s.name} className={`${s.cls} rounded-lg p-2 border border-divider-light`}>
-              <p className={`font-medium ${s.onDark ? "text-bone" : "text-ink"}`}>{s.name}</p>
-              <p className={`data ${s.onDark ? "text-sage" : "text-ash"}`}>{s.hex}</p>
+              <p className={`font-medium max-w-none ${s.onDark ? "text-bone" : "text-ink"}`}>{s.name}</p>
+              <p className={`data max-w-none ${s.onDark ? "text-sage" : "text-ash"}`}>{s.hex}</p>
             </li>
           ))}
         </ul>
@@ -107,183 +105,305 @@ export default function StyleguidePage() {
           <div className="rounded-lg p-3 bg-paper border border-divider-light">
             <p className="text-small text-ash">Light surface</p>
             <p className="mt-1">Ink for headings and body. <span className="text-ash">Ash for secondary text.</span> <a href="#colour">Cobalt for links.</a></p>
-            <p className="mt-2 inline-flex items-center gap-1"><span className="status-dot" aria-hidden="true" /> Lime only as a dot or a fill with ink on top.</p>
+            <p className="mt-2"><StatusDot status="live" label="Lime only as a dot, or a fill with ink on top." /></p>
           </div>
-          <div className="section-dark rounded-lg p-3 border border-olive-600">
+          <div className="section-dark on-dark rounded-lg p-3 border border-olive-600">
             <p className="text-small muted">Dark surface</p>
             <p className="mt-1 text-bone">Bone for headings. <span className="muted">Sage for secondary text.</span> <span className="accent">Lime as text is fine here, 14.3:1.</span></p>
-            <p className="mt-2 inline-flex items-center gap-1 text-bone"><span className="status-dot" aria-hidden="true" /> Same dot, same size.</p>
+            <p className="mt-2"><StatusDot status="live" label="Same dot, same size." surface="dark" /></p>
           </div>
         </div>
-        <div className="mt-3">
-          <p className="text-small text-ash mb-1">Signature gradient, 135°. Logo and one decorative mark per page, never behind text.</p>
-          <div className="h-4 rounded-lg" style={{ background: "var(--gradient-signature)" }} aria-hidden="true" />
-        </div>
-      </Section>
+        <p className="mt-3 text-small text-ash">Signature gradient, 135°. Logo and one decorative mark per page. Never behind text.</p>
+        <div className="mt-1 h-4 rounded-lg" style={{ background: "var(--gradient-signature)" }} aria-hidden="true" />
+      </Block>
 
-      <Section marker="status" title="Status">
-        <ul className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {statuses.map((s) => (
-            <li key={s.name} className="flex items-center gap-1 bg-paper border border-divider-light rounded-sm px-2 h-[40px]">
-              <span className={`${s.cls} rounded-full`} style={{ width: 8, height: 8 }} aria-hidden="true" />
-              <span className="text-small">{s.label}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-2 text-small text-ash">Status is never communicated by colour alone. The label is always present.</p>
-      </Section>
-
-      <Section marker="type" title="Type scale">
-        <ul className="flex flex-col gap-3">
+      <Block id="type" marker="type" title="Type scale">
+        <ul className="flex flex-col list-none p-0 m-0">
           {typeScale.map((t) => (
-            <li key={t.token} className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-1 md:gap-3 items-baseline border-b border-divider-light pb-2">
-              <p className="data text-ash">{t.token}<br />{t.spec}</p>
+            <li key={t.token} className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-1 lg:gap-3 items-baseline border-b border-divider-light py-2">
+              <p className="data text-ash max-w-none">{t.token}<br />{t.spec}</p>
               <p className={`${t.cls} max-w-none`}>Scoped in a week, shipped by week ten.</p>
             </li>
           ))}
-          <li className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-1 md:gap-3 items-baseline border-b border-divider-light pb-2">
-            <p className="data text-ash">mono<br />13px / 1.45 / 0.01em / 400</p>
-            <p className="data max-w-none">nexus-crm &nbsp; react &nbsp; postgres &nbsp; $12k – 18k &nbsp; 9 wk &nbsp; 2025-06-01</p>
+          <li className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-1 lg:gap-3 items-baseline border-b border-divider-light py-2">
+            <p className="data text-ash max-w-none">mono<br />13px  1.45  0.01em  400</p>
+            <DataLine items={[{ value: "nexus-crm" }, { value: "$12k – 18k" }, { value: "9 wk" }, { value: "2025-06-01" }]} />
           </li>
-          <li className="grid grid-cols-1 md:grid-cols-[180px_1fr] gap-1 md:gap-3 items-baseline pb-2">
-            <p className="data text-ash">mono-s<br />11px / 1.4 / 0.02em / 500</p>
-            <p className="font-mono text-mono-s max-w-none">v1.4.2 &nbsp; 2026-09-12T17:44Z &nbsp; cuid_kx8...</p>
+          <li className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-1 lg:gap-3 items-baseline py-2">
+            <p className="data text-ash max-w-none">mono-s<br />11px  1.4  0.02em  500</p>
+            <p className="font-mono text-mono-s max-w-none">v1.4.2  2026-09-12T17:44Z  cuid_kx8</p>
           </li>
         </ul>
         <p className="mt-3 text-small text-ash">Satoshi for everything a person reads. JetBrains Mono only where the content is genuinely data. Sentence case everywhere.</p>
-      </Section>
+      </Block>
 
-      <Section marker="space" title="Spacing">
-        <ul className="flex flex-col gap-1">
-          {spacing.map((s) => (
-            <li key={s.token} className="flex items-center gap-2">
-              <span className="data text-ash w-[80px]">{s.token} = {s.px}px</span>
-              <span className="bg-olive-400 h-1" style={{ width: s.px }} aria-hidden="true" />
+      <Block id="space" marker="space" title="Spacing and radius">
+        <ul className="flex flex-col gap-1 list-none p-0 m-0">
+          {spacing.map((px, i) => (
+            <li key={px} className="flex items-center gap-2">
+              <span className="data text-ash w-[96px]">{i + 1} = {px}px</span>
+              <span className="bg-olive-400 h-1" style={{ width: px }} aria-hidden="true" />
             </li>
           ))}
         </ul>
         <p className="mt-2 text-small text-ash">8px base. The default Tailwind multiplier is disabled: only these seven values exist as utilities.</p>
-      </Section>
-
-      <Section marker="radius" title="Radius">
-        <ul className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <ul className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 list-none p-0 m-0">
           {radii.map((r) => (
             <li key={r.token}>
               <div className={`${r.cls} bg-paper border border-divider-light h-4`} aria-hidden="true" />
-              <p className="data mt-1">{r.token}</p>
-              <p className="text-small text-ash">{r.use}</p>
+              <p className="data mt-1 max-w-none">{r.token}</p>
+              <p className="text-small text-ash max-w-none">{r.use}</p>
             </li>
           ))}
         </ul>
-      </Section>
+      </Block>
 
-      <Section marker="buttons" title="Buttons">
+      <Block id="buttons" marker="buttons" title="Button">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div className="bg-bone border border-divider-light rounded-lg p-3 flex flex-col gap-2 items-start">
-            <p className="text-small text-ash">On light</p>
+          <div className="bg-bone border border-divider-light rounded-lg p-3 flex flex-col gap-2">
+            <p className="text-small text-ash">On light. Rows: default, focus-visible, disabled, pending, small.</p>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className={btnPrimary}>Start a project</button>
-              <button type="button" className={btnSecondaryLight}>See the work</button>
-              <button type="button" className={btnGhostLight}>Cancel</button>
-              <button type="button" className={btnDestructive}>Delete project</button>
+              <Button>Start a project</Button>
+              <Button variant="secondary">See the work</Button>
+              <Button variant="ghost">Cancel</Button>
+              <Button variant="destructive">Delete project</Button>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className={btnPrimary} disabled>Start a project</button>
-              <button type="button" className={btnSecondaryLight} disabled>See the work</button>
-              <button type="button" className={btnGhostLight} disabled>Cancel</button>
-              <button type="button" className={btnDestructive} disabled>Delete project</button>
+              <Button className="sg-focus">Start a project</Button>
+              <Button variant="secondary" className="sg-focus">See the work</Button>
+              <Button variant="ghost" className="sg-focus">Cancel</Button>
+              <Button variant="destructive" className="sg-focus">Delete project</Button>
             </div>
-            <p className="text-small text-ash">Row two is disabled. Tab through for the cobalt focus ring. Hover for the state change.</p>
+            <div className="flex flex-wrap gap-2">
+              <Button disabled>Start a project</Button>
+              <Button variant="secondary" disabled>See the work</Button>
+              <Button variant="ghost" disabled>Cancel</Button>
+              <Button variant="destructive" disabled>Delete project</Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button pending>Send enquiry</Button>
+              <Button variant="secondary" href="/styleguide#buttons">A link, as a button</Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm">Publish</Button>
+              <Button size="sm" variant="secondary">Unpublish</Button>
+              <Button size="sm" variant="ghost">Discard changes</Button>
+              <Button size="sm" variant="destructive">Delete</Button>
+            </div>
           </div>
-          <div className="section-dark rounded-lg p-3 flex flex-col gap-2 items-start">
-            <p className="text-small muted">On dark</p>
+          <div className="section-dark on-dark rounded-lg p-3 flex flex-col gap-2">
+            <p className="text-small muted">On dark. Same rows. Focus ring is lime.</p>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className={btnPrimary}>Send enquiry</button>
-              <button type="button" className={btnSecondaryDark}>All work</button>
-              <button type="button" className={btnGhostDark}>Cancel</button>
+              <Button surface="dark">Send enquiry</Button>
+              <Button surface="dark" variant="secondary">All work</Button>
+              <Button surface="dark" variant="ghost">Cancel</Button>
+              <Button surface="dark" variant="destructive">Delete</Button>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button type="button" className={btnPrimary} disabled>Send enquiry</button>
-              <button type="button" className={btnSecondaryDark} disabled>All work</button>
-              <button type="button" className={btnGhostDark} disabled>Cancel</button>
+              <Button surface="dark" className="sg-focus">Send enquiry</Button>
+              <Button surface="dark" variant="secondary" className="sg-focus">All work</Button>
+              <Button surface="dark" variant="ghost" className="sg-focus">Cancel</Button>
+              <Button surface="dark" variant="destructive" className="sg-focus">Delete</Button>
             </div>
-            <p className="text-small muted">Focus ring is lime on dark surfaces.</p>
+            <div className="flex flex-wrap gap-2">
+              <Button surface="dark" disabled>Send enquiry</Button>
+              <Button surface="dark" variant="secondary" disabled>All work</Button>
+              <Button surface="dark" variant="ghost" disabled>Cancel</Button>
+              <Button surface="dark" variant="destructive" disabled>Delete</Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button surface="dark" pending>Send enquiry</Button>
+              <Button surface="dark" variant="secondary" href="/work">All work</Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button surface="dark" size="sm">Publish</Button>
+              <Button surface="dark" size="sm" variant="secondary">Unpublish</Button>
+              <Button surface="dark" size="sm" variant="ghost">Discard changes</Button>
+            </div>
           </div>
         </div>
-      </Section>
+      </Block>
 
-      <Section marker="forms" title="Form states">
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-[720px]" onSubmit={undefined}>
-          <div>
-            <label htmlFor="sg-name" className={label}>Name</label>
-            <input id="sg-name" className={input} placeholder="Default" />
-          </div>
-          <div>
-            <label htmlFor="sg-email" className={label}>Email</label>
-            <input id="sg-email" className={inputError} defaultValue="not-an-email" aria-invalid="true" aria-describedby="sg-email-err" />
-            <p id="sg-email-err" className="mt-1 text-small text-status-error">Enter an email address we can reply to.</p>
-          </div>
-          <div>
-            <label htmlFor="sg-budget" className={label}>Budget</label>
-            <select id="sg-budget" className={input} defaultValue="">
-              <option value="" disabled>Choose a band</option>
-              <option>Under $5k</option>
-              <option>$5k – $10k</option>
-              <option>$10k – $20k</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="sg-disabled" className={label}>Disabled</label>
-            <input id="sg-disabled" className={input} disabled value="Read only" readOnly />
-          </div>
-          <div className="md:col-span-2">
-            <label htmlFor="sg-message" className={label}>What you&rsquo;re building</label>
-            <textarea id="sg-message" className={`${input} h-auto py-1 min-h-[120px]`} placeholder="A few lines is enough." />
-          </div>
-          <div className="md:col-span-2 flex items-center gap-2">
-            <button type="button" className={btnPrimary}>Send enquiry</button>
-            <span className="text-small text-ash">Inputs are paper on bone, 4px radius, hairline border. Labels are labels, never placeholders.</span>
-          </div>
-        </form>
-      </Section>
+      <Block id="forms" marker="forms" title="Input, Select, Textarea, Field">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <form className="flex flex-col gap-3" aria-label="Light form states">
+            <p className="text-small text-ash max-w-none">On light. Default, focus-visible, error, help, disabled.</p>
+            <Field id="l-name" label="Name">
+              <Input placeholder="Default" />
+            </Field>
+            <Field id="l-focus" label="Company">
+              <Input defaultValue="Tarn Logistics" className="sg-focus" />
+            </Field>
+            <Field id="l-email" label="Email" error="Enter an email address we can reply to.">
+              <Input type="email" defaultValue="not-an-email" />
+            </Field>
+            <Field id="l-budget" label="Budget" help="A band is enough. It sets the size of the first conversation.">
+              <Select defaultValue="">
+                <option value="" disabled>Choose a band</option>
+                <option>Under $5k</option>
+                <option>$5k – $10k</option>
+                <option>$10k – $20k</option>
+                <option>$20k – $50k</option>
+              </Select>
+            </Field>
+            <Field id="l-disabled" label="Reference">
+              <Input value="CL-2026-041" readOnly disabled />
+            </Field>
+            <Field id="l-message" label="What you’re building">
+              <Textarea placeholder="A few lines is enough." />
+            </Field>
+            <div className="flex items-center gap-2">
+              <Button type="submit">Send enquiry</Button>
+              <Button type="button" variant="ghost">Cancel</Button>
+            </div>
+          </form>
+          <form className="section-dark on-dark rounded-lg p-3 flex flex-col gap-3" aria-label="Dark form states">
+            <p className="text-small muted max-w-none">On dark. Same states. Error text is the warn tone for contrast on olive.</p>
+            <Field id="d-name" label="Name" surface="dark">
+              <Input surface="dark" placeholder="Default" />
+            </Field>
+            <Field id="d-focus" label="Company" surface="dark">
+              <Input surface="dark" defaultValue="Tarn Logistics" className="sg-focus" />
+            </Field>
+            <Field id="d-email" label="Email" surface="dark" error="Enter an email address we can reply to.">
+              <Input surface="dark" type="email" defaultValue="not-an-email" />
+            </Field>
+            <Field id="d-timeline" label="Timeline" surface="dark" help="When you need it live, not when you want to start.">
+              <Select surface="dark" defaultValue="">
+                <option value="" disabled>Choose a band</option>
+                <option>This month</option>
+                <option>Next 1 – 3 months</option>
+                <option>3 – 6 months</option>
+              </Select>
+            </Field>
+            <Field id="d-disabled" label="Reference" surface="dark">
+              <Input surface="dark" value="CL-2026-041" readOnly disabled />
+            </Field>
+            <Field id="d-message" label="What you’re building" surface="dark">
+              <Textarea surface="dark" placeholder="A few lines is enough." />
+            </Field>
+            <div className="flex items-center gap-2">
+              <Button type="submit" surface="dark">Send enquiry</Button>
+              <Button type="button" surface="dark" variant="ghost">Cancel</Button>
+            </div>
+          </form>
+        </div>
+      </Block>
 
-      <Section marker="structure" title="Structural devices">
-        <ul className="flex flex-col border-t border-divider-light">
-          <li className="is-active grid grid-cols-[1fr_auto_auto] gap-3 items-baseline py-2 px-2 border-b border-divider-light bg-paper">
-            <span className="font-medium">Nexus CRM <span className="text-ash font-normal">Tarn Logistics</span></span>
-            <span className="data">$12k – 18k</span>
-            <span className="data">9 wk</span>
-          </li>
-          <li className="grid grid-cols-[1fr_auto_auto] gap-3 items-baseline py-2 px-2 border-b border-divider-light">
-            <span className="font-medium">Orbit Booking <span className="text-ash font-normal">Orbit Workspaces</span></span>
-            <span className="data">$6k – 9k</span>
-            <span className="data">5 wk</span>
-          </li>
-          <li className="grid grid-cols-[1fr_auto_auto] gap-3 items-baseline py-2 px-2 border-b border-divider-light">
-            <span className="font-medium">Meridian patient intake <span className="text-ash font-normal">Meridian Health</span></span>
-            <span className="data">$15k – 22k</span>
-            <span className="data">10 wk</span>
-          </li>
+      <Block id="data" marker="data" title="Tag, DataLine, StatusDot">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="bg-bone border border-divider-light rounded-lg p-3 flex flex-col gap-3">
+            <div>
+              <p className="text-small text-ash">Data tags. Mono, no separators.</p>
+              <TagList className="mt-1" items={["react", "next.js", "postgres", "aws", "typescript"]} />
+            </div>
+            <div>
+              <p className="text-small text-ash">Filter pills. Selected is the lime fill.</p>
+              <ul className="mt-1 flex flex-wrap gap-1 list-none p-0 m-0">
+                <li><Tag variant="filter" selected href="#data">All</Tag></li>
+                <li><Tag variant="filter" href="#data">Web application</Tag></li>
+                <li><Tag variant="filter" href="#data">Mobile app</Tag></li>
+                <li><Tag variant="filter" className="sg-focus" href="#data">Automation</Tag></li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-small text-ash">DataLine, row and stack.</p>
+              <DataLine className="mt-1" items={[{ label: "budget", value: "$12k – 18k" }, { label: "duration", value: "9 wk" }, { label: "team", value: "3" }, { label: "year", value: "2025" }]} />
+              <DataLine className="mt-3" direction="stack" items={[{ label: "client", value: "Tarn Logistics" }, { label: "budget", value: "$12k – 18k" }]} />
+            </div>
+            <div>
+              <p className="text-small text-ash">StatusDot. Always with a label.</p>
+              <ul className="mt-1 grid grid-cols-2 gap-1 list-none p-0 m-0">
+                <li><StatusDot status="live" label="Live" /></li>
+                <li><StatusDot status="progress" label="In progress" /></li>
+                <li><StatusDot status="draft" label="Draft" /></li>
+                <li><StatusDot status="info" label="Info" /></li>
+                <li><StatusDot status="warn" label="Warning" /></li>
+                <li><StatusDot status="error" label="Error" /></li>
+              </ul>
+            </div>
+          </div>
+          <div className="section-dark on-dark rounded-lg p-3 flex flex-col gap-3">
+            <div>
+              <p className="text-small muted">Data tags on dark.</p>
+              <TagList className="mt-1" surface="dark" items={["react", "next.js", "postgres", "aws", "typescript"]} />
+            </div>
+            <div>
+              <p className="text-small muted">Filter pills on dark.</p>
+              <ul className="mt-1 flex flex-wrap gap-1 list-none p-0 m-0">
+                <li><Tag variant="filter" surface="dark" selected href="#data">All</Tag></li>
+                <li><Tag variant="filter" surface="dark" href="#data">Web application</Tag></li>
+                <li><Tag variant="filter" surface="dark" href="#data">Mobile app</Tag></li>
+                <li><Tag variant="filter" surface="dark" className="sg-focus" href="#data">Automation</Tag></li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-small muted">DataLine on dark.</p>
+              <DataLine className="mt-1" surface="dark" items={[{ label: "budget", value: "$12k – 18k" }, { label: "duration", value: "9 wk" }, { label: "team", value: "3" }, { label: "year", value: "2025" }]} />
+            </div>
+            <div>
+              <p className="text-small muted">StatusDot on dark.</p>
+              <ul className="mt-1 grid grid-cols-2 gap-1 list-none p-0 m-0">
+                <li><StatusDot surface="dark" status="live" label="Live" /></li>
+                <li><StatusDot surface="dark" status="progress" label="In progress" /></li>
+                <li><StatusDot surface="dark" status="draft" label="Draft" /></li>
+                <li><StatusDot surface="dark" status="info" label="Info" /></li>
+                <li><StatusDot surface="dark" status="warn" label="Warning" /></li>
+                <li><StatusDot surface="dark" status="error" label="Error" /></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Block>
+
+      <Block id="structure" marker="structure" title="Spine, SectionMarker, Divider, the sheet" tone="dark">
+        <p className="text-small muted max-w-none mb-3">This block is a dark section. The rail on the left is the Spine with a SectionMarker. Below: index rows on dark with the lime cursor on the active row, then the metrics sheet.</p>
+        <ul className="list-none p-0 m-0 border-t border-olive-600">
+          {[
+            { t: "Nexus CRM", c: "Tarn Logistics", b: "$12k – 18k", d: "9 wk", active: true },
+            { t: "Orbit Booking", c: "Orbit Workspaces", b: "$6k – 9k", d: "5 wk", active: false },
+            { t: "Meridian patient intake", c: "Meridian Health", b: "$15k – 22k", d: "10 wk", active: false },
+          ].map((r) => (
+            <li key={r.t} className={`flex flex-wrap gap-x-3 gap-y-0 items-baseline py-2 px-2 border-b border-olive-600 ${r.active ? "is-active bg-olive-800" : ""}`}>
+              <span className="font-medium text-bone basis-full md:basis-auto md:flex-1">{r.t} <span className="muted font-normal">{r.c}</span></span>
+              <span className="data text-bone">{r.b}</span>
+              <span className="data text-bone">{r.d}</span>
+            </li>
+          ))}
         </ul>
-        <p className="mt-2 text-small text-ash">The 2px lime left rule is the cursor: active, current, selected. Hairlines separate items in a sequence. Numbers are tabular.</p>
-        <div className="mt-3 grid grid-cols-1 md:grid-cols-3 border border-divider-light">
-          <div className="p-2 border-b md:border-b-0 md:border-r border-divider-light"><p className="data text-h3 font-mono">40%</p><p className="text-small text-ash">faster quote turnaround</p></div>
-          <div className="p-2 border-b md:border-b-0 md:border-r border-divider-light"><p className="data text-h3 font-mono">3.2s to 0.4s</p><p className="text-small text-ash">dashboard load</p></div>
-          <div className="p-2"><p className="data text-h3 font-mono">0</p><p className="text-small text-ash">P1 bugs in 90 days</p></div>
+        <p className="mt-2 text-small muted max-w-none">The 2px lime left rule is the cursor: active, current, selected. Hairlines separate items in a sequence. Numbers are tabular.</p>
+        <Divider surface="dark" className="my-3" />
+        <div className="grid grid-cols-1 md:grid-cols-3 border border-olive-600">
+          <div className="p-2 border-b md:border-b-0 md:border-r border-olive-600"><p className="font-mono text-h3 text-bone max-w-none">40%</p><p className="text-small muted max-w-none">faster quote turnaround</p></div>
+          <div className="p-2 border-b md:border-b-0 md:border-r border-olive-600"><p className="font-mono text-h3 text-bone max-w-none">3.2s to 0.4s</p><p className="text-small muted max-w-none">dashboard load</p></div>
+          <div className="p-2"><p className="font-mono text-h3 text-bone max-w-none">0</p><p className="text-small muted max-w-none">P1 bugs in 90 days</p></div>
         </div>
-        <p className="mt-2 text-small text-ash">The sheet: shared hairlines, zero gap, zero radius. Used for metrics and the capability grid.</p>
-      </Section>
+        <p className="mt-2 text-small muted max-w-none">The sheet: shared hairlines, zero gap, zero radius. Used for metrics and the capability grid.</p>
+      </Block>
 
-      <Section marker="motion" title="Motion">
-        <ul className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          <li className="bg-paper border border-divider-light rounded-lg p-2"><p className="data">dur-fast 120ms</p><p className="text-small text-ash">hover, focus, colour shifts</p></li>
-          <li className="bg-paper border border-divider-light rounded-lg p-2"><p className="data">dur-base 240ms</p><p className="text-small text-ash">expand, collapse, tab change</p></li>
-          <li className="bg-paper border border-divider-light rounded-lg p-2"><p className="data">dur-slow 560ms</p><p className="text-small text-ash">page transitions, hero reveal</p></li>
+      <Block id="media" marker="media" title="MediaFrame">
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-2">
+          <MediaFrame ratio={16 / 10}>
+            <img src="/brand/lockup-ink.png" alt="Caparison Lab stacked lockup, used here as a placeholder image" width={1000} height={1000} />
+          </MediaFrame>
+          <div className="flex flex-col gap-2">
+            <MediaFrame ratio={1}>
+              <img src="/brand/icon.png" alt="Caparison Lab hex mark" width={1000} height={1000} />
+            </MediaFrame>
+            <MediaFrame ratio={16 / 10} />
+          </div>
+        </div>
+        <p className="mt-2 text-small text-ash">Fixed aspect ratio so nothing shifts. 12px radius, one background step, hairline border. The empty frame is the loading state.</p>
+      </Block>
+
+      <Block id="motion" marker="motion" title="Motion" tone="paper">
+        <ul className="grid grid-cols-1 md:grid-cols-3 gap-2 list-none p-0 m-0">
+          <li className="bg-bone border border-divider-light rounded-lg p-2"><p className="data max-w-none">dur-fast 120ms</p><p className="text-small text-ash max-w-none">hover, focus, colour shifts</p></li>
+          <li className="bg-bone border border-divider-light rounded-lg p-2"><p className="data max-w-none">dur-base 240ms</p><p className="text-small text-ash max-w-none">expand, collapse, tab change</p></li>
+          <li className="bg-bone border border-divider-light rounded-lg p-2"><p className="data max-w-none">dur-slow 560ms</p><p className="text-small text-ash max-w-none">page transitions, hero reveal</p></li>
         </ul>
         <p className="mt-2 text-small text-ash">ease-out cubic-bezier(0.16, 1, 0.3, 1) for entrances. ease-in-out cubic-bezier(0.65, 0, 0.35, 1) for moves. Reduced motion removes every transform and opacity animation.</p>
-      </Section>
-
-      <div className="py-5 border-t border-divider-light" />
+      </Block>
     </main>
   );
 }
