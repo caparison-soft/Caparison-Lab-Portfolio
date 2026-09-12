@@ -1,0 +1,400 @@
+// Caparison Lab — data model.
+// Connection URLs live in prisma.config.ts (Prisma 7).
+// RLS is enabled with deny-all on every table in the migration SQL;
+// Prisma connects as the table owner, which bypasses RLS.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------- enums
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum ContentType {
+  TEXT
+  RICHTEXT
+  IMAGE
+  URL
+  NUMBER
+}
+
+enum Availability {
+  AVAILABLE
+  LIMITED
+  BOOKED
+}
+
+enum VideoProvider {
+  R2
+  YOUTUBE
+  VIMEO
+}
+
+enum DurationUnit {
+  DAYS
+  WEEKS
+  MONTHS
+}
+
+enum CtaMode {
+  ENQUIRY
+  EXTERNAL
+  NONE
+}
+
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum TagKind {
+  STACK
+  INDUSTRY
+  SERVICE
+}
+
+enum InquiryStatus {
+  NEW
+  READ
+  REPLIED
+  QUALIFIED
+  WON
+  LOST
+}
+
+// ---------------------------------------------------------------- auth
+
+/// Mirrors auth.users. Created by the on_auth_user_created trigger.
+/// The FK to auth.users(id) on delete cascade is added in migration SQL.
+model Profile {
+  id        String   @id @db.Uuid
+  email     String   @unique
+  name      String?
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+
+  auditLogs AuditLog[]
+}
+
+// ---------------------------------------------------------------- content
+
+/// Every string on the public site. Fetched by group, cached per key.
+model ContentBlock {
+  id               String      @id @default(cuid())
+  key              String      @unique
+  label            String
+  group            String
+  type             ContentType @default(TEXT)
+  value            String?
+  richValue        Json?
+  defaultValue     String?
+  defaultRichValue Json?
+  helpText         String?
+  order            Int         @default(0)
+  updatedAt        DateTime    @updatedAt
+
+  @@index([group, order])
+}
+
+/// Singleton row, id = "default".
+model SiteSettings {
+  id                 String       @id @default("default")
+  siteName           String
+  logoVariant        String       @default("wordmark")
+  email              String
+  phone              String?
+  whatsapp           String?
+  location           String?
+  availabilityStatus Availability @default(AVAILABLE)
+  availabilityNote   String?
+  bookingUrl         String?
+  socials            Json?
+  metaTitle          String?
+  metaDescription    String?
+  ogImageUrl         String?
+  faviconUrl         String?
+  gaId               String?
+  analyticsEnabled   Boolean      @default(false)
+  maintenanceMode    Boolean      @default(false)
+  updatedAt          DateTime     @updatedAt
+}
+
+// ---------------------------------------------------------------- work
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  order       Int       @default(0)
+  projects    Project[]
+
+  @@index([order])
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String
+  slug     String       @unique
+  kind     TagKind      @default(STACK)
+  order    Int          @default(0)
+  projects ProjectTag[]
+
+  @@index([kind, order])
+}
+
+model Project {
+  id              String        @id @default(cuid())
+  title           String
+  slug            String        @unique
+  summary         String        @db.VarChar(160)
+  body            Json?
+  coverImageId    String?       @unique
+  videoUrl        String?
+  videoProvider   VideoProvider @default(R2)
+  categoryId      String?
+  clientName      String?
+  clientLogoUrl   String?
+  year            Int?
+  budgetMin       Int?
+  budgetMax       Int?
+  budgetCurrency  String        @default("USD")
+  budgetDisplay   String?
+  durationValue   Int?
+  durationUnit    DurationUnit  @default(WEEKS)
+  durationDisplay String?
+  teamSize        Int?
+  liveUrl         String?
+  repoUrl         String?
+  ctaMode         CtaMode       @default(ENQUIRY)
+  ctaLabel        String?
+  ctaHref         String?
+  ctaNote         String?
+  status          ProjectStatus @default(DRAFT)
+  featured        Boolean       @default(false)
+  /// Shown in the homepage "currently building" strip regardless of status.
+  currentlyBuilding Boolean     @default(false)
+  /// Progress note for the strip, e.g. "wk 4 of 7".
+  buildNote       String?
+  order           Int           @default(0)
+  metaTitle       String?
+  metaDescription String?
+  ogImageUrl      String?
+  publishedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+
+  category     Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  cover        Media?          @relation("ProjectCover", fields: [coverImageId], references: [id], onDelete: SetNull)
+  media        Media[]         @relation("ProjectMedia")
+  tags         ProjectTag[]
+  metrics      ProjectMetric[]
+  testimonials Testimonial[]
+  inquiries    Inquiry[]
+
+  @@index([status])
+  @@index([order])
+  @@index([featured, status])
+  @@index([categoryId])
+  @@index([deletedAt])
+}
+
+model ProjectTag {
+  projectId String
+  tagId     String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, tagId])
+  @@index([tagId])
+}
+
+/// The "40% faster" blocks on a case page.
+model ProjectMetric {
+  id        String  @id @default(cuid())
+  projectId String
+  label     String
+  value     String
+  note      String?
+  order     Int     @default(0)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, order])
+}
+
+/// Files live in R2. keyPrefix is the object folder; URLs are derived at
+/// read time from NEXT_PUBLIC_CDN_URL. variants = { w400, w800, w1200, w1920 }.
+model Media {
+  id          String    @id @default(cuid())
+  keyPrefix   String    @unique
+  type        MediaType
+  variants    Json?
+  posterKey   String?
+  alt         String?
+  caption     String?
+  width       Int?
+  height      Int?
+  durationSec Int?
+  sizeBytes   Int?
+  mimeType    String?
+  blurDataUrl String?
+  order       Int       @default(0)
+  projectId   String?
+  createdAt   DateTime  @default(now())
+
+  project      Project? @relation("ProjectMedia", fields: [projectId], references: [id], onDelete: SetNull)
+  coverOf      Project? @relation("ProjectCover")
+
+  @@index([projectId, order])
+  @@index([type])
+}
+
+// ---------------------------------------------------------------- studio
+
+model Capability {
+  id              String        @id @default(cuid())
+  title           String
+  slug            String        @unique
+  blurb           String
+  body            Json?
+  iconKey         String?
+  startingPrice   String?
+  typicalTimeline String?
+  deliverables    String[]      @default([])
+  /// Drives the unequal sheet: 1 = small, 2 = medium, 3 = large.
+  weight          Int           @default(1)
+  status          PublishStatus @default(DRAFT)
+  order           Int           @default(0)
+
+  @@index([status, order])
+}
+
+model ProcessStep {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  /// e.g. "week 1", "weeks 2–8". Shown in mono.
+  duration    String?
+  order       Int           @default(0)
+  status      PublishStatus @default(DRAFT)
+
+  @@index([status, order])
+}
+
+model Testimonial {
+  id             String        @id @default(cuid())
+  quote          String
+  authorName     String
+  authorRole     String?
+  company        String?
+  avatarUrl      String?
+  companyLogoUrl String?
+  projectId      String?
+  featured       Boolean       @default(false)
+  status         PublishStatus @default(DRAFT)
+  order          Int           @default(0)
+  deletedAt      DateTime?
+
+  project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([status, order])
+  @@index([deletedAt])
+}
+
+model Faq {
+  id       String        @id @default(cuid())
+  question String
+  answer   Json
+  group    String?
+  order    Int           @default(0)
+  status   PublishStatus @default(DRAFT)
+
+  @@index([status, order])
+}
+
+model TeamMember {
+  id        String        @id @default(cuid())
+  name      String
+  role      String
+  bio       String?
+  avatarUrl String?
+  socials   Json?
+  order     Int           @default(0)
+  status    PublishStatus @default(DRAFT)
+
+  @@index([status, order])
+}
+
+/// e.g. label "projects shipped", value "34".
+model Stat {
+  id     String        @id @default(cuid())
+  label  String
+  value  String
+  note   String?
+  order  Int           @default(0)
+  status PublishStatus @default(DRAFT)
+
+  @@index([status, order])
+}
+
+// ---------------------------------------------------------------- inbound
+
+model Inquiry {
+  id              String        @id @default(cuid())
+  name            String
+  email           String
+  company         String?
+  phone           String?
+  budgetBand      String?
+  timelineBand    String?
+  projectType     String?
+  message         String
+  sourceProjectId String?
+  sourcePath      String?
+  referrer        String?
+  status          InquiryStatus @default(NEW)
+  internalNotes   String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  sourceProject Project? @relation(fields: [sourceProjectId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?  @db.Uuid
+  action    String
+  entity    String
+  entityId  String?
+  diff      Json?
+  createdAt DateTime @default(now())
+
+  user Profile? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([entity, entityId])
+}
