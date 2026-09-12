@@ -57,6 +57,12 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   (layouts) and assertAdmin() (every server action) check Profile.role with
   Prisma. Middleware runs on the edge and cannot use Prisma.
 - Login is rate-limited from AuditLog (5 failures per 15 minutes per email or IP).
+- Admin CRUD: src/lib/admin/schemas.ts (Zod, shared), project-actions.ts and
+  entity-actions.ts (server actions: assertAdmin, validate, mutate, logAudit,
+  revalidateTag). Simple entities share EntityForm + SimpleCrud. Never nest a
+  <form> inside the project editor form (the delete dialog is a <div>).
+- @tanstack/react-table is pinned to v8; v9 has a different API.
+- Draft preview: /preview/[slug]?token=HMAC(slug) from src/lib/preview.ts.
 
 ## Voice
 Plain, specific, understated. Numbers over adjectives. Sentence case.

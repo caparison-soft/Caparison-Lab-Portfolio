@@ -95,6 +95,7 @@ export type MediaItem = {
 
 export type CaseStudy = {
   id: string;
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   slug: string;
   title: string;
   summary: string;
@@ -138,12 +139,11 @@ function toMedia(m: {
 
 const mediaSelect = { id: true, type: true, keyPrefix: true, posterKey: true, alt: true, caption: true, width: true, height: true, blurDataUrl: true, variants: true, order: true } as const;
 
-export const getCaseStudy = unstable_cache(
-  async (slug: string): Promise<CaseStudy | null> => {
+async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<CaseStudy | null> {
     const p = await prisma.project.findFirst({
-      where: { slug, status: "PUBLISHED", deletedAt: null },
+      where: { slug, deletedAt: null, ...(publishedOnly ? { status: "PUBLISHED" } : {}) },
       select: {
-        id: true, slug: true, title: true, summary: true, body: true, clientName: true, year: true,
+        id: true, status: true, slug: true, title: true, summary: true, body: true, clientName: true, year: true,
         budgetMin: true, budgetMax: true, budgetCurrency: true, budgetDisplay: true,
         durationValue: true, durationUnit: true, durationDisplay: true, teamSize: true,
         liveUrl: true, videoUrl: true, videoProvider: true,
@@ -181,10 +181,14 @@ export const getCaseStudy = unstable_cache(
       media: media.filter((m) => m.id !== cover?.id).map(toMedia),
       next,
     };
-  },
-  ["case-study"],
-  { tags: [CACHE_TAGS.projects] },
-);
+}
+
+export const getCaseStudy = unstable_cache(async (slug: string) => loadCaseStudy(slug, true), ["case-study"], { tags: [CACHE_TAGS.projects] });
+
+/** Uncached, any status. Only reachable through a signed preview link. */
+export async function getCaseStudyPreview(slug: string): Promise<CaseStudy | null> {
+  return loadCaseStudy(slug, false);
+}
 
 export const getPublishedSlugs = unstable_cache(
   async (): Promise<string[]> =>

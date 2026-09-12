@@ -376,3 +376,17 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* Tiptap editor content: mirrors the public RichText renderer. */
+.editor-prose p { max-width: none; margin: 0 0 8px; }
+.editor-prose h2 { font-size: 1rem; font-weight: 500; color: var(--color-ash); letter-spacing: 0; border-top: 1px solid var(--divider-light); padding-top: 8px; margin: 24px 0 8px; }
+.editor-prose h3 { font-size: 1.25rem; font-weight: 500; letter-spacing: -0.005em; margin: 16px 0 8px; }
+.editor-prose ul, .editor-prose ol { padding-left: 20px; margin: 0 0 8px; }
+.editor-prose ul { list-style: disc; }
+.editor-prose ol { list-style: decimal; }
+.editor-prose blockquote { border-left: 2px solid var(--color-lime); padding-left: 16px; margin: 8px 0; font-size: 1.1875rem; }
+.editor-prose pre { font-family: var(--font-mono); font-size: 0.8125rem; background: var(--color-olive-950); color: var(--color-bone); padding: 16px; border-radius: 4px; margin: 8px 0; }
+.editor-prose aside[data-callout] { background: var(--color-bone); border: 1px solid var(--divider-light); border-radius: 12px; padding: 16px; margin: 8px 0; }
+.editor-prose img { max-width: 100%; border-radius: 12px; }
+.editor-prose a { color: var(--color-cobalt); }
+.editor-prose p.is-editor-empty:first-child::before { content: "Write the case study."; color: var(--color-ash); float: left; height: 0; pointer-events: none; }
