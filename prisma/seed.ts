@@ -39,7 +39,7 @@ const blocks: Block[] = [
   { key: "nav.menuClose", group: "Navigation", label: "Mobile menu close label", value: "Close" },
 
   // Homepage
-  { key: "home.hero.headline", group: "Homepage", label: "Hero headline", value: "Scoped in a week.\nPriced up front.\nShipped by week ten.", helpText: "One line per sentence. Line breaks are kept. Three lines maximum." },
+  { key: "home.hero.headline", group: "Homepage", label: "Hero headline", value: "Scoped in a week.\nPriced up front.\nLive by week ten.", helpText: "One line per sentence. Line breaks are kept. Three lines maximum." },
   { key: "home.hero.sub", group: "Homepage", label: "Hero sub", value: "Caparison Lab builds web and mobile apps for teams in Bangladesh and the Gulf. Every project on this site lists what it cost and how long it took." },
   { key: "home.hero.ctaPrimary", group: "Homepage", label: "Hero primary button", value: "Start a project" },
   { key: "home.hero.ctaSecondary", group: "Homepage", label: "Hero secondary link", value: "See the work" },
