@@ -432,7 +432,11 @@ async function main() {
   // SEED_SAMPLES=false (production): copy, settings, taxonomy, capabilities and
   // process steps only. No sample projects, testimonials, stats, team, faqs or
   // enquiries; those are invented and must not go live.
-  const samples = process.env.SEED_SAMPLES !== "false";
+  // SEED_SAMPLES=projects: additionally the three featured sample projects, as
+  // placeholders the owner edits or unpublishes from the admin.
+  const mode = process.env.SEED_SAMPLES ?? "true";
+  const samples = mode !== "false";
+  const projectsOnly = mode === "projects";
 
   console.log("Seeding capabilities and process steps…");
   for (const c of capabilities) {
@@ -449,7 +453,7 @@ async function main() {
 
   console.log("Seeding projects…");
   const projectIds: Record<string, string> = {};
-  for (const pr of projects) {
+  for (const pr of projectsOnly ? projects.filter((p) => p.featured).slice(0, 3) : projects) {
     const data = {
       title: pr.title, summary: pr.summary, body: pr.body, categoryId: categoryIds[pr.category],
       clientName: pr.client, year: pr.year, budgetMin: pr.budgetMin, budgetMax: pr.budgetMax, budgetCurrency: "USD",
@@ -473,6 +477,12 @@ async function main() {
 
     await prisma.projectMetric.deleteMany({ where: { projectId: row.id } });
     await prisma.projectMetric.createMany({ data: pr.metrics.map((m, i) => ({ ...m, projectId: row.id, order: i })) });
+  }
+
+  if (projectsOnly) {
+    console.log("SEED_SAMPLES=projects: three featured placeholders seeded; no testimonials, stats, team, faqs or enquiries.");
+    console.log("Seeded:", { projects: await prisma.project.count() });
+    return;
   }
 
   console.log("Seeding testimonials, stats, team, faqs…");
