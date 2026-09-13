@@ -8,13 +8,13 @@ import { Button } from "@/components/ui";
 import { cx } from "@/lib/cx";
 
 /**
- * The notch: an ink tab hanging from the top edge of the page, with
+ * The notch: a bone tab hanging from the top edge of the page, with
  * inverted corners either side, holding the primary links. Two of them open a
  * panel that grows out of the tab (work: featured projects, capabilities: the
  * published capabilities). Under lg the same content is a sheet.
  *
  * Owner-supplied reference (a black notch on a white page); rebuilt with our
- * tokens and our copy. The panel is dark; the phone sheet stays a light surface. Icons are
+ * tokens and our copy. Panel and phone sheet are light surfaces. Icons are
  * inline SVG; motion is the site's animation library.
  */
 
@@ -45,7 +45,7 @@ function Chevron({ open, className }: { open: boolean; className?: string }) {
 /** Inverted corner: fills the outside of the tab's top edge so it looks cut from the bar. */
 function Corner({ side }: { side: "left" | "right" }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true" className={cx("pointer-events-none absolute top-0 z-10 text-ink", side === "left" ? "-left-[15px]" : "-right-[15px]")}>
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true" className={cx("pointer-events-none absolute top-0 z-10 text-bone", side === "left" ? "-left-[15px]" : "-right-[15px]")}>
       {side === "left"
         ? <path d="M 20 20 L 20 0 L 0 0 C 11.046 0 20 11.046 20 20 Z" fill="currentColor" />
         : <path d="M 0 0 L 20 0 C 8.954 0 0 8.954 0 20 Z" fill="currentColor" />}
@@ -57,24 +57,22 @@ function PanelBody({ id, projects, capabilities, labels, onNavigate, compact = f
   id: NavPanelId; projects: NotchProject[]; capabilities: NotchCapability[];
   labels: NavMenuProps["labels"]; onNavigate: () => void; compact?: boolean;
 }) {
-  const card = compact
-    ? "site-notch-card group block no-underline rounded-lg border border-divider-light bg-paper p-2 transition-colors dur-fast hover:border-ash"
-    : "site-notch-card group block no-underline rounded-lg border border-olive-600 bg-olive-950 p-2 transition-colors dur-fast hover:border-sage";
+  const card = "site-notch-card group block no-underline rounded-lg border border-divider-light bg-paper p-2 transition-colors dur-fast hover:border-ash";
   if (id === "work") {
     return (
       <div className={cx("grid gap-2", compact ? "grid-cols-1" : "grid-cols-2")}>
         {projects.map((p) => (
           <Link key={p.slug} href={`/work/${p.slug}`} className={card} onClick={onNavigate}>
-            <span className={cx("block text-body font-medium", compact ? "text-ink" : "text-bone")}>{p.title}</span>
-            {p.client ? <span className={cx("mt-0.5 block text-small", compact ? "text-ash" : "text-sage")}>{p.client}</span> : null}
+            <span className="block text-body font-medium text-ink">{p.title}</span>
+            {p.client ? <span className="mt-0.5 block text-small text-ash">{p.client}</span> : null}
             {p.meta.length ? (
-              <span className={cx("data mt-1 flex gap-2 text-small", compact ? "text-ash" : "text-sage")}>
+              <span className="data mt-1 flex gap-2 text-small text-ash">
                 {p.meta.map((m) => <span key={m}>{m}</span>)}
               </span>
             ) : null}
           </Link>
         ))}
-        <Link href="/work" className={cx(card, "flex items-center justify-between text-body font-medium", compact ? "text-ink" : "text-bone col-span-2")} onClick={onNavigate}>
+        <Link href="/work" className={cx(card, "flex items-center justify-between text-body font-medium text-ink", !compact && "col-span-2")} onClick={onNavigate}>
           {labels.workAll}
         </Link>
       </div>
@@ -84,11 +82,11 @@ function PanelBody({ id, projects, capabilities, labels, onNavigate, compact = f
     <div className={cx("grid gap-2", compact ? "grid-cols-1" : "grid-cols-2")}>
       {capabilities.map((c) => (
         <Link key={c.slug} href={`/capabilities#${c.slug}`} className={card} onClick={onNavigate}>
-          <span className={cx("block text-body font-medium", compact ? "text-ink" : "text-bone")}>{c.title}</span>
-          <span className={cx("mt-0.5 block text-small line-clamp-2", compact ? "text-ash" : "text-sage")}>{c.blurb}</span>
+          <span className="block text-body font-medium text-ink">{c.title}</span>
+          <span className="mt-0.5 block text-small text-ash line-clamp-2">{c.blurb}</span>
         </Link>
       ))}
-      <Link href="/capabilities" className={cx(card, "flex items-center justify-between text-body font-medium", compact ? "text-ink" : "text-bone col-span-2")} onClick={onNavigate}>
+      <Link href="/capabilities" className={cx(card, "flex items-center justify-between text-body font-medium text-ink", !compact && "col-span-2")} onClick={onNavigate}>
         {labels.capabilitiesAll}
       </Link>
     </div>
@@ -125,7 +123,7 @@ export function NavNotch(props: NavMenuProps) {
         animate={{ height: active ? "auto" : NOTCH_HEIGHT }}
         initial={false}
         transition={spring}
-        className="site-notch-tab on-dark relative flex w-full flex-col overflow-hidden bg-ink text-bone"
+        className="site-notch-tab relative flex w-full flex-col overflow-hidden bg-bone text-ink"
       >
         <nav aria-label="Primary" className="flex h-[48px] flex-none items-center justify-center px-3">
           <ul className="flex items-center gap-1 list-none m-0 p-0">
@@ -139,14 +137,14 @@ export function NavNotch(props: NavMenuProps) {
                     onClick={() => setActive(active === item.panel ? null : item.panel!)}
                     className={cx(
                       "inline-flex items-center gap-0.5 rounded-sm px-2 py-1 text-body font-medium transition-colors dur-fast",
-                      active === item.panel ? "bg-olive-950 text-bone" : "text-sage hover:text-bone",
+                      active === item.panel ? "bg-paper text-ink" : "text-ash hover:text-ink",
                     )}
                   >
                     {item.label}
                     <Chevron open={active === item.panel} />
                   </button>
                 ) : (
-                  <Link href={item.href} className="inline-flex items-center rounded-sm px-2 py-1 text-body font-medium text-sage hover:text-bone no-underline transition-colors dur-fast">
+                  <Link href={item.href} className="inline-flex items-center rounded-sm px-2 py-1 text-body font-medium text-ash hover:text-ink no-underline transition-colors dur-fast">
                     {item.label}
                   </Link>
                 )}
@@ -164,7 +162,7 @@ export function NavNotch(props: NavMenuProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={fade}
-              className="border-t border-olive-600 p-2"
+              className="border-t border-divider-light p-2"
             >
               <PanelBody id={active} projects={props.projects} capabilities={props.capabilities} labels={labels} onNavigate={() => setActive(null)} />
             </motion.div>

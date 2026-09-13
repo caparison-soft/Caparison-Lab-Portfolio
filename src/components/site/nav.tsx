@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Button } from "@/components/ui";
 import { HexMark } from "@/components/site/hex-mark";
 import { NavScroll } from "@/components/site/nav-scroll";
 import { NavNotch, NavSheet, type NavMenuItem, type NavMenuProps } from "@/components/site/nav-menu";
@@ -52,16 +51,12 @@ export async function Nav({ blocks, siteName }: NavProps) {
       <div className="site-nav px-3 md:px-[48px]">
         <div className="max-w-layout mx-auto h-full relative flex items-center gap-4">
           <Link href="/" className="flex items-center no-underline flex-none" aria-label={siteName}>
-            <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-bone w-[120px] h-[32px] object-contain" />
-            <img src="/brand/wordmark-ink.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-ink w-[120px] h-[32px] object-contain" />
-            <HexMark className="nav-icon w-[28px] h-[28px]" />
+            <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-bone w-[92px] h-[24px] object-contain" />
+            <img src="/brand/wordmark-ink.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-ink w-[92px] h-[24px] object-contain" />
+            <HexMark className="nav-icon w-[24px] h-[24px]" />
           </Link>
 
           <NavNotch {...menu} />
-
-          <div className="hidden lg:block flex-none ml-auto">
-            <Button size="sm" href="/contact">{menu.labels.cta}</Button>
-          </div>
 
           <NavSheet {...menu} />
         </div>

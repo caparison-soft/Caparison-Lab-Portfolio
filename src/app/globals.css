@@ -493,11 +493,12 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 /* In the bar the long drop shadow would spill under the bar edge onto light pages. */
 .site-nav .liquid-metal-ring, .site-nav .liquid-metal[data-hovered] .liquid-metal-ring { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3); }
 
-/* ---- The notch: an ink tab hanging from the page's top edge (lg+). ---- */
+/* ---- The notch: a bone tab hanging from the page's top edge (lg+). ---- */
 .site-notch-tab {
   border-bottom-left-radius: var(--radius-lg);
   border-bottom-right-radius: var(--radius-lg);
   box-shadow: 0 12px 20px rgb(0 0 0 / 0.18);
 }
 .site-notch-tab a { color: inherit; }
-.site-menu-panel .site-notch-card:hover { background: var(--color-bone); }
+.site-notch-card:hover { background: var(--color-bone); }
+.site-notch :focus-visible { outline-color: var(--color-ink); }

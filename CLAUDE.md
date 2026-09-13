@@ -88,13 +88,20 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   toggle invert over light sections. The hero has no spine rail; other
   sections keep theirs.
 - The notch (owner's reference, 2026-09-13): src/components/site/nav-menu.tsx.
-  At lg+ a 640px ink tab hangs from the page's top edge with inverted SVG
-  corners, holding the links. "work" opens a panel of the featured projects
+  At lg+ a 640px bone tab hangs from the page's top edge with inverted SVG
+  corners, holding the links. No action in the header (owner removed it);
+  the hero carries the CTA. Wordmark 92x24, hex mark 24. "work" opens a panel of the featured projects
   (getFeaturedProjects(4), budget and duration as data) and "capabilities" the
   first four capabilities; both end in an all-link (nav.workAll,
   nav.capabilitiesAll). Escape, outside click and route change close it. Under
-  lg NavSheet is a bone sheet with the same panels as accordions (light cards).
+  lg NavSheet is a bone sheet with the same panels as accordions. Panel cards
+  are paper on bone everywhere.
   Nav is async (it fetches both lists); reduced motion sets every transition to 0.
+
+## Hero layout
+- Owner's call (2026-09-13): content sits low under the fixed header (section
+  lg:pt-7, inner lg:pt-[48px]); the "currently building" strip is gone from the
+  hero (home.live.* keys and getLiveProject stay for admin use). One CTA.
 
 ## Hero ground (weave + grain)
 - src/lib/hero-weave.ts: our own WebGL2 fragment shader (fbm domain-warped
