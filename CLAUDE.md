@@ -76,7 +76,8 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   object under the prefix and fails loudly. /api/cron/reconcile reports
   orphans weekly into AuditLog; the library shows the latest report.
 - Backups: /api/cron/backup (weekly, vercel.json) dumps every public table
-  as gzipped JSON to R2 backups/, keeps eight; restore with
+  as gzipped JSON, AES-256-GCM encrypted under BACKUP_KEY (the bucket is
+  public), to R2 backups/, keeps eight; restore with
   scripts/restore-backup.ts. Runs on Vercel so no secret lives in GitHub
   (owner's call, 2026-09-13).
 - Enquiries: submitInquiry rate-limits from AuditLog (5/hour per IP, 3/day per

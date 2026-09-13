@@ -59,13 +59,16 @@ Functions run in bom1 (Mumbai) via vercel.json, next to the ap-south-1 database.
 
 ## Database backups (Vercel cron, no GitHub secrets)
 `/api/cron/backup` runs every Sunday 04:00 UTC (vercel.json): every public
-table is dumped over DIRECT_URL into one gzipped JSON document at
-`backups/<stamp>.json.gz` in the R2 bucket, newest eight kept. Nothing is
-copied into GitHub; the credentials stay in Vercel. Run by hand:
+table is dumped over DIRECT_URL into one gzipped JSON document, encrypted
+with AES-256-GCM under `BACKUP_KEY` (64 hex chars; the bucket is publicly
+readable), and stored at `backups/<stamp>.json.gz.enc`, newest eight kept.
+Nothing is copied into GitHub; the credentials stay in Vercel. Keep a copy
+of BACKUP_KEY somewhere safe: without it a backup cannot be read. Run by hand:
 `curl -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/cron/backup`.
 Restore: `npm run db:migrate` on the target, then
-`npx tsx scripts/restore-backup.ts backups/<stamp>.json.gz --yes` with
-DIRECT_URL and the R2_* variables in the environment (dry run without --yes).
+`npx tsx scripts/restore-backup.ts backups/<stamp>.json.gz.enc --yes` with
+DIRECT_URL, BACKUP_KEY and the R2_* variables in the environment (dry run
+without --yes).
 
 ## Verify after first deploy
 - `curl -i https://<site>/api/cron/keepalive` → 401

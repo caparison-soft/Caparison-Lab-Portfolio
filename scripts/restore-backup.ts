@@ -4,20 +4,34 @@
  *
  *   npx tsx scripts/restore-backup.ts <path-or-key> [--yes]
  *
- * <path-or-key> is a local .json.gz file, or an R2 key such as
- * backups/2026-09-13T04-00-00-000Z.json.gz (fetched with the R2_* variables).
+ * <path-or-key> is a local .json.gz.enc file, or an R2 key such as
+ * backups/2026-09-13T04-00-00-000Z.json.gz.enc (fetched with the R2_*
+ * variables). Backups are AES-256-GCM encrypted; BACKUP_KEY must match.
  * The target must already have the schema (npm run db:migrate). Every public
  * table in the document is truncated and reloaded inside one transaction with
  * triggers and foreign keys deferred; _prisma_migrations is left alone.
  * Without --yes it only reports what it would do.
  */
 import "dotenv/config";
+import { createDecipheriv } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { Client } from "pg";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 type Doc = { version: 1; at: string; tables: Record<string, { columns: string[]; rows: unknown[][] }> };
+
+/** Layout: "CLB1" | 12-byte IV | 16-byte tag | ciphertext. Plain gzip (no magic) passes through for old files. */
+function decrypt(bytes: Buffer): Buffer {
+  if (bytes.subarray(0, 4).toString() !== "CLB1") return bytes;
+  const hexKey = process.env.BACKUP_KEY;
+  if (!hexKey || !/^[0-9a-f]{64}$/i.test(hexKey)) throw new Error("BACKUP_KEY (64 hex characters) is required to decrypt this backup.");
+  const iv = bytes.subarray(4, 16);
+  const tag = bytes.subarray(16, 32);
+  const decipher = createDecipheriv("aes-256-gcm", Buffer.from(hexKey, "hex"), iv);
+  decipher.setAuthTag(tag);
+  return Buffer.concat([decipher.update(bytes.subarray(32)), decipher.final()]);
+}
 
 async function load(source: string): Promise<Doc> {
   let bytes: Buffer;
@@ -37,7 +51,7 @@ async function load(source: string): Promise<Doc> {
   } else {
     bytes = readFileSync(source);
   }
-  const doc = JSON.parse(gunzipSync(bytes).toString("utf8")) as Doc;
+  const doc = JSON.parse(gunzipSync(decrypt(bytes)).toString("utf8")) as Doc;
   if (doc.version !== 1 || !doc.tables) throw new Error("Not a version 1 backup document.");
   return doc;
 }

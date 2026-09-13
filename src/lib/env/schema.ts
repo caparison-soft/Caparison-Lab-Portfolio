@@ -46,6 +46,11 @@ export const serverSchema = z.object({
   // Optional. Set when the Resend webhook is configured (Svix signing secret).
   RESEND_WEBHOOK_SECRET: z.string().optional(),
 
+  // Backups are AES-256-GCM encrypted with this 64-hex-char key before they
+  // reach R2 (the bucket is publicly readable). Without it the backup cron
+  // answers 503 rather than writing plaintext.
+  BACKUP_KEY: optional(z.string().regex(/^[0-9a-f]{64}$/i, "BACKUP_KEY must be 32 bytes as 64 hex characters")),
+
   // Vercel Cron bearer secret and draft preview signing secret.
   CRON_SECRET: z.string().min(16, "CRON_SECRET must be at least 16 characters"),
   DRAFT_PREVIEW_SECRET: z.string().min(16, "DRAFT_PREVIEW_SECRET must be at least 16 characters"),

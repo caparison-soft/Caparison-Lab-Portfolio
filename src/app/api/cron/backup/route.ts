@@ -16,6 +16,9 @@ export async function GET(request: NextRequest) {
   if (request.headers.get("authorization") !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
+  if (!env.BACKUP_KEY) {
+    return NextResponse.json({ ok: false, error: "BACKUP_KEY is not set; refusing to write an unencrypted backup." }, { status: 503 });
+  }
   if (!storageConfigured()) {
     return NextResponse.json({ ok: false, error: "Media storage is not configured; nowhere to put the backup." }, { status: 503 });
   }

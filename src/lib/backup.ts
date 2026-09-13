@@ -1,4 +1,5 @@
 import "server-only";
+import { createCipheriv, randomBytes } from "node:crypto";
 import { gzipSync } from "node:zlib";
 import { Client } from "pg";
 import { env } from "@/lib/env";
@@ -10,6 +11,10 @@ import { deleteObjects, listAll, putObject } from "@/lib/r2";
  * and written as one gzipped JSON document to R2 under backups/. The schema
  * itself lives in prisma/migrations, so a restore is: migrate, then load
  * rows (scripts/restore-backup.ts). Keeps the newest KEEP backups.
+ *
+ * The bucket is publicly readable, so the gzipped document is encrypted with
+ * AES-256-GCM under BACKUP_KEY. File layout: magic "CLB1" | 12-byte IV |
+ * 16-byte auth tag | ciphertext.
  */
 
 export const BACKUP_PREFIX = "backups/";
@@ -42,15 +47,25 @@ export async function dumpDatabase(): Promise<BackupDocument> {
   }
 }
 
+export const MAGIC = Buffer.from("CLB1");
+
+export function encryptBackup(plain: Buffer, hexKey: string): Buffer {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", Buffer.from(hexKey, "hex"), iv);
+  const enc = Buffer.concat([cipher.update(plain), cipher.final()]);
+  return Buffer.concat([MAGIC, iv, cipher.getAuthTag(), enc]);
+}
+
 export type BackupResult = { key: string; bytes: number; tables: number; rows: number; deleted: string[] };
 
-/** Dump, upload, prune. Throws on any failure so the cron reports it. */
+/** Dump, gzip, encrypt, upload, prune. Throws on any failure so the cron reports it. */
 export async function runBackup(): Promise<BackupResult> {
+  if (!env.BACKUP_KEY) throw new Error("BACKUP_KEY is not set; refusing to write an unencrypted backup.");
   const doc = await dumpDatabase();
-  const body = gzipSync(Buffer.from(JSON.stringify(doc)), { level: 9 });
+  const body = encryptBackup(gzipSync(Buffer.from(JSON.stringify(doc)), { level: 9 }), env.BACKUP_KEY);
   const stamp = doc.at.replace(/[:.]/g, "-");
-  const key = `${BACKUP_PREFIX}${stamp}.json.gz`;
-  await putObject(key, body, "application/gzip");
+  const key = `${BACKUP_PREFIX}${stamp}.json.gz.enc`;
+  await putObject(key, body, "application/octet-stream");
 
   const existing = (await listAll(BACKUP_PREFIX)).map((o) => o.key).sort();
   const stale = existing.slice(0, Math.max(0, existing.length - KEEP));
