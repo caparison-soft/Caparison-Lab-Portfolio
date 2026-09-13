@@ -25,11 +25,8 @@ export function Hero({ blocks, settings, live }: HeroProps) {
 
   return (
     <section className="relative overflow-x-clip bg-bone px-3 md:px-[48px] pt-4 lg:pt-6">
-      {/* The 3D glass logo, in its own space, clipped by the viewport on purpose.
-          Explicit square size: the canvas fills its parent. Nothing sits under it. */}
-      <div
-        className="reveal-mark absolute top-0 right-[-72px] w-[200px] md:w-[240px] md:right-[-96px] lg:w-[260px] lg:right-[-160px] xl:top-[24px] xl:w-[560px] xl:right-auto xl:left-[max(50vw+470px,100vw-380px)]"
-      >
+      {/* Below lg: the still in the top-right corner, clipped by the viewport. */}
+      <div className="reveal-mark absolute top-0 right-[-72px] w-[200px] md:w-[240px] md:right-[-96px] lg:hidden">
         <HeroMark3D className="w-full" />
       </div>
 
@@ -42,13 +39,21 @@ export function Hero({ blocks, settings, live }: HeroProps) {
         </aside>
 
         <div className="min-w-0">
-          <h1 className="xl:pr-[180px]">
+          {/* lg+: the glass logo floats centred over the headline. Real alpha
+              transparency (not refraction) so the words stay readable through it.
+              pointer-events none so nothing under it is blocked. */}
+          <div className="relative">
+          <div className="reveal-mark pointer-events-none hidden lg:block absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[440px] xl:w-[520px]">
+            <HeroMark3D className="w-full" />
+          </div>
+          <h1>
             {headline.map((line, i) => (
               <span key={i} className="block reveal" style={{ "--reveal-delay": `${i * 60}ms` } as React.CSSProperties}>
                 {line}
               </span>
             ))}
           </h1>
+          </div>
           <p className="reveal-quick mt-4 text-body-l text-ash max-w-[52ch]" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
             {t(blocks, "home.hero.sub")}
           </p>

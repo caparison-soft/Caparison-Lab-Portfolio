@@ -53,11 +53,15 @@ export function HeroMark3D({ className }: { className?: string }) {
         // Material and light rig are the package defaults. The bone backdrop
         // plane and the olive-950 core give the glass something to refract on
         // a light page; without them it reads as pale plastic.
+        // Clear glass over the headline. Alpha-blended so the words show
+        // through (three.js cannot refract the DOM); thickness and IOR kept
+        // low so the little refraction there is barely displaces anything.
+        // No backdrop plane: it would sit over the text as an opaque plate.
+        // Drag is off because the canvas covers text and must not take the pointer.
         handle = mountCaparisonLogo(canvas, {
-          src: GLB, transparent: true, autoRotate: true, drag: true, pointerParallax: true, scrollTilt: true, fit: 1.75,
-          backdrop: { color: "#ECEEE8" },
-          darkCore: "#171B06",
-          darkCoreScale: 0.92,
+          src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: 1.75,
+          backdrop: null,
+          glass: { transmission: 1, thickness: 0.08, ior: 1.25, dispersion: 0, roughness: 0.03, transparent: true, opacity: 0.62, depthWrite: false, envMapIntensity: 2.4, clearcoat: 1, clearcoatRoughness: 0.02 },
         });
       }).catch(() => setUseGl(false));
     };
@@ -95,7 +99,7 @@ export function HeroMark3D({ className }: { className?: string }) {
         className={cx("absolute inset-0 w-full h-full object-contain transition-opacity dur-base", ready && "opacity-0")}
       />
       {useGl ? (
-        <canvas ref={canvasRef} className={cx("absolute inset-0 w-full h-full transition-opacity dur-base touch-none", ready ? "opacity-100" : "opacity-0")} />
+        <canvas ref={canvasRef} className={cx("absolute inset-0 w-full h-full transition-opacity dur-base pointer-events-none", ready ? "opacity-100" : "opacity-0")} />
       ) : null}
     </div>
   );

@@ -82,11 +82,13 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   Assets/caparison-logo-3d.zip, vanilla build). src/components/site/hero-mark-3d.tsx
   paints public/brand/logo-3d-*.webp first and swaps in the canvas on logo:ready.
   WebGL only at lg+ with WebGL available and no reduced-motion preference.
-- The material and light-rig environment are untouched. One option was added to
-  the vendored module: `darkCore` (an olive-950 lit copy inside the glass) so the
-  transmission has something dark to refract on a bone page; without it the glass
-  reads as pale plastic. Backdrop is a bone plane. Do not change either without
-  telling the owner.
+- At lg+ the logo floats centred over the headline; below lg the still sits in the
+  top-right corner. The owner asked for clear, thin, low-distortion glass over the
+  text, so the material is overridden in hero-mark-3d.tsx: transmission with
+  thickness 0.08, ior 1.25, alpha 0.62, no backdrop, no dark core. three.js cannot
+  refract the DOM, so see-through is alpha blending; a backdrop plane would cover
+  the words. The light rig is untouched. The vendored module also has a `darkCore`
+  option (unused now) from an earlier iteration. Change looks only with the owner.
 
 ## Audits
 - Never run `next dev` and `next start` at the same time: both use .next and
