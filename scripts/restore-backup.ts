@@ -36,7 +36,8 @@ function decrypt(bytes: Buffer): Buffer {
 async function load(source: string): Promise<Doc> {
   let bytes: Buffer;
   if (source.startsWith("backups/")) {
-    const { R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_ENDPOINT } = process.env;
+    const { R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET } = process.env;
+    const R2_ENDPOINT = process.env.R2_ENDPOINT || undefined; // blank means the real R2 endpoint
     if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET) throw new Error("R2_* variables are required to fetch a key.");
     const s3 = new S3Client({
       region: "auto",
@@ -120,6 +121,7 @@ async function main() {
 }
 
 main().catch((e) => {
-  console.error(e instanceof Error ? e.message : e);
+  const meta = (e as { $metadata?: { httpStatusCode?: number } })?.$metadata;
+  console.error(e instanceof Error ? `${e.name}: ${e.message}${meta?.httpStatusCode ? ` (HTTP ${meta.httpStatusCode})` : ""}` : e);
   process.exit(1);
 });
