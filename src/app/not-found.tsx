@@ -8,7 +8,7 @@ import { getBlocks, getSettings, t } from "@/lib/queries/content";
  * notFound() calls inside the group, so this one carries the site chrome.
  */
 export default async function RootNotFound() {
-  const [settings, blocks] = await Promise.all([getSettings(), getBlocks(["Errors", "Navigation", "Footer"])]);
+  const [settings, blocks] = await Promise.all([getSettings(), getBlocks(["Errors", "Navigation", "Footer", "Homepage"])]);
   return (
     <>
       <a href="#main" className="skip-link">{t(blocks, "nav.skipToContent")}</a>

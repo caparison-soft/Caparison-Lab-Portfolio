@@ -188,6 +188,11 @@
 .section-dark .muted { color: var(--color-sage); }
 .section-dark .accent { color: var(--color-lime); }
 .section-dark a { color: var(--color-bone); }
+/* Exceptions: a lime button always carries ink, and the mobile menu sheet is a light surface. */
+.section-dark a.btn-primary,
+.section-dark a.btn-primary:hover { color: var(--color-ink); }
+.section-dark .site-menu-panel a { color: var(--color-ink); }
+.section-dark .site-menu-panel a.btn-primary { color: var(--color-ink); }
 
 /* ---- The cursor: a 2px lime left rule means active / current / selected ---- */
 .is-active {
@@ -307,7 +312,7 @@
   position: fixed;
   left: 0;
   right: 0;
-  top: 56px;
+  top: 80px;
   bottom: 0;
   z-index: 40;
   background: var(--color-bone);

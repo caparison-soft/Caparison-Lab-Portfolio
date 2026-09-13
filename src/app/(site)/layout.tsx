@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const [settings, blocks] = await Promise.all([getSettings(), getBlocks(["Navigation", "Footer", "Errors"])]);
+  const [settings, blocks] = await Promise.all([getSettings(), getBlocks(["Navigation", "Footer", "Errors", "Homepage"])]);
 
   const organization = {
     "@context": "https://schema.org",

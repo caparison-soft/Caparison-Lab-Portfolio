@@ -52,7 +52,7 @@ const variants: Record<Surface, Record<Variant, string>> = {
  */
 export function Button(props: ButtonProps) {
   const { variant = "primary", surface = "light", size = "md", pending = false, className, children, ...rest } = props;
-  const classes = cx(base, sizes[size], variants[surface][variant], surface === "dark" && "on-dark", className);
+  const classes = cx(base, sizes[size], variants[surface][variant], variant === "primary" && "btn-primary", surface === "dark" && "on-dark", className);
 
   if ("href" in rest && typeof rest.href === "string") {
     const { href, ...linkRest } = rest as Omit<AsLink, keyof Common>;

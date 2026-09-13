@@ -24,7 +24,7 @@ export function Hero({ blocks, settings, live }: HeroProps) {
   ];
 
   return (
-    <section className="relative overflow-x-clip bg-bone px-3 md:px-[48px] pt-4 lg:pt-6">
+    <section className="relative overflow-x-clip bg-bone px-3 md:px-[48px] pt-5 lg:pt-6">
       {/* Phones: the still in the top-right corner. Desktops get the live glass over the headline. */}
       <HeroStill desktopFallback={false} />
 
