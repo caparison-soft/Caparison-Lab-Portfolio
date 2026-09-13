@@ -125,7 +125,7 @@ export function HeroGlass() {
       handle = mountCaparisonLogo(canvas, {
         src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: 2.1,
         // The package material, slightly thinner so the text bends less.
-        glass: { thickness: 0.22, ior: 1.5, dispersion: 9, roughness: 0.2, transmission: 0.72 },
+        glass: { thickness: 0.22, ior: 1.5, dispersion: 9, roughness: 0.3, transmission: 0.55 },
         backdrop: { color: "#ECEEE8", size: [texW, texH], draw, z: -0.6 },
       });
     };
