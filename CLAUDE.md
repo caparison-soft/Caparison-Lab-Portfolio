@@ -75,7 +75,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   ffmpeg poster via ffmpeg-static, Media row). deleteMedia removes every
   object under the prefix and fails loudly. /api/cron/reconcile reports
   orphans weekly into AuditLog; the library shows the latest report.
-- Backups: .github/workflows/backup.yml (weekly pg_dump to R2, keeps eight).
+- Backups: /api/cron/backup (weekly, vercel.json) dumps every public table
+  as gzipped JSON to R2 backups/, keeps eight; restore with
+  scripts/restore-backup.ts. Runs on Vercel so no secret lives in GitHub
+  (owner's call, 2026-09-13).
 - Enquiries: submitInquiry rate-limits from AuditLog (5/hour per IP, 3/day per
   email) and notifies via Resend (src/lib/email.ts). EMAIL_DRY_RUN=true in .env
   records the email in AuditLog instead of sending. Inbox at /admin/inquiries;

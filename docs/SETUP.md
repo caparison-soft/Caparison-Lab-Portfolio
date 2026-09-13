@@ -57,13 +57,15 @@ Functions run in bom1 (Mumbai) via vercel.json, next to the ap-south-1 database.
    as a bearer token. After the first deploy, open Settings → Cron Jobs and
    confirm `/api/cron/keepalive` is listed.
 
-## GitHub (database backups)
-The weekly backup runs as a GitHub Action, since Vercel functions have no
-pg_dump. Repository → Settings → Secrets and variables → Actions, add:
-`DIRECT_URL`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
-`R2_BUCKET`. Run it once by hand from the Actions tab and confirm
-`backups/<date>.sql.gz` appears in the bucket. Restore with
-`gunzip < file.sql.gz | psql "$DIRECT_URL"`.
+## Database backups (Vercel cron, no GitHub secrets)
+`/api/cron/backup` runs every Sunday 04:00 UTC (vercel.json): every public
+table is dumped over DIRECT_URL into one gzipped JSON document at
+`backups/<stamp>.json.gz` in the R2 bucket, newest eight kept. Nothing is
+copied into GitHub; the credentials stay in Vercel. Run by hand:
+`curl -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/cron/backup`.
+Restore: `npm run db:migrate` on the target, then
+`npx tsx scripts/restore-backup.ts backups/<stamp>.json.gz --yes` with
+DIRECT_URL and the R2_* variables in the environment (dry run without --yes).
 
 ## Verify after first deploy
 - `curl -i https://<site>/api/cron/keepalive` → 401

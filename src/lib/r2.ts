@@ -79,16 +79,21 @@ export async function listAll(prefix: string): Promise<R2Object[]> {
   return out;
 }
 
-/** Delete every object under a prefix. Throws if R2 reports any failure, so orphans never go quiet. */
-export async function deletePrefix(prefix: string): Promise<number> {
-  const objects = await listAll(prefix.endsWith("/") ? prefix : `${prefix}/`);
-  if (objects.length === 0) return 0;
-  for (let i = 0; i < objects.length; i += 1000) {
-    const batch = objects.slice(i, i + 1000);
-    const res = await r2().send(new DeleteObjectsCommand({ Bucket: BUCKET, Delete: { Objects: batch.map((o) => ({ Key: o.key })), Quiet: false } }));
+/** Delete exact keys in batches. Throws if R2 reports any failure, so nothing goes quiet. */
+export async function deleteObjects(keys: string[]): Promise<number> {
+  for (let i = 0; i < keys.length; i += 1000) {
+    const batch = keys.slice(i, i + 1000);
+    const res = await r2().send(new DeleteObjectsCommand({ Bucket: BUCKET, Delete: { Objects: batch.map((key) => ({ Key: key })), Quiet: false } }));
     if (res.Errors && res.Errors.length > 0) {
       throw new Error(`R2 refused to delete ${res.Errors.length} object(s): ${res.Errors.map((e) => `${e.Key} (${e.Code})`).join(", ")}`);
     }
   }
-  return objects.length;
+  return keys.length;
+}
+
+/** Delete every object under a prefix. */
+export async function deletePrefix(prefix: string): Promise<number> {
+  const objects = await listAll(prefix.endsWith("/") ? prefix : `${prefix}/`);
+  if (objects.length === 0) return 0;
+  return deleteObjects(objects.map((o) => o.key));
 }
