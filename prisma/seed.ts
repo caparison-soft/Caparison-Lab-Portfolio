@@ -41,8 +41,8 @@ const blocks: Block[] = [
   { key: "nav.capabilitiesAll", group: "Navigation", label: "Capabilities panel: all link", value: "All capabilities" },
 
   // Homepage
-  { key: "home.hero.headline", group: "Homepage", label: "Hero headline", value: "Scoped in a week.\nPriced up front.\nLive by week ten.", helpText: "One line per sentence. Line breaks are kept. Three lines maximum." },
-  { key: "home.hero.sub", group: "Homepage", label: "Hero sub", value: "Caparison Lab builds web and mobile apps for teams in Bangladesh and the Gulf. Every project on this site lists what it cost and how long it took." },
+  { key: "home.hero.headline", group: "Homepage", label: "Hero headline", value: "Ideas into digital products.\nWe turn vision into reality.", helpText: "One line per sentence. Line breaks are kept. Three lines maximum." },
+  { key: "home.hero.sub", group: "Homepage", label: "Hero sub", value: "Caparison Lab designs and develops digital products for businesses, teams, and ambitious ideas. From concept to launch, we build fast, scalable, and purposeful experiences." },
   { key: "home.hero.ctaPrimary", group: "Homepage", label: "Hero primary button", value: "Start a project" },
   { key: "home.hero.ctaSecondary", group: "Homepage", label: "Hero secondary link", value: "See the work" },
   { key: "home.live.label", group: "Homepage", label: "Live strip label", value: "currently building", helpText: "Sits above the project flagged as currently building." },
