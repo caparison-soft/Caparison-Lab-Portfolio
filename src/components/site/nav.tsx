@@ -11,11 +11,13 @@ import { formatBudget, formatDuration } from "@/lib/format";
 type NavProps = { blocks: Blocks; siteName: string };
 
 /**
- * Full-width ink bar, sticky at the top: wordmark left, the notch (a bone tab
- * hanging from the top edge with the links and two panels) centred, the
- * primary action right. Once the page scrolls the bar shrinks and the wordmark
- * becomes the hex mark (see .site-nav in globals.css). Under lg the links live
- * in a sheet.
+ * No bar: the header is fixed and transparent, laid over the page (the hero
+ * runs under it). Wordmark left, the notch
+ * (an ink tab hanging from the top edge with the links and two panels)
+ * centred, the primary action right. NavScroll flags the ground under the
+ * header (dark or light) so the wordmark and the sheet toggle invert, and
+ * past 64px of scroll the wordmark becomes the hex mark (.site-nav in
+ * globals.css). Under lg the links live in a sheet.
  */
 export async function Nav({ blocks, siteName }: NavProps) {
   const [projects, capabilities] = await Promise.all([getFeaturedProjects(4), getCapabilities()]);
@@ -45,12 +47,13 @@ export async function Nav({ blocks, siteName }: NavProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="fixed inset-x-0 top-0 z-50">
       <NavScroll />
-      <div className="site-nav section-dark ground-ink on-dark px-3 md:px-[48px]">
+      <div className="site-nav px-3 md:px-[48px]">
         <div className="max-w-layout mx-auto h-full relative flex items-center gap-4">
           <Link href="/" className="flex items-center no-underline flex-none" aria-label={siteName}>
-            <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="nav-wordmark w-[120px] h-[32px] object-contain" />
+            <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-bone w-[120px] h-[32px] object-contain" />
+            <img src="/brand/wordmark-ink.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-ink w-[120px] h-[32px] object-contain" />
             <HexMark className="nav-icon w-[28px] h-[28px]" />
           </Link>
 

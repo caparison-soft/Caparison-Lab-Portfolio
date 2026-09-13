@@ -135,6 +135,7 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     color-scheme: light;
+    scroll-padding-top: 72px; /* the fixed header */
   }
 
   body {
@@ -208,9 +209,6 @@
 .section-dark a.btn-primary:hover { color: var(--color-ink); }
 .section-dark .site-menu-panel a { color: var(--color-ink); }
 .section-dark .site-menu-panel a.btn-primary { color: var(--color-ink); }
-/* The notch is a light surface inside the dark bar. */
-.section-dark .site-notch a { color: inherit; }
-.section-dark .site-notch :focus-visible { outline-color: var(--color-ink); }
 
 /* ---- The cursor: a 2px lime left rule means active / current / selected ---- */
 .is-active {
@@ -333,13 +331,19 @@
   overflow-y: auto;
 }
 
-/* ---- The bar: 64px at the top of the page, 48px once scrolled, wordmark
-   gives way to the mark. Height animates; reduced motion keeps colour only. ---- */
+/* ---- The header: transparent, 64px at the top of the page, 48px once scrolled;
+   the wordmark gives way to the mark. NavScroll sets data-nav-ground from the
+   section under the header so the wordmark and sheet toggle invert. ---- */
 .site-nav {
   height: 64px;
   transition: height var(--duration-base) var(--ease-in-out);
 }
 .nav-icon { display: none; }
+.nav-wordmark-ink { display: none; }
+html[data-nav-ground="light"] .nav-wordmark-bone { display: none; }
+html[data-nav-ground="light"] .nav-wordmark-ink { display: block; }
+.site-sheet-toggle { color: var(--color-bone); }
+html[data-nav-ground="light"] .site-sheet-toggle { color: var(--color-ink); }
 html[data-nav-compact="true"] .site-nav { height: 48px; }
 html[data-nav-compact="true"] .nav-wordmark { display: none; }
 html[data-nav-compact="true"] .nav-icon { display: block; }
@@ -489,10 +493,11 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 /* In the bar the long drop shadow would spill under the bar edge onto light pages. */
 .site-nav .liquid-metal-ring, .site-nav .liquid-metal[data-hovered] .liquid-metal-ring { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3); }
 
-/* ---- The notch: a bone tab hanging from the bar's top edge (lg+). ---- */
+/* ---- The notch: an ink tab hanging from the page's top edge (lg+). ---- */
 .site-notch-tab {
   border-bottom-left-radius: var(--radius-lg);
   border-bottom-right-radius: var(--radius-lg);
   box-shadow: 0 12px 20px rgb(0 0 0 / 0.18);
 }
-.site-notch-card:hover { background: var(--color-bone); }
+.site-notch-tab a { color: inherit; }
+.site-menu-panel .site-notch-card:hover { background: var(--color-bone); }

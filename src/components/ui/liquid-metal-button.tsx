@@ -15,7 +15,7 @@ import { cx } from "@/lib/cx";
  *   disabled and pending, so it can stand in for every public-site button.
  * - Label is sage (7.8:1 on ink) rather than #666 (3.9:1 fails AA); bone on hover.
  * - The shader mounts only while the button is near the viewport and is
- *   destroyed when it leaves, so a page never holds more WebGL contexts than
+ *   disposed when it leaves, so a page never holds more WebGL contexts than
  *   it has buttons on screen. Reduced motion freezes the shader at speed 0.
  *   Without WebGL2 a static conic-gradient ring in bone/sage stands in.
  * - Focus stays visible (global :focus-visible outline); the original set outline: none.
@@ -40,7 +40,7 @@ const SPEED_IDLE = 0.6;
 const SPEED_HOVER = 1;
 const SPEED_CLICK = 2.4;
 
-type Mount = { setSpeed: (s?: number) => void; destroy: () => void };
+type Mount = { setSpeed: (s?: number) => void; dispose: () => void };
 
 const heights: Record<Size, string> = {
   md: "h-[46px] px-[22px] text-body",
@@ -112,7 +112,7 @@ export function LiquidMetalButton(props: LiquidMetalButtonProps) {
       }
     };
     const destroy = () => {
-      mount.current?.destroy();
+      mount.current?.dispose();
       mount.current = null;
     };
 

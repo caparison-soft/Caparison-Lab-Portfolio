@@ -78,20 +78,23 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   CSV at /admin/inquiries/export; Resend webhook at /api/webhooks/resend.
 
 ## Navigation
-- The bar and the hero sit on ink (#000000) via .ground-ink, at the owner's request;
-  the rest of the dark sections stay olive-950.
-- Full-width ink bar, sticky. NavScroll sets html[data-nav-compact] past
-  64px of scroll; CSS shrinks the bar to 48px and swaps the wordmark for the hex
-  mark. The hero has no spine rail; other sections keep theirs.
+- The hero sits on ink (#000000) via .ground-ink, at the owner's request; the
+  rest of the dark sections stay olive-950.
+- No bar (owner's call, 2026-09-13): the header is fixed and transparent, laid
+  over the page (sections start with at least 64px of padding; html has
+  scroll-padding-top for anchors). NavScroll sets html[data-nav-compact] past 64px of scroll (header 64px
+  to 48px, wordmark to hex mark) and html[data-nav-ground] (dark or light,
+  from the section under the header's left edge) so the wordmark and the sheet
+  toggle invert over light sections. The hero has no spine rail; other
+  sections keep theirs.
 - The notch (owner's reference, 2026-09-13): src/components/site/nav-menu.tsx.
-  At lg+ a 640px bone tab hangs from the bar's top edge with inverted SVG
+  At lg+ a 640px ink tab hangs from the page's top edge with inverted SVG
   corners, holding the links. "work" opens a panel of the featured projects
   (getFeaturedProjects(4), budget and duration as data) and "capabilities" the
   first four capabilities; both end in an all-link (nav.workAll,
   nav.capabilitiesAll). Escape, outside click and route change close it. Under
-  lg NavSheet is a bone sheet with the same panels as accordions. Nav is async
-  (it fetches both lists). Surfaces are inverted from the reference (black notch
-  on white) because our bar is ink; reduced motion sets every transition to 0.
+  lg NavSheet is a bone sheet with the same panels as accordions (light cards).
+  Nav is async (it fetches both lists); reduced motion sets every transition to 0.
 
 ## Hero ground (weave + grain)
 - src/lib/hero-weave.ts: our own WebGL2 fragment shader (fbm domain-warped

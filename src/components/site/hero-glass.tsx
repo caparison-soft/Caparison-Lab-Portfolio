@@ -195,7 +195,7 @@ export function HeroGlass() {
 /** The still, in the top-right corner: phones always, desktops only when WebGL is not used. */
 export function HeroStill({ desktopFallback }: { desktopFallback: boolean }) {
   return (
-    <div aria-hidden="true" className={cx("reveal-mark absolute top-0 right-[-72px] w-[200px] md:w-[240px] md:right-[-96px] lg:w-[260px] lg:right-[-160px]", desktopFallback ? "block" : "lg:hidden")}>
+    <div aria-hidden="true" className={cx("reveal-mark absolute top-[56px] right-[-72px] w-[200px] md:w-[240px] md:right-[-96px] lg:top-0 lg:w-[260px] lg:right-[-160px]", desktopFallback ? "block" : "lg:hidden")}>
       <img src="/brand/logo-3d-1280.webp" srcSet="/brand/logo-3d-640.webp 640w, /brand/logo-3d-1280.webp 1280w" sizes="(min-width: 1024px) 260px, 240px" alt="" width={1280} height={1302} fetchPriority="high" decoding="async" className="w-full h-auto" />
     </div>
   );
