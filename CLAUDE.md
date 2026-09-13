@@ -102,6 +102,8 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - Owner's call (2026-09-13): content sits low under the fixed header (section
   lg:pt-7, inner lg:pt-[48px]); the "currently building" strip is gone from the
   hero (home.live.* keys and getLiveProject stay for admin use). One CTA.
+- Headline is display-l at lg+ (weight 900) so the two long sentences stay one
+  line each beside the glass logo; phones keep display-xl.
 
 ## Hero ground (weave + grain)
 - src/lib/hero-weave.ts: our own WebGL2 fragment shader (fbm domain-warped

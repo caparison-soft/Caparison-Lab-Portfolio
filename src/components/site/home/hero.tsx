@@ -28,7 +28,8 @@ export function Hero({ blocks }: HeroProps) {
               positions; the DOM copies go transparent once the glass is ready. */}
           <div className="relative hero-block">
           <HeroGlass />
-          <h1 className="text-bone">
+          {/* display-l at lg+: the two sentences stay one line each beside the glass logo. */}
+          <h1 className="text-bone lg:text-display-l lg:font-black">
             {headline.map((line, i) => (
               <span key={i} data-glass-text className="block reveal" style={{ "--reveal-delay": `${i * 60}ms` } as React.CSSProperties}>
                 {line}
