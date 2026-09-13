@@ -44,6 +44,7 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - Build phases are gated. Stop at the end of each phase and wait for approval.
 
 ## Local dev
+- Node 22 (.nvmrc). The AWS SDK and supabase-js warn on Node 20; Vercel builds on 22.
 - Postgres 17 via Homebrew (`brew services start postgresql@17`), database
   caparison_dev with a stub auth.users table and anon/authenticated roles.
 - `.env` holds local values (gitignored). `.env.example` is the contract.
