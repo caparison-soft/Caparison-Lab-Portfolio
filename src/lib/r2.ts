@@ -10,32 +10,48 @@ import { env } from "@/lib/env";
  */
 const globalForR2 = globalThis as unknown as { r2?: S3Client };
 
+export class StorageNotConfiguredError extends Error {
+  constructor() {
+    super("Media storage is not configured yet (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY are unset).");
+    this.name = "StorageNotConfiguredError";
+  }
+}
+
+/** True when the R2 credentials are present. Uploads and the reconcile job need this. */
+export function storageConfigured(): boolean {
+  return Boolean(env.R2_ACCOUNT_ID && env.R2_ACCESS_KEY_ID && env.R2_SECRET_ACCESS_KEY);
+}
+
 function create(): S3Client {
+  if (!storageConfigured()) throw new StorageNotConfiguredError();
   return new S3Client({
     region: "auto",
     endpoint: env.R2_ENDPOINT ?? `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
     forcePathStyle: Boolean(env.R2_ENDPOINT),
-    credentials: { accessKeyId: env.R2_ACCESS_KEY_ID, secretAccessKey: env.R2_SECRET_ACCESS_KEY },
+    credentials: { accessKeyId: env.R2_ACCESS_KEY_ID as string, secretAccessKey: env.R2_SECRET_ACCESS_KEY as string },
   });
 }
 
-export const r2: S3Client = globalForR2.r2 ?? create();
-if (env.NODE_ENV !== "production") globalForR2.r2 = r2;
+/** The client, created on first use so an unconfigured deployment still builds and serves. */
+function r2(): S3Client {
+  if (!globalForR2.r2) globalForR2.r2 = create();
+  return globalForR2.r2;
+}
 
 export const BUCKET = env.R2_BUCKET;
 export const IMMUTABLE = "public, max-age=31536000, immutable";
 
 /** Presigned PUT, five minutes. The browser uploads directly; bytes never touch a function. */
 export async function presignPut(key: string, contentType: string): Promise<string> {
-  return getSignedUrl(r2, new PutObjectCommand({ Bucket: BUCKET, Key: key, ContentType: contentType }), { expiresIn: 300 });
+  return getSignedUrl(r2(), new PutObjectCommand({ Bucket: BUCKET, Key: key, ContentType: contentType }), { expiresIn: 300 });
 }
 
 export async function putObject(key: string, body: Buffer, contentType: string): Promise<void> {
-  await r2.send(new PutObjectCommand({ Bucket: BUCKET, Key: key, Body: body, ContentType: contentType, CacheControl: IMMUTABLE }));
+  await r2().send(new PutObjectCommand({ Bucket: BUCKET, Key: key, Body: body, ContentType: contentType, CacheControl: IMMUTABLE }));
 }
 
 export async function getObjectBuffer(key: string): Promise<{ body: Buffer; contentType: string | undefined; size: number }> {
-  const res = await r2.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }));
+  const res = await r2().send(new GetObjectCommand({ Bucket: BUCKET, Key: key }));
   const bytes = await res.Body?.transformToByteArray();
   if (!bytes) throw new Error(`Object ${key} is empty.`);
   return { body: Buffer.from(bytes), contentType: res.ContentType, size: bytes.byteLength };
@@ -43,7 +59,7 @@ export async function getObjectBuffer(key: string): Promise<{ body: Buffer; cont
 
 export async function headObject(key: string): Promise<{ size: number; contentType: string | undefined } | null> {
   try {
-    const res = await r2.send(new HeadObjectCommand({ Bucket: BUCKET, Key: key }));
+    const res = await r2().send(new HeadObjectCommand({ Bucket: BUCKET, Key: key }));
     return { size: res.ContentLength ?? 0, contentType: res.ContentType };
   } catch {
     return null;
@@ -56,7 +72,7 @@ export async function listAll(prefix: string): Promise<R2Object[]> {
   const out: R2Object[] = [];
   let token: string | undefined;
   do {
-    const res = await r2.send(new ListObjectsV2Command({ Bucket: BUCKET, Prefix: prefix, ContinuationToken: token }));
+    const res = await r2().send(new ListObjectsV2Command({ Bucket: BUCKET, Prefix: prefix, ContinuationToken: token }));
     for (const o of res.Contents ?? []) if (o.Key) out.push({ key: o.Key, size: o.Size ?? 0, lastModified: o.LastModified });
     token = res.IsTruncated ? res.NextContinuationToken : undefined;
   } while (token);
@@ -69,7 +85,7 @@ export async function deletePrefix(prefix: string): Promise<number> {
   if (objects.length === 0) return 0;
   for (let i = 0; i < objects.length; i += 1000) {
     const batch = objects.slice(i, i + 1000);
-    const res = await r2.send(new DeleteObjectsCommand({ Bucket: BUCKET, Delete: { Objects: batch.map((o) => ({ Key: o.key })), Quiet: false } }));
+    const res = await r2().send(new DeleteObjectsCommand({ Bucket: BUCKET, Delete: { Objects: batch.map((o) => ({ Key: o.key })), Quiet: false } }));
     if (res.Errors && res.Errors.length > 0) {
       throw new Error(`R2 refused to delete ${res.Errors.length} object(s): ${res.Errors.map((e) => `${e.Key} (${e.Code})`).join(", ")}`);
     }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { env } from "@/lib/env";
 import { reconcileMedia } from "@/lib/reconcile";
+import { storageConfigured } from "@/lib/r2";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -9,6 +10,9 @@ export const maxDuration = 60;
 export async function GET(request: NextRequest) {
   if (request.headers.get("authorization") !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+  if (!storageConfigured()) {
+    return NextResponse.json({ ok: false, error: "Media storage is not configured yet; nothing to reconcile." }, { status: 503 });
   }
   try {
     const report = await reconcileMedia();

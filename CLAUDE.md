@@ -22,6 +22,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - RLS enabled with deny-all default on EVERY table. Supabase exposes PostgREST
   on the public schema, so a table without RLS is publicly writable. New table
   = new migration that enables RLS. Run `npm run verify:rls`.
+- R2 and Resend variables are optional (staged go-live, 2026-09-13): without R2
+  the build and site run, uploads and the reconcile cron answer "not
+  configured"; without Resend an enquiry is stored and logged as
+  email.unconfigured. Everything else in .env.example is required at build.
 - SUPABASE_SERVICE_ROLE_KEY is server-only. Never NEXT_PUBLIC_, never imported
   into a client component. `npm run verify:bundle` after a build.
 - Prisma 7: URLs live in prisma.config.ts (DIRECT_URL for the CLI) and

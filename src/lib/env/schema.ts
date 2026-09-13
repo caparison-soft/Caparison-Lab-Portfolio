@@ -8,6 +8,8 @@ import { z } from "zod";
 
 const url = z.string().url();
 const nonEmpty = z.string().min(1);
+/** Optional in staged rollouts: an unset or blank variable reads as undefined. */
+const optional = <T extends z.ZodTypeAny>(schema: T) => z.preprocess((v) => (v === "" ? undefined : v), schema.optional());
 
 export const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -25,18 +27,20 @@ export const serverSchema = z.object({
   // Supabase Auth. Service role key is server-only and never NEXT_PUBLIC_.
   SUPABASE_SERVICE_ROLE_KEY: nonEmpty,
 
-  // Cloudflare R2 (S3 API). Keys are server-only.
-  R2_ACCOUNT_ID: nonEmpty,
-  R2_ACCESS_KEY_ID: nonEmpty,
-  R2_SECRET_ACCESS_KEY: nonEmpty,
+  // Cloudflare R2 (S3 API). Keys are server-only. Optional until R2 exists:
+  // without them uploads fail with a clear message and everything else runs.
+  R2_ACCOUNT_ID: optional(nonEmpty),
+  R2_ACCESS_KEY_ID: optional(nonEmpty),
+  R2_SECRET_ACCESS_KEY: optional(nonEmpty),
   R2_BUCKET: nonEmpty.default("caparison-media"),
   // Development only: point the S3 client at a local stand-in. Unset in production.
   R2_ENDPOINT: z.string().url().optional(),
 
-  // Resend.
-  RESEND_API_KEY: nonEmpty,
-  RESEND_FROM: z.string().email().or(z.string().regex(/^.+<.+@.+>$/)),
-  INQUIRY_NOTIFY_EMAIL: z.string().email(),
+  // Resend. Optional until it exists: enquiries are still stored and shown in
+  // the admin inbox, the notification is recorded in the audit log instead.
+  RESEND_API_KEY: optional(nonEmpty),
+  RESEND_FROM: optional(z.string().email().or(z.string().regex(/^.+<.+@.+>$/))),
+  INQUIRY_NOTIFY_EMAIL: optional(z.string().email()),
   // Development only: record emails in the audit log instead of sending.
   EMAIL_DRY_RUN: z.enum(["true", "false"]).optional(),
   // Optional. Set when the Resend webhook is configured (Svix signing secret).

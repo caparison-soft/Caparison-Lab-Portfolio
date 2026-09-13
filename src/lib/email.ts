@@ -51,8 +51,13 @@ ${q.sourcePath ? `<tr><td style="padding:2px 12px 2px 0">Sent from</td><td style
 </div>`;
 
   if (env.EMAIL_DRY_RUN === "true") {
-    await logAudit({ action: "email.dry_run", entity: "Inquiry", entityId: q.id, diff: { to: env.INQUIRY_NOTIFY_EMAIL, subject } });
+    await logAudit({ action: "email.dry_run", entity: "Inquiry", entityId: q.id, diff: { to: env.INQUIRY_NOTIFY_EMAIL ?? null, subject } });
     return { ok: true, id: "dry-run" };
+  }
+  // Resend not set up yet: the enquiry is stored and visible in the inbox; note it and move on.
+  if (!env.RESEND_API_KEY || !env.RESEND_FROM || !env.INQUIRY_NOTIFY_EMAIL) {
+    await logAudit({ action: "email.unconfigured", entity: "Inquiry", entityId: q.id, diff: { subject } });
+    return { ok: true, id: "unconfigured" };
   }
 
   try {
