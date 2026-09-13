@@ -42,15 +42,15 @@ function studioStripEnv(preset = 'strips') {
   const c = document.createElement('canvas');
   c.width = 1024; c.height = 512;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = preset === 'wide' ? '#141414' : '#000000';
+  ctx.fillStyle = '#000000';
   ctx.fillRect(0, 0, 1024, 512);
   const g = ctx.createLinearGradient(0, 512, 0, 0);
   // 'strips': the original rig, thin bands. 'wide': broad softboxes for wide
   // bright reflections on a dark page (the glass otherwise reflects thin lines).
   (preset === 'wide' ? [
-    [0.00, '#141414'], [0.10, '#141414'], [0.18, '#ffffff'], [0.32, '#ffffff'], [0.40, '#141414'],
-    [0.46, '#141414'], [0.52, '#ffffff'], [0.62, '#ffffff'], [0.70, '#141414'],
-    [0.76, '#141414'], [0.80, '#c8c8c8'], [0.92, '#c8c8c8'], [1.00, '#141414']
+    [0.00, '#000000'], [0.10, '#000000'], [0.18, '#ffffff'], [0.32, '#ffffff'], [0.40, '#000000'],
+    [0.46, '#000000'], [0.52, '#ffffff'], [0.62, '#ffffff'], [0.70, '#000000'],
+    [0.76, '#000000'], [0.80, '#c8c8c8'], [0.92, '#c8c8c8'], [1.00, '#000000']
   ] : [
     [0.00, '#000000'], [0.17, '#000000'], [0.225, '#ffffff'], [0.28, '#000000'],
     [0.45, '#000000'], [0.505, '#ffffff'], [0.56, '#000000'],
