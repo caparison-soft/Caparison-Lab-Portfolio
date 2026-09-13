@@ -1,6 +1,6 @@
 import { Button, SectionMarker, TagList } from "@/components/ui";
 import { HeroGlass, HeroStill } from "@/components/site/hero-glass";
-import { HeroLines } from "@/components/site/hero-lines";
+import { HeroWeave } from "@/components/site/hero-weave";
 import type { Blocks, Settings } from "@/lib/queries/content";
 import { lines, t } from "@/lib/queries/content";
 import type { LiveProject } from "@/lib/queries/home";
@@ -18,8 +18,8 @@ export function Hero({ blocks, live }: HeroProps) {
 
   return (
     <section className="hero section-dark ground-ink on-dark relative overflow-x-clip px-3 md:px-[48px] pt-5 lg:pt-6">
-      {/* The ground: drifting contour lines that bend away from the pointer, with grain on top. */}
-      <HeroLines />
+      {/* The ground: a woven thread field that answers the pointer, with grain on top. */}
+      <HeroWeave />
       {/* Phones: the still in the top-right corner. Desktops get the live glass over the headline. */}
       <HeroStill desktopFallback={false} />
 

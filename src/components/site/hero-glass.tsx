@@ -7,7 +7,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { CaparisonLogoHandle } from "@/lib/vendor/caparison-logo";
-import { getLinesField } from "@/lib/hero-lines";
+import { getSharedWeave } from "@/lib/hero-weave";
 import { cx } from "@/lib/cx";
 
 const GLB = "/caparison_logo.glb";
@@ -95,7 +95,6 @@ export function HeroGlass() {
     let cancelled = false;
     const timers: number[] = [];
 
-    const field = getLinesField();
     // Text lines are measured once (and on resize), not every frame: after the
     // glass is ready the DOM copy is transparent, so its colour must be cached.
     let cached: Line[] = [];
@@ -107,15 +106,12 @@ export function HeroGlass() {
       const hostRect = host.getBoundingClientRect();
       const k = w / hostRect.width;
       ctx.scale(k, k);
-      // The same line field as the ground canvas, offset to this region, so
-      // the lines continue seamlessly through the glass and get refracted.
-      const section = host.closest("section");
-      if (section) {
-        const s = section.getBoundingClientRect();
-        ctx.save();
-        ctx.translate(s.left - hostRect.left, s.top - hostRect.top);
-        field.draw(ctx, s.width, s.height);
-        ctx.restore();
+      // The weave canvas itself, offset to this region, so the threads continue
+      // seamlessly through the glass and get refracted.
+      const weave = getSharedWeave();
+      if (weave) {
+        const s = weave.canvas.getBoundingClientRect();
+        ctx.drawImage(weave.canvas, s.left - hostRect.left, s.top - hostRect.top, s.width, s.height);
       }
       ctx.textBaseline = "alphabetic";
       for (const line of cached) {
