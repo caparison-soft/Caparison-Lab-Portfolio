@@ -77,6 +77,16 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   records the email in AuditLog instead of sending. Inbox at /admin/inquiries;
   CSV at /admin/inquiries/export; Resend webhook at /api/webhooks/resend.
 
+## Audits
+- Never run `next dev` and `next start` at the same time: both use .next and
+  dev overwrites the production build (404s and header errors follow).
+- Lighthouse: stop dev, `npm run build && npx next start -p 3001`, then
+  `CHROME_PATH=<playwright chromium> npx lighthouse http://localhost:3001/ --preset=desktop`.
+  The full-page screenshot phase can report a phantom CLS; confirm with
+  `--disable-full-page-screenshot` or a PerformanceObserver.
+- axe: @axe-core/playwright with wcag2a/aa, wcag21a/aa, best-practice tags,
+  excluding the nextjs-portal element. Public and admin must be at zero.
+
 ## Voice
 Plain, specific, understated. Numbers over adjectives. Sentence case.
 Buttons say what happens. No emoji. No "elevate", "seamless", "cutting-edge".

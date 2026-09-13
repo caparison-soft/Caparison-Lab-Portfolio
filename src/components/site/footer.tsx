@@ -17,7 +17,7 @@ export function Footer({ blocks, settings }: FooterProps) {
     <footer className="section-dark on-dark px-3 md:px-[48px] border-t border-olive-600">
       <div className="max-w-layout mx-auto py-4 grid grid-cols-1 md:grid-cols-[180px_1fr_auto] gap-3 items-start">
         <Link href="/" className="no-underline" aria-label={settings.siteName}>
-          <img src="/brand/wordmark-bone.png" alt="" width={761} height={203} className="w-[112px] h-auto" />
+          <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="w-[112px] h-[30px] object-contain" />
         </Link>
         <div>
           <p className="text-bone max-w-none">{t(blocks, "footer.tagline")}</p>

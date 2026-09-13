@@ -37,7 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <a href="#main" className="skip-link">Skip to content</a>
       <header className="px-3 md:px-[24px] h-[48px] flex items-center gap-3 border-b border-divider-light bg-bone">
         <Link href="/admin" className="no-underline flex items-center gap-2">
-          <img src="/brand/wordmark-ink.png" alt="Caparison Lab" width={761} height={203} className="w-[96px] h-auto" />
+          <img src="/brand/wordmark-ink.png" alt="Caparison Lab" width={384} height={102} className="w-[96px] h-[26px] object-contain" />
           <span className="text-small text-ash">admin</span>
         </Link>
         <Link href="/" className="ml-auto text-small font-medium text-ash hover:text-ink no-underline" target="_blank" rel="noopener">

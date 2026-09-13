@@ -45,7 +45,7 @@ export function ProjectsTable({ rows: initialRows, categories, initialStatus }: 
       },
       {
         id: "cover",
-        header: "",
+        header: () => <span className="sr-only">Cover</span>,
         cell: ({ row }) => (
           <span className="block w-[48px] h-[30px] rounded-sm bg-paper border border-divider-light overflow-hidden">
             {row.original.coverUrl ? <img src={row.original.coverUrl} alt="" width={48} height={30} className="w-full h-full object-cover" /> : null}
@@ -74,7 +74,7 @@ export function ProjectsTable({ rows: initialRows, categories, initialStatus }: 
       { accessorKey: "updatedAt", header: "Updated", cell: ({ getValue }) => <span className="data text-ash">{String(getValue()).replace("T", " ").slice(0, 16)}</span> },
       {
         id: "actions",
-        header: "",
+        header: () => <span className="sr-only">Actions</span>,
         cell: ({ row }) => (
           <span className="flex gap-1 justify-end">
             <Button size="sm" variant="ghost" href={`/admin/projects/${row.original.id}`}>Edit</Button>
@@ -145,19 +145,22 @@ export function ProjectsTable({ rows: initialRows, categories, initialStatus }: 
           {table.getHeaderGroups().map((hg) => (
             <div key={hg.id} className={cx(grid, "px-1 pb-1 border-b border-divider-light text-small text-ash")}>
               <span className="sr-only">Reorder</span>
-              {hg.headers.map((h) => (
-                <button
-                  key={h.id}
-                  type="button"
-                  className={cx("text-left text-small", h.column.getCanSort() ? "hover:text-ink" : "cursor-default")}
-                  onClick={h.column.getToggleSortingHandler()}
-                  disabled={!h.column.getCanSort()}
-                  aria-sort={h.column.getIsSorted() === "asc" ? "ascending" : h.column.getIsSorted() === "desc" ? "descending" : undefined}
-                >
-                  {flexRender(h.column.columnDef.header, h.getContext())}
-                  {h.column.getIsSorted() ? <span className="ml-[4px] data">{h.column.getIsSorted() === "asc" ? "asc" : "desc"}</span> : null}
-                </button>
-              ))}
+              {hg.headers.map((h) =>
+                h.column.getCanSort() ? (
+                  <button
+                    key={h.id}
+                    type="button"
+                    className="text-left text-small hover:text-ink"
+                    onClick={h.column.getToggleSortingHandler()}
+                    aria-sort={h.column.getIsSorted() === "asc" ? "ascending" : h.column.getIsSorted() === "desc" ? "descending" : undefined}
+                  >
+                    {flexRender(h.column.columnDef.header, h.getContext())}
+                    {h.column.getIsSorted() ? <span className="ml-[4px] data">{h.column.getIsSorted() === "asc" ? "asc" : "desc"}</span> : null}
+                  </button>
+                ) : (
+                  <span key={h.id} className="text-left text-small">{flexRender(h.column.columnDef.header, h.getContext())}</span>
+                ),
+              )}
             </div>
           ))}
           <SortableList

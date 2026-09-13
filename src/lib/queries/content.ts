@@ -57,6 +57,7 @@ export type Settings = {
   metaTitle: string | null;
   metaDescription: string | null;
   ogImageUrl: string | null;
+  faviconUrl: string | null;
   analyticsEnabled: boolean;
   gaId: string | null;
   maintenanceMode: boolean;
@@ -80,6 +81,7 @@ export const getSettings = unstable_cache(
       metaTitle: s.metaTitle,
       metaDescription: s.metaDescription,
       ogImageUrl: s.ogImageUrl,
+      faviconUrl: s.faviconUrl,
       analyticsEnabled: s.analyticsEnabled,
       gaId: s.gaId,
       maintenanceMode: s.maintenanceMode,

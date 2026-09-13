@@ -69,3 +69,8 @@ pg_dump. Repository → Settings → Secrets and variables → Actions, add:
   `<account>.r2.cloudflarestorage.com` (CORS must allow it) and the variants
   appear at `https://cdn.caparisonlab.com/projects/...`.
 - `curl -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/cron/reconcile` → 200.
+- `https://<site>/sitemap.xml`, `/robots.txt`, `/feed.xml` and `/api/og/site`
+  all respond; paste the homepage URL into a social preview checker and
+  confirm the generated image.
+- Run PageSpeed Insights on the homepage. Performance, accessibility and best
+  practices should each be 95 or above.

@@ -20,6 +20,8 @@ export function HexMark({ className, aperture = "white", title }: HexMarkProps) 
   return (
     <svg
       viewBox="0 0 100 100"
+      width="100"
+      height="100"
       className={cx("block", className)}
       role={title ? "img" : undefined}
       aria-hidden={title ? undefined : "true"}

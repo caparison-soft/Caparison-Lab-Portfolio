@@ -20,7 +20,7 @@ export function Nav({ blocks, siteName }: NavProps) {
     <header className="px-3 md:px-[48px] border-b border-divider-light bg-bone">
       <div className="max-w-layout mx-auto h-[56px] flex items-center gap-5">
         <Link href="/" className="flex items-center no-underline" aria-label={siteName}>
-          <img src="/brand/wordmark-ink.png" alt="" width={761} height={203} className="w-[128px] h-auto" />
+          <img src="/brand/wordmark-ink.png" alt="" width={384} height={102} className="w-[128px] h-[34px] object-contain" />
         </Link>
 
         <nav aria-label="Primary" className="hidden md:block">

@@ -9,7 +9,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main id="main" className="min-h-svh bg-bone px-3 md:px-[48px]">
       <div className="max-w-[400px] pt-6 md:pt-7">
-        <img src="/brand/wordmark-ink.png" alt="Caparison Lab" width={761} height={203} className="w-[128px] h-auto" />
+        <img src="/brand/wordmark-ink.png" alt="Caparison Lab" width={384} height={102} className="w-[128px] h-[34px] object-contain" />
         <h1 className="mt-5 text-h2">Sign in</h1>
         <p className="mt-1 text-body text-ash">Admin panel. One account, no signups.</p>
         <div className="mt-4">
