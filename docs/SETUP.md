@@ -43,6 +43,8 @@ Things that have to be done in dashboards, not in code. Tick them in order.
    show in the admin activity feed.
 
 ## Vercel
+
+Functions run in bom1 (Mumbai) via vercel.json, next to the ap-south-1 database. Project: caparison-lab-portfolio on the caparison-soft team.
 1. Import the repo. Framework: Next.js. Functions region: `sin1` (Singapore).
 2. Integrations → Supabase: connect the project so the Supabase vars sync.
 3. Add by hand: every R2 var, `RESEND_*`, `INQUIRY_NOTIFY_EMAIL`,
