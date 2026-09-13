@@ -16,7 +16,7 @@ export function Hero({ blocks, live }: HeroProps) {
   const headline = lines(t(blocks, "home.hero.headline")).slice(0, 3);
 
   return (
-    <section className="hero section-dark on-dark relative overflow-x-clip px-3 md:px-[48px] pt-5 lg:pt-6">
+    <section className="hero section-dark ground-ink on-dark relative overflow-x-clip px-3 md:px-[48px] pt-5 lg:pt-6">
       {/* Phones: the still in the top-right corner. Desktops get the live glass over the headline. */}
       <HeroStill desktopFallback={false} />
 

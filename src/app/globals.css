@@ -188,6 +188,9 @@
 .section-dark .muted { color: var(--color-sage); }
 .section-dark .accent { color: var(--color-lime); }
 .section-dark a { color: var(--color-bone); }
+/* Owner's call: the hero and the bar sit on ink (#000000, from the token file)
+   rather than olive-950. Text rules from .section-dark still apply. */
+.section-dark.ground-ink { background: var(--color-ink); }
 /* Exceptions: a lime button always carries ink, and the mobile menu sheet is a light surface. */
 .section-dark a.btn-primary,
 .section-dark a.btn-primary:hover { color: var(--color-ink); }

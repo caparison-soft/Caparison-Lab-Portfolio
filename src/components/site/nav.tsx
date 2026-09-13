@@ -24,7 +24,7 @@ export function Nav({ blocks, siteName }: NavProps) {
   return (
     <header className="sticky top-0 z-50">
       <NavScroll />
-      <div className="site-nav section-dark on-dark px-3 md:px-[48px]">
+      <div className="site-nav section-dark ground-ink on-dark px-3 md:px-[48px]">
         <div className="max-w-layout mx-auto h-full flex items-center gap-4">
           <Link href="/" className="flex items-center no-underline flex-none" aria-label={siteName}>
             <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="nav-wordmark w-[120px] h-[32px] object-contain" />
