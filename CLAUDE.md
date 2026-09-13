@@ -88,7 +88,7 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   data-glass-text) into the backdrop plane at their exact DOM positions, and the
   DOM copies turn transparent via .hero-block[data-glass-ready]. Fonts must be
   loaded first (document.fonts.ready). Resize repaints the backdrop.
-- Frosted: thickness 0.1, ior 1.3, dispersion 2, roughness 0.2, transmission 0.72, text plane at z -0.6
+- Frosted prism: thickness 0.22, ior 1.5, dispersion 9, roughness 0.2, transmission 0.72, text plane at z -0.6
   (owner asked for thinner, less displacement). Light rig untouched. Vendored
   additions: backdrop.size, repaintBackdrop(), darkCore (unused). Change the look
   only with the owner.
