@@ -123,7 +123,7 @@ export function HeroGlass() {
       const texW = Math.min(4096, Math.round(rect.width * 2));
       const texH = Math.round(texW * (rect.height / rect.width));
       handle = mountCaparisonLogo(canvas, {
-        src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: 2.1,
+        src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: 2.35, offset: [1.1, 0],
         // The package material, slightly thinner so the text bends less.
         glass: { thickness: 0.22, ior: 1.5, dispersion: 9, roughness: 0.3, transmission: 0.55 },
         backdrop: { color: "#ECEEE8", size: [texW, texH], draw, z: -0.6 },
@@ -161,7 +161,7 @@ export function HeroGlass() {
   return (
     <>
       {/* Over the headline block, extended upwards into the hero's top padding so the logo has room. */}
-      <div ref={hostRef} aria-hidden="true" className={cx("pointer-events-none absolute inset-x-0 -top-[72px] bottom-0 z-10", useGl ? "block" : "hidden")}>
+      <div ref={hostRef} aria-hidden="true" className={cx("pointer-events-none absolute inset-x-0 -top-[88px] -bottom-[24px] z-10", useGl ? "block" : "hidden")}>
         {useGl ? <canvas ref={canvasRef} className={cx("absolute inset-0 w-full h-full transition-opacity dur-base", ready ? "opacity-100" : "opacity-0")} /> : null}
       </div>
     </>

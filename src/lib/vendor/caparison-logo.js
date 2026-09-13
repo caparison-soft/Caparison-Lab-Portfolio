@@ -23,6 +23,7 @@ const DEFAULTS = {
   pointerParallax: true,  // logo leans toward the cursor
   scrollTilt: true,
   fit: 1.75,              // how much of the frame the logo fills
+  offset: [0, 0],         // shift the logo in world units [x, y]; 0,0 = centred
   backdrop: null,         // what should be visible THROUGH the glass — see below
   exposure: 1.15,
   maxPixelRatio: 2,
@@ -163,6 +164,7 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
   }
 
   const group = new THREE.Group();
+  group.position.set(opt.offset[0] || 0, opt.offset[1] || 0, 0);
   scene.add(group);
 
   let disposed = false;
