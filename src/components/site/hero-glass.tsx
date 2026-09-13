@@ -125,9 +125,9 @@ export function HeroGlass() {
       const texW = Math.min(4096, Math.round(rect.width * 2));
       const texH = Math.round(texW * (rect.height / rect.width));
       handle = mountCaparisonLogo(canvas, {
-        src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: 1.9, offset: [1.2, 0], depthScale: 0.6, swing: 0.55,
+        src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: 1.9, offset: [0.55, 0], depthScale: 0.6, swing: 0.55,
         // The package material, slightly thinner so the text bends less.
-        glass: { thickness: 0.22, ior: 1.5, dispersion: 9, roughness: 0.3, transmission: 0.75, envMapIntensity: 2.2 },
+        glass: { thickness: 0.22, ior: 1.5, dispersion: 9, roughness: 0.1, transmission: 0.95, envMapIntensity: 2.2 },
         backdrop: { color: ground, size: [texW, texH], draw, z: -0.8 },
       });
     };
