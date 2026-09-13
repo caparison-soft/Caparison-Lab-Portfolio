@@ -26,6 +26,7 @@ const DEFAULTS = {
   offset: [0, 0],         // shift the logo in world units [x, y]; 0,0 = centred
   depthScale: 1,          // <1 flattens the mesh along its depth so it reads thinner side-on
   swing: null,            // radians: oscillate ±swing around Y instead of a full spin
+  envPreset: 'strips',    // 'strips' (original rig) or 'wide' (broad softboxes)
   backdrop: null,         // what should be visible THROUGH the glass — see below
   exposure: 1.15,
   maxPixelRatio: 2,
@@ -37,18 +38,24 @@ const DEFAULTS = {
 /** Studio softbox strips — same light rig as the Blender render.
  *  Mostly black with two bright bands: that is what makes the white
  *  streaks and the deep darks inside the glass. */
-function studioStripEnv() {
+function studioStripEnv(preset = 'strips') {
   const c = document.createElement('canvas');
   c.width = 1024; c.height = 512;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = preset === 'wide' ? '#141414' : '#000000';
   ctx.fillRect(0, 0, 1024, 512);
   const g = ctx.createLinearGradient(0, 512, 0, 0);
-  [
+  // 'strips': the original rig, thin bands. 'wide': broad softboxes for wide
+  // bright reflections on a dark page (the glass otherwise reflects thin lines).
+  (preset === 'wide' ? [
+    [0.00, '#141414'], [0.10, '#141414'], [0.18, '#ffffff'], [0.32, '#ffffff'], [0.40, '#141414'],
+    [0.46, '#141414'], [0.52, '#ffffff'], [0.62, '#ffffff'], [0.70, '#141414'],
+    [0.76, '#141414'], [0.80, '#c8c8c8'], [0.92, '#c8c8c8'], [1.00, '#141414']
+  ] : [
     [0.00, '#000000'], [0.17, '#000000'], [0.225, '#ffffff'], [0.28, '#000000'],
     [0.45, '#000000'], [0.505, '#ffffff'], [0.56, '#000000'],
     [0.74, '#000000'], [0.79, '#b4b4b4'], [0.845, '#000000'], [1.00, '#000000']
-  ].forEach(([p, col]) => g.addColorStop(p, col));
+  ]).forEach(([p, col]) => g.addColorStop(p, col));
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 1024, 512);
   const tex = new THREE.CanvasTexture(c);
@@ -123,7 +130,7 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
   camera.position.set(0, 0, 4.1);
 
-  const env = studioStripEnv();
+  const env = studioStripEnv(opt.envPreset);
   scene.environment = env;
   if (!opt.transparent) {
     scene.background = env;

@@ -13,6 +13,7 @@ export type CaparisonLogoOptions = {
   offset?: [number, number];
   depthScale?: number;
   swing?: number | null;
+  envPreset?: "strips" | "wide";
   backdrop?: { color?: string; image?: string; draw?: (ctx: CanvasRenderingContext2D, w: number, h: number) => void; z?: number; size?: [number, number] } | null;
   exposure?: number;
   maxPixelRatio?: number;

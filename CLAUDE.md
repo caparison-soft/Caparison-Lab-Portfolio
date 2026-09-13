@@ -93,7 +93,7 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   data-glass-text) into the backdrop plane at their exact DOM positions, and the
   DOM copies turn transparent via .hero-block[data-glass-ready]. Fonts must be
   loaded first (document.fonts.ready). Resize repaints the backdrop.
-- Prism on the dark hero: thickness 0.22, ior 1.5, dispersion 9, roughness 0.1, transmission 0.95, envMapIntensity 2.2, offset x 0.55 over the line ends, backdrop takes the section background, text plane at z -0.8, fit 1.9, offset x 1.2 (over the line ends), depthScale 0.6, swing ±0.55 rad instead of a full spin
+- Clear glass on the dark hero: thickness 0.6, ior 1.6, dispersion 6, roughness 0.02, clearcoat 1, transmission 0.92, envMapIntensity 2.2, envPreset "wide" (broad softboxes; the original thin-strip rig stays the module default), depthScale 0.85, offset x 0.55 over the line ends, backdrop takes the section background, text plane at z -0.8, fit 1.9, offset x 1.2 (over the line ends), depthScale 0.6, swing ±0.55 rad instead of a full spin
   (owner asked for thinner, less displacement). Light rig untouched. Vendored
   additions: backdrop.size, repaintBackdrop(), darkCore (unused). Change the look
   only with the owner.
