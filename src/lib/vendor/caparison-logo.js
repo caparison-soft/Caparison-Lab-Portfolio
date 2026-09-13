@@ -71,16 +71,22 @@ function studioStripEnv() {
  */
 function makeBackdrop(THREE, spec, onReady) {
   const c = document.createElement('canvas');
-  c.width = 2048; c.height = 1024;
+  // size: [w, h] lets the texture match the canvas aspect so painted text is not stretched.
+  c.width = (spec.size && spec.size[0]) || 2048; c.height = (spec.size && spec.size[1]) || 1024;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = spec.color || '#F1F1EF';
-  ctx.fillRect(0, 0, c.width, c.height);
+  const paint = () => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.fillStyle = spec.color || '#F1F1EF';
+    ctx.fillRect(0, 0, c.width, c.height);
+    if (spec.draw) spec.draw(ctx, c.width, c.height);
+  };
+  paint();
 
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 8;
-
-  if (spec.draw) spec.draw(ctx, c.width, c.height);
+  tex.userData.repaint = () => { paint(); tex.needsUpdate = true; };
 
   if (spec.image) {
     const img = new Image();
@@ -246,6 +252,8 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
 
   return {
     setAutoRotate(v) { autoRotate = v; },
+    /** Re-run the backdrop draw callback (after a resize, for example). */
+    repaintBackdrop() { if (backdrop) backdrop.material.map.userData.repaint(); },
     material,
     dispose() {
       disposed = true;

@@ -79,16 +79,19 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 
 ## 3D logo (hero)
 - public/caparison_logo.glb + src/lib/vendor/caparison-logo.js (from
-  Assets/caparison-logo-3d.zip, vanilla build). src/components/site/hero-mark-3d.tsx
-  paints public/brand/logo-3d-*.webp first and swaps in the canvas on logo:ready.
-  WebGL only at lg+ with WebGL available and no reduced-motion preference.
-- At lg+ the logo floats centred over the headline; below lg the still sits in the
-  top-right corner. The owner asked for clear, thin, low-distortion glass over the
-  text, so the material is overridden in hero-mark-3d.tsx: transmission with
-  thickness 0.08, ior 1.25, alpha 0.62, no backdrop, no dark core. three.js cannot
-  refract the DOM, so see-through is alpha blending; a backdrop plane would cover
-  the words. The light rig is untouched. The vendored module also has a `darkCore`
-  option (unused now) from an earlier iteration. Change looks only with the owner.
+  Assets/caparison-logo-3d.zip, vanilla build). src/components/site/hero-glass.tsx
+  mounts it at lg+ with WebGL and no reduced-motion preference, three seconds
+  after load and only when idle; otherwise HeroStill shows the trimmed WebP still
+  (public/brand/logo-3d-*.webp) in the top-right corner.
+- Real refraction over the headline: three.js can only refract what it draws, so
+  hero-glass.tsx paints the headline lines and the sub (elements marked
+  data-glass-text) into the backdrop plane at their exact DOM positions, and the
+  DOM copies turn transparent via .hero-block[data-glass-ready]. Fonts must be
+  loaded first (document.fonts.ready). Resize repaints the backdrop.
+- Material is the package default with thickness 0.3, ior 1.45, dispersion 4
+  (owner asked for thinner, less displacement). Light rig untouched. Vendored
+  additions: backdrop.size, repaintBackdrop(), darkCore (unused). Change the look
+  only with the owner.
 
 ## Audits
 - Never run `next dev` and `next start` at the same time: both use .next and

@@ -10,7 +10,7 @@ export type CaparisonLogoOptions = {
   pointerParallax?: boolean;
   scrollTilt?: boolean;
   fit?: number;
-  backdrop?: { color?: string; image?: string; draw?: (ctx: CanvasRenderingContext2D, w: number, h: number) => void; z?: number } | null;
+  backdrop?: { color?: string; image?: string; draw?: (ctx: CanvasRenderingContext2D, w: number, h: number) => void; z?: number; size?: [number, number] } | null;
   exposure?: number;
   maxPixelRatio?: number;
   glass?: MeshPhysicalMaterialParameters;
@@ -20,6 +20,7 @@ export type CaparisonLogoOptions = {
 
 export type CaparisonLogoHandle = {
   setAutoRotate(v: boolean): void;
+  repaintBackdrop(): void;
   material: MeshPhysicalMaterial;
   dispose(): void;
 };

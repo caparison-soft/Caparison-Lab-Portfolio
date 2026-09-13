@@ -390,3 +390,7 @@
 .editor-prose img { max-width: 100%; border-radius: 12px; }
 .editor-prose a { color: var(--color-cobalt); }
 .editor-prose p.is-editor-empty:first-child::before { content: "Write the case study."; color: var(--color-ash); float: left; height: 0; pointer-events: none; }
+
+/* Hero glass: once the 3D scene has painted the text, the DOM copy is invisible
+   (still selectable and read by assistive tech). */
+.hero-block[data-glass-ready="true"] [data-glass-text] { color: transparent; }

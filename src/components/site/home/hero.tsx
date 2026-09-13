@@ -1,5 +1,5 @@
 import { Button, SectionMarker, SpineIndex, StatusDot, TagList } from "@/components/ui";
-import { HeroMark3D } from "@/components/site/hero-mark-3d";
+import { HeroGlass, HeroStill } from "@/components/site/hero-glass";
 import type { Blocks, Settings } from "@/lib/queries/content";
 import { lines, t } from "@/lib/queries/content";
 import type { LiveProject } from "@/lib/queries/home";
@@ -25,10 +25,8 @@ export function Hero({ blocks, settings, live }: HeroProps) {
 
   return (
     <section className="relative overflow-x-clip bg-bone px-3 md:px-[48px] pt-4 lg:pt-6">
-      {/* Below lg: the still in the top-right corner, clipped by the viewport. */}
-      <div className="reveal-mark absolute top-0 right-[-72px] w-[200px] md:w-[240px] md:right-[-96px] lg:hidden">
-        <HeroMark3D className="w-full" />
-      </div>
+      {/* Phones: the still in the top-right corner. Desktops get the live glass over the headline. */}
+      <HeroStill desktopFallback={false} />
 
       <div className="max-w-layout mx-auto grid grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)] gap-3 lg:gap-5">
         <aside className="reveal-quick pt-[120px] md:pt-[140px] lg:pt-[8px] lg:sticky lg:top-3 lg:self-start" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
@@ -39,24 +37,22 @@ export function Hero({ blocks, settings, live }: HeroProps) {
         </aside>
 
         <div className="min-w-0">
-          {/* lg+: the glass logo floats centred over the headline. Real alpha
-              transparency (not refraction) so the words stay readable through it.
-              pointer-events none so nothing under it is blocked. */}
-          <div className="relative">
-          <div className="reveal-mark pointer-events-none hidden lg:block absolute z-10 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[440px] xl:w-[520px]">
-            <HeroMark3D className="w-full" />
-          </div>
+          {/* lg+: the glass logo over the headline with real refraction. The
+              headline and sub are painted into the glass scene at their DOM
+              positions; the DOM copies go transparent once the glass is ready. */}
+          <div className="relative hero-block">
+          <HeroGlass />
           <h1>
             {headline.map((line, i) => (
-              <span key={i} className="block reveal" style={{ "--reveal-delay": `${i * 60}ms` } as React.CSSProperties}>
+              <span key={i} data-glass-text className="block reveal" style={{ "--reveal-delay": `${i * 60}ms` } as React.CSSProperties}>
                 {line}
               </span>
             ))}
           </h1>
-          </div>
-          <p className="reveal-quick mt-4 text-body-l text-ash max-w-[52ch]" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
+          <p data-glass-text className="reveal-quick mt-4 text-body-l text-ash max-w-[52ch]" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
             {t(blocks, "home.hero.sub")}
           </p>
+          </div>
           <div className="reveal-quick mt-4 flex flex-wrap items-center gap-2" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
             <Button href="/contact">{t(blocks, "home.hero.ctaPrimary")}</Button>
           </div>
