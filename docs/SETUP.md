@@ -2,7 +2,7 @@
 
 Things that have to be done in dashboards, not in code. Tick them in order.
 
-## Supabase (region: ap-southeast-1, Singapore)
+## Supabase (region: ap-south-1, Mumbai; project created 2026-09-13)
 1. Create the project in ap-southeast-1. Save the database password.
 2. Project Settings → Database → Connection string. Copy both:
    - Transaction pooler (port 6543) → `DATABASE_URL`, append `?pgbouncer=true&connection_limit=1`

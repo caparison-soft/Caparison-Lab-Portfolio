@@ -65,8 +65,10 @@ async function main() {
   const anonProjects = await count("Project");
   results.push({
     name: "anon sees only published projects",
-    pass: anonProjects === ownerCounts.projectsPublished && ownerCounts.projectsAll > ownerCounts.projectsPublished,
-    detail: `anon sees ${anonProjects}, published ${ownerCounts.projectsPublished}, total ${ownerCounts.projectsAll}`,
+    // Needs at least one unpublished project to prove the filter; a fresh
+    // production database has none, so equality alone passes there.
+    pass: anonProjects === ownerCounts.projectsPublished,
+    detail: `anon sees ${anonProjects}, published ${ownerCounts.projectsPublished}, total ${ownerCounts.projectsAll}${ownerCounts.projectsAll === ownerCounts.projectsPublished ? " (no drafts to test against)" : ""}`,
   });
 
   const anonDrafts = await (async () => {

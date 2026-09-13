@@ -429,6 +429,24 @@ async function main() {
     tagIds[t.slug] = row.id;
   }
 
+  // SEED_SAMPLES=false (production): copy, settings, taxonomy, capabilities and
+  // process steps only. No sample projects, testimonials, stats, team, faqs or
+  // enquiries; those are invented and must not go live.
+  const samples = process.env.SEED_SAMPLES !== "false";
+
+  console.log("Seeding capabilities and process steps…");
+  for (const c of capabilities) {
+    await prisma.capability.upsert({ where: { slug: c.slug }, create: { ...c, status: "PUBLISHED" }, update: { ...c, status: "PUBLISHED" } });
+  }
+  await prisma.processStep.deleteMany({});
+  await prisma.processStep.createMany({ data: processSteps.map((s) => ({ ...s, status: "PUBLISHED" })) });
+
+  if (!samples) {
+    console.log("SEED_SAMPLES=false: skipping sample projects, testimonials, stats, team, faqs and enquiries.");
+    console.log("Seeded:", { contentBlocks: await prisma.contentBlock.count(), capabilities: await prisma.capability.count(), processSteps: await prisma.processStep.count(), tags: await prisma.tag.count() });
+    return;
+  }
+
   console.log("Seeding projects…");
   const projectIds: Record<string, string> = {};
   for (const pr of projects) {
@@ -457,14 +475,7 @@ async function main() {
     await prisma.projectMetric.createMany({ data: pr.metrics.map((m, i) => ({ ...m, projectId: row.id, order: i })) });
   }
 
-  console.log("Seeding capabilities, process, testimonials, stats, team, faqs…");
-  for (const c of capabilities) {
-    await prisma.capability.upsert({ where: { slug: c.slug }, create: { ...c, status: "PUBLISHED" }, update: { ...c, status: "PUBLISHED" } });
-  }
-
-  await prisma.processStep.deleteMany({});
-  await prisma.processStep.createMany({ data: processSteps.map((s) => ({ ...s, status: "PUBLISHED" })) });
-
+  console.log("Seeding testimonials, stats, team, faqs…");
   await prisma.testimonial.deleteMany({});
   await prisma.testimonial.createMany({
     data: testimonials.map(({ project, ...t }) => ({ ...t, projectId: project ? projectIds[project] : null, status: "PUBLISHED" })),
