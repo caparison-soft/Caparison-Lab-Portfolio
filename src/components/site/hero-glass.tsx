@@ -138,8 +138,14 @@ export function HeroGlass() {
       const rect = host.getBoundingClientRect();
       const texW = Math.min(4096, Math.round(rect.width * 2));
       const texH = Math.round(texW * (rect.height / rect.width));
+      // Anchor the logo to the right edge of the block so it clears the headline:
+      // the camera (fov 34 at z 4.1) shows 2.507 world units of height across the host.
+      const FIT = 1.9;
+      const unitsPerPx = 2.507 / rect.height;
+      const centrePx = rect.width - FIT / 2 / unitsPerPx - 8;
+      const offsetX = Math.max(0.55, (centrePx - rect.width / 2) * unitsPerPx);
       handle = mountCaparisonLogo(canvas, {
-        src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: 1.9, offset: [0.55, 0], depthScale: 0.65, swing: 0.55, envPreset: "wide",
+        src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: FIT, offset: [offsetX, 0], depthScale: 0.65, swing: 0.55, envPreset: "wide",
         // The package material, slightly thinner so the text bends less.
         glass: { thickness: 0.15, ior: 1.6, dispersion: 6, roughness: 0.02, clearcoat: 1, clearcoatRoughness: 0.02, transmission: 1, envMapIntensity: 3.6, specularIntensity: 1 },
         // Opaque ground in the section colour, repainted every frame with the
