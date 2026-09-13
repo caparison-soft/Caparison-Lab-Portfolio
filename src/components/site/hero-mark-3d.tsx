@@ -41,12 +41,10 @@ export function HeroMark3D({ className }: { className?: string }) {
     const onReady = () => setReady(true);
     canvas.addEventListener("logo:ready", onReady);
 
-    // Load three.js after the page is idle so it never competes with the hero paint.
-    const idle = (cb: () => void) => {
-      if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(cb, { timeout: 1500 });
-      else window.setTimeout(cb, 300);
-    };
-    idle(() => {
+    // Start well after load and only when the browser is idle: the shader
+    // compile and mesh parse are a long task, and the still is already on
+    // screen, so nothing is waiting on this.
+    const start = () => {
       if (cancelled) return;
       import("@/lib/vendor/caparison-logo").then(({ mountCaparisonLogo }) => {
         if (cancelled) return;
@@ -62,9 +60,21 @@ export function HeroMark3D({ className }: { className?: string }) {
           darkCoreScale: 0.92,
         });
       }).catch(() => setUseGl(false));
-    });
+    };
+    const afterLoad = () => {
+      const timer = window.setTimeout(() => {
+        if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(() => start(), { timeout: 4000 });
+        else start();
+      }, 3000);
+      timers.push(timer);
+    };
+    const timers: number[] = [];
+    if (document.readyState === "complete") afterLoad();
+    else window.addEventListener("load", afterLoad, { once: true });
 
     return () => {
+      timers.forEach((t) => window.clearTimeout(t));
+      window.removeEventListener("load", afterLoad);
       cancelled = true;
       canvas.removeEventListener("logo:ready", onReady);
       handle?.dispose();
