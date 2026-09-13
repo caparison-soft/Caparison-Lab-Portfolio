@@ -1,12 +1,10 @@
-import { Button, SectionMarker, SpineIndex, StatusDot, TagList } from "@/components/ui";
+import { Button, SectionMarker, TagList } from "@/components/ui";
 import { HeroGlass, HeroStill } from "@/components/site/hero-glass";
 import type { Blocks, Settings } from "@/lib/queries/content";
 import { lines, t } from "@/lib/queries/content";
 import type { LiveProject } from "@/lib/queries/home";
 
-type HeroProps = { blocks: Blocks; settings: Settings; live: LiveProject | null };
-
-const availabilityStatus = { AVAILABLE: "live", LIMITED: "progress", BOOKED: "draft" } as const;
+type HeroProps = { blocks: Blocks; settings?: Settings; live: LiveProject | null };
 
 /**
  * The hero. Rail: availability and the section index. Column: three-line
@@ -14,28 +12,15 @@ const availabilityStatus = { AVAILABLE: "live", LIMITED: "progress", BOOKED: "dr
  * hands off into the dark work section beneath. The hex mark bleeds off the
  * right edge in its own space; nothing sits under it.
  */
-export function Hero({ blocks, settings, live }: HeroProps) {
+export function Hero({ blocks, live }: HeroProps) {
   const headline = lines(t(blocks, "home.hero.headline")).slice(0, 3);
-  const indexItems = [
-    { href: "#work", label: t(blocks, "home.work.marker"), active: true },
-    { href: "#capabilities", label: t(blocks, "home.capabilities.marker") },
-    { href: "#process", label: t(blocks, "home.process.marker") },
-    { href: "#contact", label: t(blocks, "home.contact.marker") },
-  ];
 
   return (
     <section className="relative overflow-x-clip bg-bone px-3 md:px-[48px] pt-5 lg:pt-6">
       {/* Phones: the still in the top-right corner. Desktops get the live glass over the headline. */}
       <HeroStill desktopFallback={false} />
 
-      <div className="max-w-layout mx-auto grid grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)] gap-3 lg:gap-5">
-        <aside className="reveal-quick pt-[120px] md:pt-[140px] lg:pt-[8px] lg:sticky lg:top-3 lg:self-start" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
-          <div className="flex flex-col gap-3">
-            <StatusDot status={availabilityStatus[settings.availabilityStatus]} label={settings.availabilityNote ?? settings.availabilityStatus.toLowerCase()} />
-            <SpineIndex items={indexItems} className="hidden lg:block" />
-          </div>
-        </aside>
-
+      <div className="max-w-layout mx-auto pt-[120px] md:pt-[140px] lg:pt-0">
         <div className="min-w-0">
           {/* lg+: the glass logo over the headline with real refraction. The
               headline and sub are painted into the glass scene at their DOM

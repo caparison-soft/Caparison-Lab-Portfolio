@@ -312,13 +312,25 @@
   position: fixed;
   left: 0;
   right: 0;
-  top: 80px;
+  top: 64px;
   bottom: 0;
   z-index: 40;
   background: var(--color-bone);
   padding: 16px 24px;
   overflow-y: auto;
 }
+
+/* ---- The bar: 64px at the top of the page, 48px once scrolled, wordmark
+   gives way to the mark. Height animates; reduced motion keeps colour only. ---- */
+.site-nav {
+  height: 64px;
+  transition: height var(--duration-base) var(--ease-in-out);
+}
+.nav-icon { display: none; }
+html[data-nav-compact="true"] .site-nav { height: 48px; }
+html[data-nav-compact="true"] .nav-wordmark { display: none; }
+html[data-nav-compact="true"] .nav-icon { display: block; }
+html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 
 /* ---- The capability sheet: shared hairlines, no gap, no radius ---- */
 .sheet {

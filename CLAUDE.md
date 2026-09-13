@@ -77,6 +77,11 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   records the email in AuditLog instead of sending. Inbox at /admin/inquiries;
   CSV at /admin/inquiries/export; Resend webhook at /api/webhooks/resend.
 
+## Navigation
+- Full-width olive-950 bar, sticky. NavScroll sets html[data-nav-compact] past
+  64px of scroll; CSS shrinks the bar to 48px and swaps the wordmark for the hex
+  mark. The hero has no spine rail; other sections keep theirs.
+
 ## 3D logo (hero)
 - public/caparison_logo.glb + src/lib/vendor/caparison-logo.js (from
   Assets/caparison-logo-3d.zip, vanilla build). src/components/site/hero-glass.tsx

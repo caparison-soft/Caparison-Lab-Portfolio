@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui";
+import { HexMark } from "@/components/site/hex-mark";
+import { NavScroll } from "@/components/site/nav-scroll";
 import type { Blocks } from "@/lib/queries/content";
 import { t } from "@/lib/queries/content";
 
@@ -13,18 +15,20 @@ const links = [
 ] as const;
 
 /**
- * Floating dark bar, inset from the edges and sticky. Wordmark left, links
- * centred, the primary action right. olive-950, 12px radius, lowercase
- * Satoshi links. On phones the links live in a <details> sheet with no
- * client JavaScript.
+ * Full-width dark bar, sticky at the top. Wordmark left, links centred, the
+ * primary action right. Once the page scrolls it shrinks and the wordmark
+ * becomes the hex mark (see .site-nav in globals.css). On phones the links
+ * live in a <details> sheet with no client JavaScript.
  */
 export function Nav({ blocks, siteName }: NavProps) {
   return (
-    <header className="sticky top-2 z-50 px-2 md:px-3">
-      <div className="section-dark on-dark rounded-lg h-[64px] px-3 md:px-[48px]">
+    <header className="sticky top-0 z-50">
+      <NavScroll />
+      <div className="site-nav section-dark on-dark px-3 md:px-[48px]">
         <div className="max-w-layout mx-auto h-full flex items-center gap-4">
           <Link href="/" className="flex items-center no-underline flex-none" aria-label={siteName}>
-            <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="w-[120px] h-[32px] object-contain" />
+            <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="nav-wordmark w-[120px] h-[32px] object-contain" />
+            <HexMark className="nav-icon w-[28px] h-[28px]" />
           </Link>
 
           <nav aria-label="Primary" className="hidden md:flex flex-1 justify-center">
