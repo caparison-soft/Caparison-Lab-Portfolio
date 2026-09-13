@@ -72,7 +72,9 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   :9000 storing under .dev-s3/. .env sets R2_ENDPOINT and NEXT_PUBLIC_CDN_URL
   to it. Production leaves R2_ENDPOINT unset. Upload flow: requestUpload
   (presign) -> browser PUT -> confirmUpload (sniff, caps, sharp variants,
-  ffmpeg poster via ffmpeg-static, Media row). deleteMedia removes every
+  ffmpeg poster via ffmpeg-static, Media row; on Vercel the ffmpeg binary
+  only reaches the function through outputFileTracingIncludes for /admin/**
+  in next.config.ts, found live 2026-09-13). deleteMedia removes every
   object under the prefix and fails loudly. /api/cron/reconcile reports
   orphans weekly into AuditLog; the library shows the latest report.
 - Backups: /api/cron/backup (weekly, vercel.json) dumps every public table
