@@ -127,10 +127,16 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   data-glass-text) into the backdrop plane at their exact DOM positions, and the
   DOM copies turn transparent via .hero-block[data-glass-ready]. Fonts must be
   loaded first (document.fonts.ready). Resize repaints the backdrop.
-- Clear glass on the dark hero: thickness 0.15, ior 1.6, dispersion 6, roughness 0.02, clearcoat 1, transmission 1, envMapIntensity 3.6, envPreset "wide" (broad softboxes on a near-black #0a0a0a base so faces keep a faint hint on black; the original thin-strip rig stays the module default), depthScale 0.65, offset x computed at mount so the logo sits against the block's right edge and clears the headline (min 0.55), backdrop takes the section background, text plane at z -0.8, fit 1.9, offset x 1.2 (over the line ends), depthScale 0.6, swing ±0.55 rad instead of a full spin
-  (owner asked for thinner, less displacement). Light rig untouched. Vendored
-  additions: backdrop.size, repaintBackdrop(), darkCore (unused). Change the look
-  only with the owner.
+- Clear glass on the dark hero (owner, 2026-09-13: more transparent, less white
+  on the faces, brighter edges): thickness 0.12, ior 1.5, dispersion 6,
+  roughness 0, clearcoat 1, clearcoatRoughness 0, transmission 1,
+  envMapIntensity 3.2, envPreset "strips" (thin bands give rim glints instead
+  of white faces; "wide" remains available), depthScale 0.65, fit 1.9, swing
+  ±0.55 rad instead of a full spin, backdrop takes the section background,
+  text plane at z -0.8. The canvas host runs 240px past the block's right edge
+  and the x offset is computed from the block width, so the near side never
+  clips while swinging. Light rig untouched. Vendored additions: backdrop.size,
+  repaintBackdrop(), darkCore (unused). Change the look only with the owner.
 
 ## Buttons
 - Public site (owner's call, 2026-09-13): every filled button is the liquid metal

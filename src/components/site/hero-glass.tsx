@@ -139,15 +139,18 @@ export function HeroGlass() {
       const texW = Math.min(4096, Math.round(rect.width * 2));
       const texH = Math.round(texW * (rect.height / rect.width));
       // Anchor the logo to the right edge of the block so it clears the headline:
-      // the camera (fov 34 at z 4.1) shows 2.507 world units of height across the host.
+      // the camera (fov 34 at z 4.1) shows 2.507 world units of height across the
+      // host. The host runs 240px past the block so the near side of the swinging
+      // logo is never cut by the canvas edge.
       const FIT = 1.9;
       const unitsPerPx = 2.507 / rect.height;
-      const centrePx = rect.width - FIT / 2 / unitsPerPx - 8;
+      const blockW = block.getBoundingClientRect().width;
+      const centrePx = blockW - FIT / 2 / unitsPerPx - 8;
       const offsetX = Math.max(0.55, (centrePx - rect.width / 2) * unitsPerPx);
       handle = mountCaparisonLogo(canvas, {
-        src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: FIT, offset: [offsetX, 0], depthScale: 0.65, swing: 0.55, envPreset: "wide",
+        src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: FIT, offset: [offsetX, 0], depthScale: 0.65, swing: 0.55, envPreset: "strips",
         // The package material, slightly thinner so the text bends less.
-        glass: { thickness: 0.15, ior: 1.6, dispersion: 6, roughness: 0.02, clearcoat: 1, clearcoatRoughness: 0.02, transmission: 1, envMapIntensity: 3.6, specularIntensity: 1 },
+        glass: { thickness: 0.12, ior: 1.5, dispersion: 6, roughness: 0, clearcoat: 1, clearcoatRoughness: 0, transmission: 1, envMapIntensity: 3.2, specularIntensity: 1 },
         // Opaque ground in the section colour, repainted every frame with the
         // live lines and the text, so the glass refracts what the page shows.
         backdrop: { color: getComputedStyle(host.closest("section") ?? document.body).backgroundColor, size: [texW, texH], draw, z: -0.8, live: true },
@@ -184,8 +187,8 @@ export function HeroGlass() {
 
   return (
     <>
-      {/* Over the headline block, extended upwards into the hero's top padding so the logo has room. */}
-      <div ref={hostRef} aria-hidden="true" className={cx("pointer-events-none absolute inset-x-0 -top-[88px] -bottom-[24px] z-10", useGl ? "block" : "hidden")}>
+      {/* Over the headline block, extended upwards into the hero's top padding and 240px to the right so the logo has room. */}
+      <div ref={hostRef} aria-hidden="true" className={cx("pointer-events-none absolute left-0 -right-[240px] -top-[88px] -bottom-[24px] z-10", useGl ? "block" : "hidden")}>
         {useGl ? <canvas ref={canvasRef} className={cx("absolute inset-0 w-full h-full transition-opacity dur-base", ready ? "opacity-100" : "opacity-0")} /> : null}
       </div>
     </>
