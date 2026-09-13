@@ -47,3 +47,30 @@ export async function getDashboard(): Promise<DashboardData> {
     lastRevalidation: lastRevalidation?.createdAt.toISOString() ?? null,
   };
 }
+
+export type InquiryRow = {
+  id: string;
+  name: string;
+  email: string;
+  company: string | null;
+  phone: string | null;
+  budgetBand: string | null;
+  timelineBand: string | null;
+  projectType: string | null;
+  message: string;
+  sourcePath: string | null;
+  referrer: string | null;
+  status: "NEW" | "READ" | "REPLIED" | "QUALIFIED" | "WON" | "LOST";
+  internalNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  sourceProject: { id: string; title: string; slug: string } | null;
+};
+
+export async function getInquiries(): Promise<InquiryRow[]> {
+  const rows = await prisma.inquiry.findMany({
+    orderBy: { createdAt: "desc" },
+    include: { sourceProject: { select: { id: true, title: true, slug: true } } },
+  });
+  return rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString() }));
+}

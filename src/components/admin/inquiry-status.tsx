@@ -14,7 +14,7 @@ const STATUSES: { value: InquiryStatus; label: string }[] = [
   { value: "LOST", label: "Lost" },
 ];
 
-export function InquiryStatusSelect({ id, status, label }: { id: string; status: InquiryStatus; label: string }) {
+export function InquiryStatusSelect({ id, status, label, onChanged }: { id: string; status: InquiryStatus; label: string; onChanged?: (s: InquiryStatus) => void }) {
   const [current, setCurrent] = useState<InquiryStatus>(status);
   const [optimistic, setOptimistic] = useOptimistic(current);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,7 @@ export function InquiryStatusSelect({ id, status, label }: { id: string; status:
     startTransition(async () => {
       setOptimistic(next);
       const result = await updateInquiryStatus(id, next);
-      if (result.ok) setCurrent(next);
+      if (result.ok) { setCurrent(next); onChanged?.(next); }
       else setError(result.error);
     });
   }

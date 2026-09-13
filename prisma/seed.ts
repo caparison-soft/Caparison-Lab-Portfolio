@@ -79,7 +79,7 @@ const blocks: Block[] = [
   { key: "form.error.generic", group: "Contact form", label: "Generic error", value: "That didn't send. Check your connection and try again, or email us directly." },
   { key: "form.error.email", group: "Contact form", label: "Email error", value: "Enter an email address we can reply to." },
   { key: "form.error.required", group: "Contact form", label: "Required field error", value: "This field is required." },
-  { key: "form.error.rateLimited", group: "Contact form", label: "Rate limit error", value: "Too many attempts. Wait a minute and try again." },
+  { key: "form.error.rateLimited", group: "Contact form", label: "Rate limit error", value: "Too many enquiries from this connection. Try again in an hour, or email us directly." },
 
   // Work index
   { key: "work.index.heading", group: "Work", label: "Work index heading", value: "Work" },

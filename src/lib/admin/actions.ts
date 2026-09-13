@@ -42,3 +42,33 @@ export async function revalidateSite(): Promise<ActionResult<{ at: string }>> {
     return { ok: false, error: error instanceof Error ? error.message : "Could not revalidate." };
   }
 }
+
+/** Internal notes are the only editable text on an enquiry. */
+export async function saveInquiryNotes(id: string, notes: string): Promise<ActionResult> {
+  try {
+    const user = await assertAdmin();
+    const value = z.string().max(5000).parse(notes);
+    await prisma.inquiry.update({ where: { id }, data: { internalNotes: value.trim() || null } });
+    await logAudit({ userId: user.id, action: "inquiry.notes", entity: "Inquiry", entityId: id });
+    revalidatePath("/admin/inquiries");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Could not save the notes." };
+  }
+}
+
+/** Opening a new enquiry marks it read. Silent when already past NEW. */
+export async function markInquiryRead(id: string): Promise<ActionResult> {
+  try {
+    const user = await assertAdmin();
+    const r = await prisma.inquiry.updateMany({ where: { id, status: "NEW" }, data: { status: "READ" } });
+    if (r.count > 0) {
+      await logAudit({ userId: user.id, action: "inquiry.status", entity: "Inquiry", entityId: id, diff: { from: "NEW", to: "READ" } });
+      revalidatePath("/admin");
+      revalidatePath("/admin/inquiries");
+    }
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "Could not update." };
+  }
+}

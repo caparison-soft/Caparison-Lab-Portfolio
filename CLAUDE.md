@@ -72,6 +72,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   object under the prefix and fails loudly. /api/cron/reconcile reports
   orphans weekly into AuditLog; the library shows the latest report.
 - Backups: .github/workflows/backup.yml (weekly pg_dump to R2, keeps eight).
+- Enquiries: submitInquiry rate-limits from AuditLog (5/hour per IP, 3/day per
+  email) and notifies via Resend (src/lib/email.ts). EMAIL_DRY_RUN=true in .env
+  records the email in AuditLog instead of sending. Inbox at /admin/inquiries;
+  CSV at /admin/inquiries/export; Resend webhook at /api/webhooks/resend.
 
 ## Voice
 Plain, specific, understated. Numbers over adjectives. Sentence case.

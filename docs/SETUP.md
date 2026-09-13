@@ -37,6 +37,10 @@ Things that have to be done in dashboards, not in code. Tick them in order.
 1. Add and verify the `caparisonlab.com` domain.
 2. Create an API key → `RESEND_API_KEY`. Set `RESEND_FROM` and
    `INQUIRY_NOTIFY_EMAIL`.
+3. Optional: Webhooks → Add endpoint `https://<site>/api/webhooks/resend`
+   with the events `email.delivered`, `email.bounced`, `email.complained`.
+   Copy the signing secret → `RESEND_WEBHOOK_SECRET`. Delivery events then
+   show in the admin activity feed.
 
 ## Vercel
 1. Import the repo. Framework: Next.js. Functions region: `sin1` (Singapore).

@@ -37,6 +37,10 @@ export const serverSchema = z.object({
   RESEND_API_KEY: nonEmpty,
   RESEND_FROM: z.string().email().or(z.string().regex(/^.+<.+@.+>$/)),
   INQUIRY_NOTIFY_EMAIL: z.string().email(),
+  // Development only: record emails in the audit log instead of sending.
+  EMAIL_DRY_RUN: z.enum(["true", "false"]).optional(),
+  // Optional. Set when the Resend webhook is configured (Svix signing secret).
+  RESEND_WEBHOOK_SECRET: z.string().optional(),
 
   // Vercel Cron bearer secret and draft preview signing secret.
   CRON_SECRET: z.string().min(16, "CRON_SECRET must be at least 16 characters"),
