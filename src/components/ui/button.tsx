@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cx } from "@/lib/cx";
+import { useButtonStyle } from "./button-style";
+import { LiquidMetalButton, type LiquidMetalButtonProps } from "./liquid-metal-button";
 import type { Surface } from "./types";
 
 type Variant = "primary" | "secondary" | "ghost" | "destructive";
@@ -48,10 +52,21 @@ const variants: Record<Surface, Record<Variant, string>> = {
 
 /**
  * Button. Renders a <button>, or a Next <Link> when `href` is given.
- * Primary is the only lime fill on a light surface, always with ink on top.
+ * Plain variants (admin): primary is the only lime fill on a light surface,
+ * always with ink on top. Inside ButtonStyleProvider value="metal" (the public
+ * site) filled variants render LiquidMetalButton instead.
  */
 export function Button(props: ButtonProps) {
   const { variant = "primary", surface = "light", size = "md", pending = false, className, children, ...rest } = props;
+  const style = useButtonStyle();
+
+  // Public site (ButtonStyleProvider value="metal"): every filled button is the
+  // owner's liquid metal button. Ghost stays a text link; admin stays plain.
+  if (style === "metal" && variant !== "ghost") {
+    // The union narrows the same way below; the cast just picks the matching branch.
+    const metal = { size, pending, className, children, ...rest } as LiquidMetalButtonProps;
+    return <LiquidMetalButton {...metal} />;
+  }
   const classes = cx(base, sizes[size], variants[surface][variant], variant === "primary" && "btn-primary", surface === "dark" && "on-dark", className);
 
   if ("href" in rest && typeof rest.href === "string") {

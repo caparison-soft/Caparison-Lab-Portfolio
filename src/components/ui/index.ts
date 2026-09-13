@@ -1,4 +1,6 @@
 export { Button, type ButtonProps } from "./button";
+export { ButtonStyleProvider } from "./button-style";
+export { LiquidMetalButton, type LiquidMetalButtonProps } from "./liquid-metal-button";
 export { Field } from "./field";
 export { Input, type InputProps } from "./input";
 export { Select, type SelectProps } from "./select";

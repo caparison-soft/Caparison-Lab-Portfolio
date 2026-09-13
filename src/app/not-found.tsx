@@ -1,4 +1,4 @@
-import { Button, Section } from "@/components/ui";
+import { Button, ButtonStyleProvider, Section } from "@/components/ui";
 import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
 import { getBlocks, getSettings, t } from "@/lib/queries/content";
@@ -10,7 +10,7 @@ import { getBlocks, getSettings, t } from "@/lib/queries/content";
 export default async function RootNotFound() {
   const [settings, blocks] = await Promise.all([getSettings(), getBlocks(["Errors", "Navigation", "Footer", "Homepage"])]);
   return (
-    <>
+    <ButtonStyleProvider value="metal">
       <a href="#main" className="skip-link">{t(blocks, "nav.skipToContent")}</a>
       <Nav blocks={blocks} siteName={settings.siteName} />
       <main id="main">
@@ -24,6 +24,6 @@ export default async function RootNotFound() {
         </Section>
       </main>
       <Footer blocks={blocks} settings={settings} />
-    </>
+    </ButtonStyleProvider>
   );
 }

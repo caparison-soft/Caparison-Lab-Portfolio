@@ -113,6 +113,19 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   additions: backdrop.size, repaintBackdrop(), darkCore (unused). Change the look
   only with the owner.
 
+## Buttons
+- Public site (owner's call, 2026-09-13): every filled button is the liquid metal
+  button, src/components/ui/liquid-metal-button.tsx, a chrome ring from
+  @paper-design/shaders' liquid-metal shader around an olive-950 to ink body.
+  Button reads ButtonStyleProvider ("metal" in the (site) layout and the root
+  not-found; admin and styleguide stay "plain"). Ghost stays a text link.
+- Adapted from the pasted component: fluid width, md 46px / sm 40px, Link or
+  <button type="submit">, pending/disabled, sage label (bone on hover) instead of
+  #666 for contrast, visible focus ring. Shader mounts only near the viewport and
+  is destroyed when the button leaves (WebGL context budget shared with the hero
+  weave and glass). Reduced motion: speed 0 and no ripple. No WebGL2: a static
+  conic-gradient ring. Styles live in globals.css under "Liquid metal button".
+
 ## Audits
 - Never run `next dev` and `next start` at the same time: both use .next and
   dev overwrites the production build (404s and header errors follow).

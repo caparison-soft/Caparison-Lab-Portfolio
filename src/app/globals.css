@@ -426,3 +426,67 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 /* Hero glass: once the 3D scene has painted the text, the DOM copy is invisible
    (still selectable and read by assistive tech). */
 .hero-block[data-glass-ready="true"] [data-glass-text] { color: transparent; }
+
+/* ---- Liquid metal button (public site). Layers: shader ring, body, hit target.
+   Colours: bone/sage/olive-950/ink tokens; the chrome itself is the shader. ---- */
+.liquid-metal { perspective: 1000px; perspective-origin: 50% 50%; border-radius: var(--radius-full); }
+.liquid-metal-ring,
+.liquid-metal-body {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow var(--duration-fast) var(--ease-out);
+}
+.liquid-metal-ring {
+  z-index: 10;
+  overflow: hidden;
+  transform: translateZ(0);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3), 0 36px 14px rgb(0 0 0 / 0.02), 0 20px 12px rgb(0 0 0 / 0.08), 0 9px 9px rgb(0 0 0 / 0.12), 0 2px 5px rgb(0 0 0 / 0.15);
+}
+.liquid-metal[data-hovered] .liquid-metal-ring {
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.4), 0 12px 6px rgb(0 0 0 / 0.05), 0 8px 5px rgb(0 0 0 / 0.1), 0 4px 4px rgb(0 0 0 / 0.15), 0 1px 2px rgb(0 0 0 / 0.2);
+}
+.liquid-metal[data-pressed] .liquid-metal-ring { transform: translateZ(0) translateY(1px) scale(0.98); box-shadow: 0 0 0 1px rgb(0 0 0 / 0.5), 0 1px 2px rgb(0 0 0 / 0.3); }
+.liquid-metal-shader { position: absolute; inset: 0; border-radius: var(--radius-full); overflow: hidden; }
+.liquid-metal-shader canvas { position: absolute !important; inset: 0; width: 100% !important; height: 100% !important; display: block !important; border-radius: var(--radius-full) !important; }
+/* No WebGL2: a static brushed ring from the same tokens. */
+.liquid-metal-ring-static .liquid-metal-shader {
+  background: conic-gradient(from 45deg, var(--color-bone), var(--color-sage) 22%, var(--color-olive-950) 40%, var(--color-bone) 55%, var(--color-sage) 72%, var(--color-olive-950) 88%, var(--color-bone));
+}
+.liquid-metal-body {
+  z-index: 20;
+  inset: 2px;
+  background: linear-gradient(180deg, var(--color-olive-950) 0%, var(--color-ink) 100%);
+  transform: translateZ(10px);
+}
+.liquid-metal[data-pressed] .liquid-metal-body { transform: translateZ(10px) translateY(1px) scale(0.98); box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.4), inset 0 1px 2px rgb(0 0 0 / 0.3); }
+.liquid-metal-hit {
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transform: translateZ(25px);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.liquid-metal-hit:focus-visible { outline-color: var(--color-lime); }
+.liquid-metal-label { position: relative; text-shadow: 0 1px 2px rgb(0 0 0 / 0.5); }
+.liquid-metal-ripple {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(236 238 232 / 0.4) 0%, rgb(236 238 232 / 0) 70%);
+  pointer-events: none;
+  animation: liquid-metal-ripple 0.6s ease-out forwards;
+}
+@keyframes liquid-metal-ripple {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.6; }
+  100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .liquid-metal-ring, .liquid-metal-body { transition: none; }
+  .liquid-metal-ripple { animation: none; display: none; }
+}
+/* In the bar the long drop shadow would spill under the bar edge onto light pages. */
+.site-nav .liquid-metal-ring, .site-nav .liquid-metal[data-hovered] .liquid-metal-ring { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3); }

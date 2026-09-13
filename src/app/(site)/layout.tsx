@@ -4,7 +4,7 @@ import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
 import { ViewTransitions } from "@/components/site/view-transitions";
 import { JsonLd } from "@/components/site/json-ld";
-import { Section } from "@/components/ui";
+import { ButtonStyleProvider, Section } from "@/components/ui";
 import { getBlocks, getSettings, t } from "@/lib/queries/content";
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
@@ -42,7 +42,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   };
 
   return (
-    <>
+    <ButtonStyleProvider value="metal">
       <JsonLd data={organization} />
       <a href="#main" className="skip-link">{t(blocks, "nav.skipToContent")}</a>
       <Nav blocks={blocks} siteName={settings.siteName} />
@@ -63,6 +63,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${settings.gaId.replace(/[^A-Za-z0-9_-]/g, "")}',{anonymize_ip:true});`}</Script>
         </>
       ) : null}
-    </>
+    </ButtonStyleProvider>
   );
 }
