@@ -24,6 +24,8 @@ const DEFAULTS = {
   scrollTilt: true,
   fit: 1.75,              // how much of the frame the logo fills
   offset: [0, 0],         // shift the logo in world units [x, y]; 0,0 = centred
+  depthScale: 1,          // <1 flattens the mesh along its depth so it reads thinner side-on
+  swing: null,            // radians: oscillate ±swing around Y instead of a full spin
   backdrop: null,         // what should be visible THROUGH the glass — see below
   exposure: 1.15,
   maxPixelRatio: 2,
@@ -176,6 +178,7 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
     gltf.scene.traverse(o => { if (o.isMesh) o.material = material; });
     gltf.scene.position.sub(center);
     gltf.scene.scale.setScalar(opt.fit / Math.max(size.x, size.y, size.z));
+    if (opt.depthScale !== 1) gltf.scene.scale.z *= opt.depthScale;
     if (opt.darkCore) {
       const core = gltf.scene.clone(true);
       // Lit, not flat: the strip environment shades the core so the body has form.
@@ -246,7 +249,8 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
     if (!visible) return;
     resize();
     if (autoRotate) spin += opt.rotateSpeed;
-    curY += (targetY + spin - curY) * 0.07;
+    const spinY = opt.swing ? Math.sin(spin) * opt.swing : spin;
+    curY += (targetY + spinY - curY) * 0.07;
     curX += (targetX + scrollTilt - curX) * 0.07;
     group.rotation.set(curX, curY, 0);
     renderer.render(scene, camera);

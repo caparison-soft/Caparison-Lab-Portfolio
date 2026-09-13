@@ -11,6 +11,8 @@ export type CaparisonLogoOptions = {
   scrollTilt?: boolean;
   fit?: number;
   offset?: [number, number];
+  depthScale?: number;
+  swing?: number | null;
   backdrop?: { color?: string; image?: string; draw?: (ctx: CanvasRenderingContext2D, w: number, h: number) => void; z?: number; size?: [number, number] } | null;
   exposure?: number;
   maxPixelRatio?: number;
