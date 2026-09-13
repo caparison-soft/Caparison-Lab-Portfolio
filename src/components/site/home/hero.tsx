@@ -16,7 +16,7 @@ export function Hero({ blocks, live }: HeroProps) {
   const headline = lines(t(blocks, "home.hero.headline")).slice(0, 3);
 
   return (
-    <section className="relative overflow-x-clip bg-bone px-3 md:px-[48px] pt-5 lg:pt-6">
+    <section className="hero section-dark on-dark relative overflow-x-clip px-3 md:px-[48px] pt-5 lg:pt-6">
       {/* Phones: the still in the top-right corner. Desktops get the live glass over the headline. */}
       <HeroStill desktopFallback={false} />
 
@@ -27,14 +27,14 @@ export function Hero({ blocks, live }: HeroProps) {
               positions; the DOM copies go transparent once the glass is ready. */}
           <div className="relative hero-block">
           <HeroGlass />
-          <h1>
+          <h1 className="text-bone">
             {headline.map((line, i) => (
               <span key={i} data-glass-text className="block reveal" style={{ "--reveal-delay": `${i * 60}ms` } as React.CSSProperties}>
                 {line}
               </span>
             ))}
           </h1>
-          <p data-glass-text className="reveal-quick mt-4 text-body-l text-ash max-w-[52ch]" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
+          <p data-glass-text className="reveal-quick mt-4 text-body-l text-sage max-w-[52ch]" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
             {t(blocks, "home.hero.sub")}
           </p>
           </div>
@@ -42,16 +42,16 @@ export function Hero({ blocks, live }: HeroProps) {
             <Button href="/contact">{t(blocks, "home.hero.ctaPrimary")}</Button>
           </div>
 
-          <div className="reveal-quick mt-5 lg:mt-6 border-t border-divider-light pt-2 pb-4" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
-            <SectionMarker as="p">{t(blocks, "home.live.label")}</SectionMarker>
+          <div className="reveal-quick mt-5 lg:mt-6 border-t border-olive-600 pt-2 pb-4" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
+            <SectionMarker as="p" surface="dark">{t(blocks, "home.live.label")}</SectionMarker>
             {live ? (
               <div className="mt-2 grid grid-cols-1 md:grid-cols-[auto_auto_minmax(0,1fr)] gap-x-4 gap-y-1 items-center">
-                <p className="data text-ink max-w-none">{live.slug}</p>
-                <TagList items={live.stack} />
-                <p className="data text-ash max-w-none md:text-right">{live.buildNote ?? ""}</p>
+                <p className="data text-bone max-w-none">{live.slug}</p>
+                <TagList items={live.stack} surface="dark" />
+                <p className="data text-sage max-w-none md:text-right">{live.buildNote ?? ""}</p>
               </div>
             ) : (
-              <p className="mt-2 data text-ash max-w-none">{t(blocks, "home.live.empty")}</p>
+              <p className="mt-2 data text-sage max-w-none">{t(blocks, "home.live.empty")}</p>
             )}
           </div>
         </div>
