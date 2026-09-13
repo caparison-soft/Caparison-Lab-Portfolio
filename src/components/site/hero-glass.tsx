@@ -149,8 +149,14 @@ export function HeroGlass() {
       const offsetX = Math.max(0.55, (centrePx - rect.width / 2) * unitsPerPx);
       handle = mountCaparisonLogo(canvas, {
         src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: FIT, offset: [offsetX, 0], depthScale: 0.65, swing: 0.55, envPreset: "strips",
+        // The environment's base is the matte ground tone (ink + lift + grain, measured
+        // #1f1f1f), so the glass reflects the page instead of black between the strips.
+        envBase: "#1f1f1f",
+        // No filmic curve: ACES crushed the dark ground seen through the glass, so the
+        // logo read as a shadow. 1:1 keeps the transmitted ground at the page tone.
+        toneMapping: "none", exposure: 1,
         // The package material, slightly thinner so the text bends less.
-        glass: { thickness: 0.12, ior: 1.5, dispersion: 6, roughness: 0, clearcoat: 1, clearcoatRoughness: 0, transmission: 1, envMapIntensity: 3.2, specularIntensity: 1 },
+        glass: { thickness: 0.12, ior: 1.5, dispersion: 6, roughness: 0, clearcoat: 0.6, clearcoatRoughness: 0, transmission: 1, envMapIntensity: 3.2, specularIntensity: 1 },
         // Opaque ground in the section colour, repainted every frame with the
         // live lines and the text, so the glass refracts what the page shows.
         backdrop: { color: getComputedStyle(host.closest("section") ?? document.body).backgroundColor, size: [texW, texH], draw, z: -0.8, live: true },

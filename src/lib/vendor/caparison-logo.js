@@ -27,9 +27,11 @@ const DEFAULTS = {
   depthScale: 1,          // <1 flattens the mesh along its depth so it reads thinner side-on
   swing: null,            // radians: oscillate ±swing around Y instead of a full spin
   envPreset: 'strips',    // 'strips' (original rig) or 'wide' (broad softboxes)
+  envBase: null,          // base colour of the environment (what the glass reflects where there is no light); null = the preset's own
   // backdrop.live: true repaints the backdrop draw callback every rendered frame
   backdrop: null,         // what should be visible THROUGH the glass — see below
   exposure: 1.15,
+  toneMapping: 'aces',    // 'aces' (filmic, the original look) or 'none' (1:1, so a dark backdrop seen through the glass keeps the page's tone)
   maxPixelRatio: 2,
   glass: {},              // any MeshPhysicalMaterial override
   darkCore: null          // colour of an opaque copy inside the glass, e.g. '#171B06'. Gives the
@@ -39,23 +41,24 @@ const DEFAULTS = {
 /** Studio softbox strips — same light rig as the Blender render.
  *  Mostly black with two bright bands: that is what makes the white
  *  streaks and the deep darks inside the glass. */
-function studioStripEnv(preset = 'strips') {
+function studioStripEnv(preset = 'strips', base = null) {
   const c = document.createElement('canvas');
   c.width = 1024; c.height = 512;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = preset === 'wide' ? '#0a0a0a' : '#000000';
+  const dark = base || (preset === 'wide' ? '#0a0a0a' : '#000000');
+  ctx.fillStyle = dark;
   ctx.fillRect(0, 0, 1024, 512);
   const g = ctx.createLinearGradient(0, 512, 0, 0);
   // 'strips': the original rig, thin bands. 'wide': broad softboxes for wide
   // bright reflections on a dark page (the glass otherwise reflects thin lines).
   (preset === 'wide' ? [
-    [0.00, '#0a0a0a'], [0.10, '#0a0a0a'], [0.18, '#ffffff'], [0.32, '#ffffff'], [0.40, '#0a0a0a'],
-    [0.46, '#0a0a0a'], [0.52, '#ffffff'], [0.62, '#ffffff'], [0.70, '#0a0a0a'],
-    [0.76, '#0a0a0a'], [0.80, '#c8c8c8'], [0.92, '#c8c8c8'], [1.00, '#0a0a0a']
+    [0.00, dark], [0.10, dark], [0.18, '#ffffff'], [0.32, '#ffffff'], [0.40, dark],
+    [0.46, dark], [0.52, '#ffffff'], [0.62, '#ffffff'], [0.70, dark],
+    [0.76, dark], [0.80, '#c8c8c8'], [0.92, '#c8c8c8'], [1.00, dark]
   ] : [
-    [0.00, '#000000'], [0.17, '#000000'], [0.225, '#ffffff'], [0.28, '#000000'],
-    [0.45, '#000000'], [0.505, '#ffffff'], [0.56, '#000000'],
-    [0.74, '#000000'], [0.79, '#b4b4b4'], [0.845, '#000000'], [1.00, '#000000']
+    [0.00, dark], [0.17, dark], [0.225, '#ffffff'], [0.28, dark],
+    [0.45, dark], [0.505, '#ffffff'], [0.56, dark],
+    [0.74, dark], [0.79, '#b4b4b4'], [0.845, dark], [1.00, dark]
   ]).forEach(([p, col]) => g.addColorStop(p, col));
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 1024, 512);
@@ -125,7 +128,7 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
     canvas, antialias: true, alpha: opt.transparent
   });
   renderer.setPixelRatio(Math.min(devicePixelRatio, opt.maxPixelRatio));
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMapping = opt.toneMapping === 'none' ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = opt.exposure;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -133,7 +136,7 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
   camera.position.set(0, 0, 4.1);
 
-  const env = studioStripEnv(opt.envPreset);
+  const env = studioStripEnv(opt.envPreset, opt.envBase);
   scene.environment = env;
   if (!opt.transparent) {
     scene.background = env;

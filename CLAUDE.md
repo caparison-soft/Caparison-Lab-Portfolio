@@ -128,15 +128,18 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   DOM copies turn transparent via .hero-block[data-glass-ready]. Fonts must be
   loaded first (document.fonts.ready). Resize repaints the backdrop.
 - Clear glass on the dark hero (owner, 2026-09-13: more transparent, less white
-  on the faces, brighter edges): thickness 0.12, ior 1.5, dispersion 6,
-  roughness 0, clearcoat 1, clearcoatRoughness 0, transmission 1,
+  on the faces, brighter edges, no shadow): thickness 0.12, ior 1.5, dispersion 6,
+  roughness 0, clearcoatRoughness 0, transmission 1,
   envMapIntensity 3.2, envPreset "strips" (thin bands give rim glints instead
-  of white faces; "wide" remains available), depthScale 0.65, fit 1.9, swing
+  of white faces; "wide" remains available), envBase "#1f1f1f" (the measured
+  ground tone, so reflections between the strips are the page, not black),
+  toneMapping "none" with exposure 1 (ACES crushed the dark ground seen
+  through the glass into a shadow), clearcoat 0.6, depthScale 0.65, fit 1.9, swing
   ±0.55 rad instead of a full spin, backdrop takes the section background,
   text plane at z -0.8. The canvas host runs 240px past the block's right edge
   and the x offset is computed from the block width, so the near side never
   clips while swinging. Light rig untouched. Vendored additions: backdrop.size,
-  repaintBackdrop(), darkCore (unused). Change the look only with the owner.
+  repaintBackdrop(), envBase, toneMapping, darkCore (unused). Change the look only with the owner.
 
 ## Buttons
 - Public site (owner's call, 2026-09-13): every filled button is the liquid metal
