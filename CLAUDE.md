@@ -84,6 +84,14 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   64px of scroll; CSS shrinks the bar to 48px and swaps the wordmark for the hex
   mark. The hero has no spine rail; other sections keep theirs.
 
+## Hero ground (lines + grain)
+- src/lib/hero-lines.ts is one shared noise field (time + pointer). HeroLines
+  draws it full-bleed on a 2D canvas and owns the clock; HeroGlass paints the
+  same field plus the headline into the glass backdrop every frame
+  (backdrop.live), so lines refract through the glass with no seam. Grain is
+  .hero::after (SVG turbulence, 7%, above everything). Phones and reduced
+  motion draw one still frame. Our own implementation, not copied code.
+
 ## 3D logo (hero)
 - public/caparison_logo.glb + src/lib/vendor/caparison-logo.js (from
   Assets/caparison-logo-3d.zip, vanilla build). src/components/site/hero-glass.tsx

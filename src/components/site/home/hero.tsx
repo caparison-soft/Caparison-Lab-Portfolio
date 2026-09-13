@@ -1,5 +1,6 @@
 import { Button, SectionMarker, TagList } from "@/components/ui";
 import { HeroGlass, HeroStill } from "@/components/site/hero-glass";
+import { HeroLines } from "@/components/site/hero-lines";
 import type { Blocks, Settings } from "@/lib/queries/content";
 import { lines, t } from "@/lib/queries/content";
 import type { LiveProject } from "@/lib/queries/home";
@@ -17,10 +18,12 @@ export function Hero({ blocks, live }: HeroProps) {
 
   return (
     <section className="hero section-dark ground-ink on-dark relative overflow-x-clip px-3 md:px-[48px] pt-5 lg:pt-6">
+      {/* The ground: drifting contour lines that bend away from the pointer, with grain on top. */}
+      <HeroLines />
       {/* Phones: the still in the top-right corner. Desktops get the live glass over the headline. */}
       <HeroStill desktopFallback={false} />
 
-      <div className="max-w-layout mx-auto pt-[120px] md:pt-[140px] lg:pt-0">
+      <div className="relative z-10 max-w-layout mx-auto pt-[120px] md:pt-[140px] lg:pt-0">
         <div className="min-w-0">
           {/* lg+: the glass logo over the headline with real refraction. The
               headline and sub are painted into the glass scene at their DOM

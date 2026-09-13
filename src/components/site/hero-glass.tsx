@@ -7,6 +7,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { CaparisonLogoHandle } from "@/lib/vendor/caparison-logo";
+import { getLinesField } from "@/lib/hero-lines";
 import { cx } from "@/lib/cx";
 
 const GLB = "/caparison_logo.glb";
@@ -94,12 +95,30 @@ export function HeroGlass() {
     let cancelled = false;
     const timers: number[] = [];
 
+    const field = getLinesField();
+    // Text lines are measured once (and on resize), not every frame: after the
+    // glass is ready the DOM copy is transparent, so its colour must be cached.
+    let cached: Line[] = [];
+    const collect = () => {
+      const next = collectLines(block, host.getBoundingClientRect());
+      cached = next.map((l, i) => ({ ...l, color: /rgba\(\d+, \d+, \d+, 0\)/.test(l.color) && cached[i] ? cached[i].color : l.color }));
+    };
     const draw = (ctx: CanvasRenderingContext2D, w: number) => {
       const hostRect = host.getBoundingClientRect();
       const k = w / hostRect.width;
       ctx.scale(k, k);
+      // The same line field as the ground canvas, offset to this region, so
+      // the lines continue seamlessly through the glass and get refracted.
+      const section = host.closest("section");
+      if (section) {
+        const s = section.getBoundingClientRect();
+        ctx.save();
+        ctx.translate(s.left - hostRect.left, s.top - hostRect.top);
+        field.draw(ctx, s.width, s.height);
+        ctx.restore();
+      }
       ctx.textBaseline = "alphabetic";
-      for (const line of collectLines(block, hostRect)) {
+      for (const line of cached) {
         ctx.font = line.font;
         ctx.fillStyle = line.color;
         // "normal" is not a valid canvas value and would leave the previous spacing in place.
@@ -117,18 +136,19 @@ export function HeroGlass() {
     const start = async () => {
       if (cancelled) return;
       await document.fonts.ready;
+      collect();
       const { mountCaparisonLogo } = await import("@/lib/vendor/caparison-logo");
       if (cancelled) return;
       const rect = host.getBoundingClientRect();
-      // The plane takes the section's own background so the frame is invisible on any ground.
-      const ground = getComputedStyle(host.closest("section") ?? document.body).backgroundColor;
       const texW = Math.min(4096, Math.round(rect.width * 2));
       const texH = Math.round(texW * (rect.height / rect.width));
       handle = mountCaparisonLogo(canvas, {
         src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: 1.9, offset: [0.55, 0], depthScale: 0.65, swing: 0.55, envPreset: "wide",
         // The package material, slightly thinner so the text bends less.
         glass: { thickness: 0.15, ior: 1.6, dispersion: 6, roughness: 0.02, clearcoat: 1, clearcoatRoughness: 0.02, transmission: 1, envMapIntensity: 3.6, specularIntensity: 1 },
-        backdrop: { color: ground, size: [texW, texH], draw, z: -0.8 },
+        // Opaque ground in the section colour, repainted every frame with the
+        // live lines and the text, so the glass refracts what the page shows.
+        backdrop: { color: getComputedStyle(host.closest("section") ?? document.body).backgroundColor, size: [texW, texH], draw, z: -0.8, live: true },
       });
     };
     const afterLoad = () => {
@@ -144,7 +164,7 @@ export function HeroGlass() {
     let resizeTimer = 0;
     const onResize = () => {
       window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => { handle?.repaintBackdrop(); }, 150);
+      resizeTimer = window.setTimeout(() => { collect(); handle?.repaintBackdrop(); }, 150);
     };
     window.addEventListener("resize", onResize);
 

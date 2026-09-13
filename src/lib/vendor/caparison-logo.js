@@ -27,6 +27,7 @@ const DEFAULTS = {
   depthScale: 1,          // <1 flattens the mesh along its depth so it reads thinner side-on
   swing: null,            // radians: oscillate ±swing around Y instead of a full spin
   envPreset: 'strips',    // 'strips' (original rig) or 'wide' (broad softboxes)
+  // backdrop.live: true repaints the backdrop draw callback every rendered frame
   backdrop: null,         // what should be visible THROUGH the glass — see below
   exposure: 1.15,
   maxPixelRatio: 2,
@@ -87,8 +88,10 @@ function makeBackdrop(THREE, spec, onReady) {
   const paint = () => {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, c.width, c.height);
-    ctx.fillStyle = spec.color || '#F1F1EF';
-    ctx.fillRect(0, 0, c.width, c.height);
+    if (spec.color !== 'transparent') {
+      ctx.fillStyle = spec.color || '#F1F1EF';
+      ctx.fillRect(0, 0, c.width, c.height);
+    }
     if (spec.draw) spec.draw(ctx, c.width, c.height);
   };
   paint();
@@ -159,7 +162,8 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
     backdrop = new THREE.Mesh(
       new THREE.PlaneGeometry(1, 1),
       new THREE.MeshBasicMaterial({
-        map: makeBackdrop(THREE, opt.backdrop), toneMapped: false
+        map: makeBackdrop(THREE, opt.backdrop), toneMapped: false,
+        transparent: opt.backdrop.color === 'transparent'
       })
     );
     backdrop.position.z = opt.backdrop.z ?? -2;
@@ -255,6 +259,7 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
     raf = requestAnimationFrame(frame);
     if (!visible) return;
     resize();
+    if (backdrop && opt.backdrop && opt.backdrop.live) backdrop.material.map.userData.repaint();
     if (autoRotate) spin += opt.rotateSpeed;
     const spinY = opt.swing ? Math.sin(spin) * opt.swing : spin;
     curY += (targetY + spinY - curY) * 0.07;
