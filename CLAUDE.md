@@ -107,6 +107,16 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   globals.css @theme) so the two long sentences stay one line each beside the
   glass logo; phones keep display-xl.
 
+## Work section (home)
+- Owner-supplied hover showcase (2026-09-13), rebuilt as
+  src/components/site/home/project-showcase.tsx: rows are links to the case
+  study; hover underlines the title, slides in an inline-SVG arrow, lifts the
+  row, and floats the cover beside the pointer (hover devices only, eased on
+  refs, hidden when the project has no cover). First row keeps the site's one
+  scroll reveal. The section sits on .ground-matte: the hero's tone
+  (color-mix bone 5% into ink) and grain, no threads. The old rail thumbnails
+  and their :has() CSS are gone; ProjectRows still serves /work.
+
 ## Hero ground (weave + grain)
 - src/lib/hero-weave.ts: our own WebGL2 fragment shader (fbm domain-warped
   thread field, gaussian pointer well, per-thread brightness, one lime thread,

@@ -198,9 +198,13 @@
 /* Owner's call: the hero and the bar sit on ink (#000000, from the token file)
    rather than olive-950. Text rules from .section-dark still apply. */
 .section-dark.ground-ink { background: var(--color-ink); }
+/* The matte ground without threads: the hero's tone (ink lifted 5% toward bone,
+   what the weave shader paints) with the same grain. */
+.section-dark.ground-matte { background: color-mix(in srgb, var(--color-bone) 5%, var(--color-ink)); }
 
-/* Matte grain over the hero ground. SVG turbulence tiled at low opacity. */
-.hero::after {
+/* Matte grain over the hero and matte grounds. SVG turbulence tiled at low opacity. */
+.hero::after,
+.ground-matte::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -308,20 +312,6 @@
 .work-row:hover::before,
 .work-row:focus-within::before {
   transform: scaleY(1);
-}
-.work-thumb {
-  opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-out);
-}
-.work-index:has(.work-row:nth-of-type(1):is(:hover, :focus-within)) .work-thumb:nth-of-type(1),
-.work-index:has(.work-row:nth-of-type(2):is(:hover, :focus-within)) .work-thumb:nth-of-type(2),
-.work-index:has(.work-row:nth-of-type(3):is(:hover, :focus-within)) .work-thumb:nth-of-type(3),
-.work-index:has(.work-row:nth-of-type(4):is(:hover, :focus-within)) .work-thumb:nth-of-type(4),
-.work-index:has(.work-row:nth-of-type(5):is(:hover, :focus-within)) .work-thumb:nth-of-type(5),
-.work-index:has(.work-row:nth-of-type(6):is(:hover, :focus-within)) .work-thumb:nth-of-type(6),
-.work-index:has(.work-row:nth-of-type(7):is(:hover, :focus-within)) .work-thumb:nth-of-type(7),
-.work-index:has(.work-row:nth-of-type(8):is(:hover, :focus-within)) .work-thumb:nth-of-type(8) {
-  opacity: 1;
 }
 
 /* ---- Mobile menu: <details> as a full-height sheet ---- */
