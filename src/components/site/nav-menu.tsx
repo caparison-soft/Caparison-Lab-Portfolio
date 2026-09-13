@@ -8,8 +8,8 @@ import { Button } from "@/components/ui";
 import { cx } from "@/lib/cx";
 
 /**
- * The notch: a bone tab hanging from the top edge of the page, with
- * inverted corners either side, holding the primary links. Two of them open a
+ * The notch: a bone tab hanging from the top edge of the page, straight
+ * sides and a rounded bottom, holding the primary links. Two of them open a
  * panel that grows out of the tab (work: featured projects, capabilities: the
  * published capabilities). Under lg the same content is a sheet.
  *
@@ -38,17 +38,6 @@ function Chevron({ open, className }: { open: boolean; className?: string }) {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" className={cx("transition-transform dur-base", open && "rotate-180", className)}>
       <path d="M2.5 4.5 6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-/** Inverted corner: fills the outside of the tab's top edge so it looks cut from the bar. */
-function Corner({ side }: { side: "left" | "right" }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true" className={cx("pointer-events-none absolute top-0 z-10 text-bone", side === "left" ? "-left-[15px]" : "-right-[15px]")}>
-      {side === "left"
-        ? <path d="M 20 20 L 20 0 L 0 0 C 11.046 0 20 11.046 20 20 Z" fill="currentColor" />
-        : <path d="M 0 0 L 20 0 C 8.954 0 0 8.954 0 20 Z" fill="currentColor" />}
     </svg>
   );
 }
@@ -117,8 +106,6 @@ export function NavNotch(props: NavMenuProps) {
 
   return (
     <div ref={rootRef} className="site-notch absolute left-1/2 top-0 z-30 hidden w-[640px] -translate-x-1/2 lg:block">
-      <Corner side="left" />
-      <Corner side="right" />
       <motion.div
         animate={{ height: active ? "auto" : NOTCH_HEIGHT }}
         initial={false}
