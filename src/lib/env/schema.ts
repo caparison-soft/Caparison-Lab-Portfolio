@@ -30,6 +30,8 @@ export const serverSchema = z.object({
   R2_ACCESS_KEY_ID: nonEmpty,
   R2_SECRET_ACCESS_KEY: nonEmpty,
   R2_BUCKET: nonEmpty.default("caparison-media"),
+  // Development only: point the S3 client at a local stand-in. Unset in production.
+  R2_ENDPOINT: z.string().url().optional(),
 
   // Resend.
   RESEND_API_KEY: nonEmpty,

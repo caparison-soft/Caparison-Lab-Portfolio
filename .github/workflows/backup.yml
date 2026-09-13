@@ -1,0 +1,52 @@
+name: Weekly database backup to R2
+
+# Supabase free tier has no automated backups. This dumps the database every
+# Sunday at 04:00 UTC, gzips it, uploads to R2 under backups/, and keeps the
+# last eight. Restore: gunzip < file.sql.gz | psql "$DIRECT_URL"
+#
+# Secrets needed on the repository: DIRECT_URL, R2_ACCOUNT_ID,
+# R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET.
+
+on:
+  schedule:
+    - cron: "0 4 * * 0"
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Install postgres client
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y postgresql-client
+      - name: Dump
+        env:
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: |
+          STAMP=$(date -u +%Y-%m-%dT%H%MZ)
+          pg_dump --no-owner --no-privileges --schema=public "$DIRECT_URL" | gzip -9 > "backup-$STAMP.sql.gz"
+          ls -la backup-*.sql.gz
+          echo "STAMP=$STAMP" >> "$GITHUB_ENV"
+      - name: Upload to R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          aws s3 cp "backup-$STAMP.sql.gz" "s3://$BUCKET/backups/$STAMP.sql.gz" --endpoint-url "$ENDPOINT"
+      - name: Keep the last eight
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          aws s3 ls "s3://$BUCKET/backups/" --endpoint-url "$ENDPOINT" | awk '{print $4}' | sort | head -n -8 | while read -r old; do
+            [ -n "$old" ] && aws s3 rm "s3://$BUCKET/backups/$old" --endpoint-url "$ENDPOINT"
+          done
+          aws s3 ls "s3://$BUCKET/backups/" --endpoint-url "$ENDPOINT"

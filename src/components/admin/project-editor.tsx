@@ -12,6 +12,8 @@ import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { SortableList } from "@/components/admin/sortable-list";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { TagPicker } from "@/components/admin/tag-picker";
+import { ProjectMedia } from "@/components/admin/project-media";
+import type { ProjectMediaItem } from "@/lib/admin/media-queries";
 import { checkSlug, deleteProject, saveProject } from "@/lib/admin/project-actions";
 import { slugify, type ProjectInput } from "@/lib/admin/schemas";
 import type { EditorData } from "@/lib/admin/admin-queries";
@@ -43,7 +45,7 @@ function clock(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 
-export function ProjectEditor({ data, previewToken }: { data: EditorData; previewToken: string }) {
+export function ProjectEditor({ data, previewToken, media }: { data: EditorData; previewToken: string; media: { items: ProjectMediaItem[]; coverImageId: string | null; videoKeyPrefix: string | null } }) {
   const router = useRouter();
   const form = useForm<ProjectInput>({ defaultValues: data.values });
   const { register, control, watch, setValue, getValues, reset, setError, clearErrors, formState } = form;
@@ -145,7 +147,7 @@ export function ProjectEditor({ data, previewToken }: { data: EditorData; previe
             {dirty ? <Button size="sm" variant="ghost" onClick={() => { reset(); setSaveError(null); }}>Discard changes</Button> : null}
             <Button size="sm" onClick={() => start(() => save())} pending={pending} disabled={!dirty && !saveError}>Save</Button>
           </div>
-          <p role="status" aria-live="polite" className={cx("data max-w-none", saveError ? "text-status-error" : "text-ash")}>
+          <p role="status" aria-live="polite" suppressHydrationWarning className={cx("data max-w-none", saveError ? "text-status-error" : "text-ash")}>
             {saveError ? saveError : savedAt ? `saved ${clock(savedAt)}` : dirty ? "unsaved changes" : `last saved ${clock(data.updatedAt)}`}
           </p>
         </div>
@@ -177,19 +179,18 @@ export function ProjectEditor({ data, previewToken }: { data: EditorData; previe
         </TabPanel>
 
         <TabPanel id="media" active={tab} idPrefix="pe">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="md:col-span-2 border border-divider-light rounded-lg bg-paper p-3">
-              <p className="text-body text-ink max-w-none">Image and video uploads to R2 arrive in the media phase.</p>
-              <p className="text-small text-ash max-w-none mt-1">
-                {data.media.length === 0 ? "No media on this project yet." : `${data.media.length} media item${data.media.length === 1 ? "" : "s"} attached.`}
-              </p>
+          <div className="flex flex-col gap-4">
+            <ProjectMedia projectId={data.id} items={media.items} coverImageId={media.coverImageId} videoKeyPrefix={media.videoKeyPrefix} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-divider-light pt-3">
+              <Field id="videoProvider" label="Cover video source" help="Uploaded file is set from the gallery above. Choose YouTube or Vimeo to embed instead.">
+                <Select {...register("videoProvider")}><option value="R2">Uploaded file</option><option value="YOUTUBE">YouTube</option><option value="VIMEO">Vimeo</option></Select>
+              </Field>
+              {videoProvider !== "R2" ? (
+                <Field id="videoUrl" label="Video URL" error={err("videoUrl")} help="Paste the public watch URL.">
+                  <Input {...register("videoUrl")} />
+                </Field>
+              ) : null}
             </div>
-            <Field id="videoProvider" label="Video source">
-              <Select {...register("videoProvider")}><option value="R2">Uploaded file</option><option value="YOUTUBE">YouTube</option><option value="VIMEO">Vimeo</option></Select>
-            </Field>
-            <Field id="videoUrl" label={videoProvider === "R2" ? "Video key (set by upload)" : "Video URL"} error={err("videoUrl")} help={videoProvider === "R2" ? "Filled in automatically when a video is uploaded." : "Paste the public watch URL."}>
-              <Input {...register("videoUrl")} disabled={videoProvider === "R2"} />
-            </Field>
           </div>
         </TabPanel>
 

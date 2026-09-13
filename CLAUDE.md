@@ -63,6 +63,14 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   <form> inside the project editor form (the delete dialog is a <div>).
 - @tanstack/react-table is pinned to v8; v9 has a different API.
 - Draft preview: /preview/[slug]?token=HMAC(slug) from src/lib/preview.ts.
+- Media locally: `npm run dev:s3` runs scripts/dev-s3.mjs, an S3 stand-in on
+  :9000 storing under .dev-s3/. .env sets R2_ENDPOINT and NEXT_PUBLIC_CDN_URL
+  to it. Production leaves R2_ENDPOINT unset. Upload flow: requestUpload
+  (presign) -> browser PUT -> confirmUpload (sniff, caps, sharp variants,
+  ffmpeg poster via ffmpeg-static, Media row). deleteMedia removes every
+  object under the prefix and fails loudly. /api/cron/reconcile reports
+  orphans weekly into AuditLog; the library shows the latest report.
+- Backups: .github/workflows/backup.yml (weekly pg_dump to R2, keeps eight).
 
 ## Voice
 Plain, specific, understated. Numbers over adjectives. Sentence case.

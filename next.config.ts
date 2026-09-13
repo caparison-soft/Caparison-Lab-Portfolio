@@ -6,6 +6,8 @@ validateEnv(process.env);
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Native binaries must be required from node_modules at runtime, not bundled.
+  serverExternalPackages: ["sharp", "ffmpeg-static"],
   images: {
     // Media is served from R2 with sharp-generated variants. Vercel's
     // optimiser must never sit in front of it (quota, and it redoes sharp's work).

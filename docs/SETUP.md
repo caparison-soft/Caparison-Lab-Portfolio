@@ -48,8 +48,20 @@ Things that have to be done in dashboards, not in code. Tick them in order.
    as a bearer token. After the first deploy, open Settings → Cron Jobs and
    confirm `/api/cron/keepalive` is listed.
 
+## GitHub (database backups)
+The weekly backup runs as a GitHub Action, since Vercel functions have no
+pg_dump. Repository → Settings → Secrets and variables → Actions, add:
+`DIRECT_URL`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`,
+`R2_BUCKET`. Run it once by hand from the Actions tab and confirm
+`backups/<date>.sql.gz` appears in the bucket. Restore with
+`gunzip < file.sql.gz | psql "$DIRECT_URL"`.
+
 ## Verify after first deploy
 - `curl -i https://<site>/api/cron/keepalive` → 401
 - `curl -i -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/cron/keepalive` → 200
 - With the anon key, `GET <supabase-url>/rest/v1/Inquiry` returns `[]`, and
   `GET .../Project?status=eq.DRAFT` returns `[]`.
+- Upload one image from a project's Media tab. The browser PUT goes to
+  `<account>.r2.cloudflarestorage.com` (CORS must allow it) and the variants
+  appear at `https://cdn.caparisonlab.com/projects/...`.
+- `curl -H "Authorization: Bearer $CRON_SECRET" https://<site>/api/cron/reconcile` → 200.

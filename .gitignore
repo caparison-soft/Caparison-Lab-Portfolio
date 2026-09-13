@@ -42,3 +42,6 @@ next-env.d.ts
 
 # prisma generated client
 /src/generated
+
+# local S3 stand-in storage
+/.dev-s3

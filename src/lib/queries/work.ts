@@ -178,7 +178,8 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
       updatedAt: updatedAt.toISOString(),
       stack: tags.filter((x) => x.tag.kind === "STACK").sort((a, b) => a.tag.order - b.tag.order).map((x) => x.tag.name),
       cover: cover ? toMedia(cover) : null,
-      media: media.filter((m) => m.id !== cover?.id).map(toMedia),
+      // The cover image and the cover video are shown at the top, not again in the gallery.
+      media: media.filter((m) => m.id !== cover?.id && !(p.videoProvider === "R2" && p.videoUrl && m.keyPrefix === p.videoUrl)).map(toMedia),
       next,
     };
 }
