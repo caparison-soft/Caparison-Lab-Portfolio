@@ -125,8 +125,8 @@ export function HeroGlass() {
       handle = mountCaparisonLogo(canvas, {
         src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: 2.1,
         // The package material, slightly thinner so the text bends less.
-        glass: { thickness: 0.15, ior: 1.42, dispersion: 4 },
-        backdrop: { color: "#ECEEE8", size: [texW, texH], draw, z: -1.2 },
+        glass: { thickness: 0.08, ior: 1.3, dispersion: 3 },
+        backdrop: { color: "#ECEEE8", size: [texW, texH], draw, z: -0.6 },
       });
     };
     const afterLoad = () => {

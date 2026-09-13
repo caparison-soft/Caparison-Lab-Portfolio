@@ -88,7 +88,7 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   data-glass-text) into the backdrop plane at their exact DOM positions, and the
   DOM copies turn transparent via .hero-block[data-glass-ready]. Fonts must be
   loaded first (document.fonts.ready). Resize repaints the backdrop.
-- Material is the package default with thickness 0.15, ior 1.42, dispersion 4
+- Material is the package default with thickness 0.08, ior 1.3, dispersion 3, text plane at z -0.6
   (owner asked for thinner, less displacement). Light rig untouched. Vendored
   additions: backdrop.size, repaintBackdrop(), darkCore (unused). Change the look
   only with the owner.
