@@ -91,6 +91,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   HeroGlass drawImage()s that canvas into the glass backdrop every frame so
   threads refract through the logo with no seam. Grain is .hero::after.
   Reduced motion renders one still frame; no WebGL2 leaves plain ink.
+- Matte look (owner call, 2026-09-13): threads at bone weight 0.38, lime 0.8,
+  plus a flat unmasked uLift of 5% bone over the whole ground so the ink reads
+  as charcoal, with .hero::after grain at 0.15. The lift lives in the shader
+  so the glass refracts the same tone; keep the section colour itself ink.
 - Technique studied from a public site; the code is ours, not copied.
 
 ## 3D logo (hero)

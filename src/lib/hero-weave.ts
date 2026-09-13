@@ -20,6 +20,7 @@ out vec4 o;
 uniform float uTime, uAspect, uScroll, uIntensity, uPointerAmt, uThreads;
 uniform vec2 uPointer;
 uniform vec4 uBone, uLime;
+uniform float uLift;
 
 float hash21(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
@@ -80,7 +81,8 @@ void main() {
   float fa = clamp(fieldA, 0.0, 1.0) * uBone.w;
   float ta = clamp(threadA, 0.0, 1.0) * uLime.w;
   vec4 acc = vec4(uBone.rgb * fa, fa) + vec4(uLime.rgb * ta, ta);
-  o = acc * mask; // premultiplied
+  // A flat matte lift over the whole ground, unmasked, so the ink reads as charcoal.
+  o = acc * mask + vec4(uBone.rgb * uLift, uLift); // premultiplied
 }`;
 
 export type Weave = {
@@ -94,7 +96,7 @@ export type Weave = {
 let shared: Weave | null = null;
 export function getSharedWeave(): Weave | null { return shared; }
 
-export function createWeave(canvas: HTMLCanvasElement, opts: { threads?: number; maxDpr?: number } = {}): Weave | null {
+export function createWeave(canvas: HTMLCanvasElement, opts: { threads?: number; maxDpr?: number; lift?: number } = {}): Weave | null {
   const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: false, preserveDrawingBuffer: true });
   if (!gl) return null;
   const compile = (type: number, src: string) => {
@@ -117,11 +119,12 @@ export function createWeave(canvas: HTMLCanvasElement, opts: { threads?: number;
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   const u = (n: string) => gl.getUniformLocation(prog, n);
-  const U = { time: u("uTime"), aspect: u("uAspect"), scroll: u("uScroll"), intensity: u("uIntensity"), pAmt: u("uPointerAmt"), threads: u("uThreads"), pointer: u("uPointer"), bone: u("uBone"), lime: u("uLime") };
+  const U = { time: u("uTime"), aspect: u("uAspect"), scroll: u("uScroll"), intensity: u("uIntensity"), pAmt: u("uPointerAmt"), threads: u("uThreads"), pointer: u("uPointer"), bone: u("uBone"), lime: u("uLime"), lift: u("uLift") };
+  gl.uniform1f(U.lift, opts.lift ?? 0.05);
   gl.uniform1f(U.threads, opts.threads ?? 40);
   // Brand tokens: bone and lime, with a per-colour weight.
-  gl.uniform4f(U.bone, 0xec / 255, 0xee / 255, 0xe8 / 255, 0.62);
-  gl.uniform4f(U.lime, 0xd6 / 255, 0xf6 / 255, 0x31 / 255, 1.0);
+  gl.uniform4f(U.bone, 0xec / 255, 0xee / 255, 0xe8 / 255, 0.38);
+  gl.uniform4f(U.lime, 0xd6 / 255, 0xf6 / 255, 0x31 / 255, 0.8);
   gl.disable(gl.DEPTH_TEST);
   gl.clearColor(0, 0, 0, 0);
 
