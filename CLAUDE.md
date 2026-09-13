@@ -77,6 +77,17 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   records the email in AuditLog instead of sending. Inbox at /admin/inquiries;
   CSV at /admin/inquiries/export; Resend webhook at /api/webhooks/resend.
 
+## 3D logo (hero)
+- public/caparison_logo.glb + src/lib/vendor/caparison-logo.js (from
+  Assets/caparison-logo-3d.zip, vanilla build). src/components/site/hero-mark-3d.tsx
+  paints public/brand/logo-3d-*.webp first and swaps in the canvas on logo:ready.
+  WebGL only at lg+ with WebGL available and no reduced-motion preference.
+- The material and light-rig environment are untouched. One option was added to
+  the vendored module: `darkCore` (an olive-950 lit copy inside the glass) so the
+  transmission has something dark to refract on a bone page; without it the glass
+  reads as pale plastic. Backdrop is a bone plane. Do not change either without
+  telling the owner.
+
 ## Audits
 - Never run `next dev` and `next start` at the same time: both use .next and
   dev overwrites the production build (404s and header errors follow).

@@ -22,6 +22,7 @@ const eslintConfig = [
   {
     ignores: [
       "node_modules/**",
+      "src/lib/vendor/**",
       ".next/**",
       "out/**",
       "build/**",

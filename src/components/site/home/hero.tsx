@@ -1,5 +1,5 @@
 import { Button, SectionMarker, SpineIndex, StatusDot, TagList } from "@/components/ui";
-import { HexMark } from "@/components/site/hex-mark";
+import { HeroMark3D } from "@/components/site/hero-mark-3d";
 import type { Blocks, Settings } from "@/lib/queries/content";
 import { lines, t } from "@/lib/queries/content";
 import type { LiveProject } from "@/lib/queries/home";
@@ -25,12 +25,12 @@ export function Hero({ blocks, settings, live }: HeroProps) {
 
   return (
     <section className="relative overflow-x-clip bg-bone px-3 md:px-[48px] pt-4 lg:pt-6">
-      {/* The one gradient mark on the page. Clipped by the viewport on purpose. */}
+      {/* The 3D glass logo, in its own space, clipped by the viewport on purpose.
+          Explicit square size: the canvas fills its parent. Nothing sits under it. */}
       <div
-        aria-hidden="true"
-        className="reveal-mark pointer-events-none absolute top-0 right-[-72px] w-[200px] md:w-[240px] md:right-[-96px] lg:w-[260px] lg:right-[-160px] xl:top-[40px] xl:w-[560px] xl:right-auto xl:left-[max(50vw+470px,100vw-380px)]"
+        className="reveal-mark absolute top-0 right-[-72px] w-[200px] md:w-[240px] md:right-[-96px] lg:w-[260px] lg:right-[-160px] xl:top-[24px] xl:w-[560px] xl:right-auto xl:left-[max(50vw+470px,100vw-380px)]"
       >
-        <HexMark aperture="bone" className="w-full h-auto" />
+        <HeroMark3D className="w-full" />
       </div>
 
       <div className="max-w-layout mx-auto grid grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)] gap-3 lg:gap-5">
