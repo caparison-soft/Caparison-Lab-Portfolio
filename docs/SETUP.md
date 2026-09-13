@@ -21,11 +21,14 @@ Things that have to be done in dashboards, not in code. Tick them in order.
    the `Profile` row with role ADMIN.
 8. Do NOT create any Storage buckets. Media is on R2.
 
-## Cloudflare R2
-1. R2 → Create bucket `caparison-media`. Location hint: Asia-Pacific.
+## Cloudflare R2 (account 2d343ce34464589612a6e7ebc89581ee, bucket `caparison-lab-portfolio`, created 2026-09-13)
+1. R2 → Create bucket. The live bucket is `caparison-lab-portfolio` (R2_BUCKET
+   in Vercel overrides the `caparison-media` default). Location hint: Asia-Pacific.
 2. Bucket → Settings → Public access → Connect domain: `cdn.caparisonlab.com`.
-   Do not use the `pub-*.r2.dev` URL in production.
-3. Bucket → Settings → CORS policy: paste `infra/r2-cors.json`.
+   Until the domain moves to Cloudflare the bucket's Public Development URL
+   (`pub-*.r2.dev`) is NEXT_PUBLIC_CDN_URL; swap it for the custom domain later.
+3. Bucket → Settings → CORS policy: paste `infra/r2-cors.json`. The S3 token
+   cannot set CORS (Object Read & Write only); this is a dashboard step.
 4. R2 → Manage R2 API tokens → Create token, Object Read & Write, scoped to
    this bucket → `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`. Account ID →
    `R2_ACCOUNT_ID`.
