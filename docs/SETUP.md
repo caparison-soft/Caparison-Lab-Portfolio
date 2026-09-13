@@ -44,7 +44,7 @@ Things that have to be done in dashboards, not in code. Tick them in order.
 
 ## Vercel
 
-Functions run in bom1 (Mumbai) via vercel.json, next to the ap-south-1 database. Project: caparison-lab-portfolio on the caparison-soft team.
+Functions run in bom1 (Mumbai) via vercel.json, next to the ap-south-1 database. Project: caparison-lab-portfolio on the caparison-soft team (project prj_KXdPD7DcJ4rI4nbqe9H08NXqIuTS, team team_JEcPqzViJOAcgfeZ1tVgIVwQ), Node 22.x. First production deploy went live 2026-09-13 at https://caparison-lab-portfolio.vercel.app with R2 and Resend still unset (both optional in the env contract). Env vars are managed through the REST API with a team token kept in .env.vercel (git-ignored); Vercel's .env.example auto-detection creates blank "sensitive" placeholders that fail validation, so delete those before adding real values.
 1. Import the repo. Framework: Next.js. Functions region: `sin1` (Singapore).
 2. Integrations → Supabase: connect the project so the Supabase vars sync.
 3. Add by hand: every R2 var, `RESEND_*`, `INQUIRY_NOTIFY_EMAIL`,
