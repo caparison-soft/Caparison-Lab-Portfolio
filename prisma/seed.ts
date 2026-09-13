@@ -37,6 +37,8 @@ const blocks: Block[] = [
   { key: "nav.skipToContent", group: "Navigation", label: "Skip link", value: "Skip to content", helpText: "Shown to keyboard users on first Tab press." },
   { key: "nav.menuOpen", group: "Navigation", label: "Mobile menu open label", value: "Menu" },
   { key: "nav.menuClose", group: "Navigation", label: "Mobile menu close label", value: "Close" },
+  { key: "nav.workAll", group: "Navigation", label: "Work panel: all-work link", value: "All work" },
+  { key: "nav.capabilitiesAll", group: "Navigation", label: "Capabilities panel: all link", value: "All capabilities" },
 
   // Homepage
   { key: "home.hero.headline", group: "Homepage", label: "Hero headline", value: "Scoped in a week.\nPriced up front.\nLive by week ten.", helpText: "One line per sentence. Line breaks are kept. Three lines maximum." },

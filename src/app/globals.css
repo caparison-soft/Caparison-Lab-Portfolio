@@ -208,6 +208,9 @@
 .section-dark a.btn-primary:hover { color: var(--color-ink); }
 .section-dark .site-menu-panel a { color: var(--color-ink); }
 .section-dark .site-menu-panel a.btn-primary { color: var(--color-ink); }
+/* The notch is a light surface inside the dark bar. */
+.section-dark .site-notch a { color: inherit; }
+.section-dark .site-notch :focus-visible { outline-color: var(--color-ink); }
 
 /* ---- The cursor: a 2px lime left rule means active / current / selected ---- */
 .is-active {
@@ -318,11 +321,6 @@
 }
 
 /* ---- Mobile menu: <details> as a full-height sheet ---- */
-.site-menu summary::-webkit-details-marker { display: none; }
-.site-menu summary::marker { content: ""; }
-.site-menu-close { display: none; }
-.site-menu[open] .site-menu-open { display: none; }
-.site-menu[open] .site-menu-close { display: inline; }
 .site-menu-panel {
   position: fixed;
   left: 0;
@@ -490,3 +488,11 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 }
 /* In the bar the long drop shadow would spill under the bar edge onto light pages. */
 .site-nav .liquid-metal-ring, .site-nav .liquid-metal[data-hovered] .liquid-metal-ring { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3); }
+
+/* ---- The notch: a bone tab hanging from the bar's top edge (lg+). ---- */
+.site-notch-tab {
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  box-shadow: 0 12px 20px rgb(0 0 0 / 0.18);
+}
+.site-notch-card:hover { background: var(--color-bone); }
