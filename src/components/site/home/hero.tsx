@@ -7,36 +7,36 @@ import { lines, t } from "@/lib/queries/content";
 type HeroProps = { blocks: Blocks; settings?: Settings };
 
 /**
- * The hero: three-line headline, sub and one CTA, set low under the fixed
- * header (owner's call, 2026-09-13) with the glass logo to the right at lg+.
+ * The hero: full viewport height, content centred vertically (owner's call,
+ * 2026-09-13): two-line headline, sub and one CTA, the glass logo to the
+ * right at lg+.
  * The former live strip ("currently building") was removed at the same time.
  */
 export function Hero({ blocks }: HeroProps) {
   const headline = lines(t(blocks, "home.hero.headline")).slice(0, 3);
 
   return (
-    <section className="hero section-dark ground-ink on-dark relative overflow-x-clip px-3 md:px-[48px] pt-5 lg:pt-7 pb-6 lg:pb-7">
+    <section className="hero section-dark ground-ink on-dark relative overflow-x-clip px-3 md:px-[48px] min-h-[100svh] flex flex-col justify-center pt-[96px] pb-5">
       {/* The ground: a woven thread field that answers the pointer, with grain on top. */}
       <HeroWeave />
       {/* Phones: the still in the top-right corner. Desktops get the live glass over the headline. */}
       <HeroStill desktopFallback={false} />
 
-      <div className="relative z-10 max-w-layout mx-auto pt-[140px] md:pt-[160px] lg:pt-[48px]">
+      <div className="relative z-10 w-full max-w-layout mx-auto pt-[64px] lg:pt-0">
         <div className="min-w-0">
           {/* lg+: the glass logo over the headline with real refraction. The
               headline and sub are painted into the glass scene at their DOM
               positions; the DOM copies go transparent once the glass is ready. */}
           <div className="relative hero-block">
           <HeroGlass />
-          {/* display-l at lg+: the two sentences stay one line each beside the glass logo. */}
-          <h1 className="text-bone lg:text-display-l lg:font-black">
+          <h1 className="text-bone lg:text-display-hero">
             {headline.map((line, i) => (
               <span key={i} data-glass-text className="block reveal" style={{ "--reveal-delay": `${i * 60}ms` } as React.CSSProperties}>
                 {line}
               </span>
             ))}
           </h1>
-          <p data-glass-text className="reveal-quick mt-4 text-body-l text-sage max-w-[52ch]" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
+          <p data-glass-text className="reveal-quick mt-3 text-body-l text-sage max-w-[52ch]" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
             {t(blocks, "home.hero.sub")}
           </p>
           </div>

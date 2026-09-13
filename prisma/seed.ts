@@ -42,7 +42,7 @@ const blocks: Block[] = [
 
   // Homepage
   { key: "home.hero.headline", group: "Homepage", label: "Hero headline", value: "Ideas into digital products.\nWe turn vision into reality.", helpText: "One line per sentence. Line breaks are kept. Three lines maximum." },
-  { key: "home.hero.sub", group: "Homepage", label: "Hero sub", value: "Caparison Lab designs and develops digital products for businesses, teams, and ambitious ideas. From concept to launch, we build fast, scalable, and purposeful experiences." },
+  { key: "home.hero.sub", group: "Homepage", label: "Hero sub", value: "Caparison Lab builds fast, scalable digital products for businesses and ambitious ideas." },
   { key: "home.hero.ctaPrimary", group: "Homepage", label: "Hero primary button", value: "Start a project" },
   { key: "home.hero.ctaSecondary", group: "Homepage", label: "Hero secondary link", value: "See the work" },
   { key: "home.live.label", group: "Homepage", label: "Live strip label", value: "currently building", helpText: "Sits above the project flagged as currently building." },
