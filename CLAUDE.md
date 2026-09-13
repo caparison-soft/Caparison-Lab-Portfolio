@@ -88,7 +88,7 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   toggle invert over light sections. The hero has no spine rail; other
   sections keep theirs.
 - The notch (owner's reference, 2026-09-13): src/components/site/nav-menu.tsx.
-  At lg+ a 640px bone tab hangs from the page's top edge, straight sides
+  At lg+ a 460px bone tab hangs from the page's top edge, straight sides
   (owner dropped the inverted corners) and a rounded bottom, holding the links. No action in the header (owner removed it);
   the hero carries the CTA. Wordmark 92x24, hex mark 24. "work" opens a panel of the featured projects
   (getFeaturedProjects(4), budget and duration as data) and "capabilities" the

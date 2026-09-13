@@ -105,7 +105,7 @@ export function NavNotch(props: NavMenuProps) {
   const fade = reduced ? { duration: 0 } : { duration: 0.18 };
 
   return (
-    <div ref={rootRef} className="site-notch absolute left-1/2 top-0 z-30 hidden w-[640px] -translate-x-1/2 lg:block">
+    <div ref={rootRef} className="site-notch absolute left-1/2 top-0 z-30 hidden w-[460px] -translate-x-1/2 lg:block">
       <motion.div
         animate={{ height: active ? "auto" : NOTCH_HEIGHT }}
         initial={false}
