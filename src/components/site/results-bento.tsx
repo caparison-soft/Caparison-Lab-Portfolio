@@ -28,23 +28,23 @@ export function ResultsBento({ metrics, blocks }: { metrics: Metric[]; blocks: B
   const n = rest.length;
 
   const Lead = (
-    <div className={cx("relative overflow-hidden rounded-lg bg-lime text-ink p-4 md:p-5 flex flex-col justify-between min-h-[220px]", n === 0 ? "md:col-span-6" : "md:col-span-3 md:row-span-2")}>
+    <div className={cx("relative overflow-hidden rounded-[24px] bg-lime text-ink p-3 md:p-4 flex flex-col justify-between min-h-[168px]", n === 0 ? "md:col-span-6" : "md:col-span-3 md:row-span-2")}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-25 [background:repeating-linear-gradient(45deg,#000_0_1px,transparent_1px_10px)] [mask-image:radial-gradient(ellipse_80%_55%_at_100%_0%,#000_60%,transparent_100%)]" />
       <div className="relative">
         <span className="inline-block px-2 py-[2px] rounded-full bg-ink/10 text-small font-medium text-ink/70">{lead.label}</span>
-        <p className="mt-4 font-mono text-display-l tracking-[-0.03em] leading-none text-ink max-w-none tabular-nums">{lead.value}</p>
+        <p className="mt-3 font-mono text-h2 tracking-[-0.03em] leading-none text-ink max-w-none tabular-nums">{lead.value}</p>
       </div>
-      <div className="relative mt-4">
-        {lead.note ? <p className="text-body text-ink/70 max-w-[36ch]">{lead.note}</p> : null}
+      <div className="relative mt-3">
+        {lead.note ? <p className="text-small text-ink/70 max-w-[36ch]">{lead.note}</p> : null}
         {provenance(lead, blocks) ? <p className="data text-ink/60 max-w-none mt-1">{provenance(lead, blocks)}</p> : null}
       </div>
     </div>
   );
 
   const Card = ({ m, className }: { m: Metric; className?: string }) => (
-    <div className={cx("rounded-lg bg-paper border border-divider-light p-3 md:p-4 flex flex-col justify-center", className)}>
-      <p className="font-mono text-h2 text-ink max-w-none tabular-nums leading-none">{m.value}</p>
-      <p className="mt-1 text-body text-ink max-w-none">{m.label}</p>
+    <div className={cx("rounded-[24px] bg-paper border border-divider-light p-3 flex flex-col justify-center min-h-[80px]", className)}>
+      <p className="font-mono text-h3 text-ink max-w-none tabular-nums leading-none">{m.value}</p>
+      <p className="mt-1 text-small text-ink max-w-none">{m.label}</p>
       {m.note ? <p className="mt-[4px] text-small text-ash max-w-none">{m.note}</p> : null}
       {provenance(m, blocks) ? <p className="data text-ash max-w-none mt-1">{provenance(m, blocks)}</p> : null}
     </div>
@@ -64,7 +64,7 @@ export function ResultsBento({ metrics, blocks }: { metrics: Metric[]; blocks: B
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-6 md:grid-rows-[auto_auto] gap-2 md:gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-6 md:grid-rows-[auto_auto] gap-2 lg:max-w-[960px]">
       {Lead}
       {right}
     </div>
