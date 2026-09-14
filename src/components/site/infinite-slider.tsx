@@ -3,7 +3,7 @@
 // ibelick/infinite-slider, 2026-09-14, rebuilt on motion without
 // react-use-measure). Children render twice and the track scrolls by half
 // its width on a loop; hovering eases to the slower duration. Reduced
-// motion shows the children once, static and wrapped.
+// motion keeps the same markup and simply never starts the loop.
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { animate, motion, useMotionValue, useReducedMotion } from "motion/react";
@@ -39,10 +39,8 @@ export function InfiniteSlider({ children, gap = 16, duration = 25, durationOnHo
     return () => controls.stop();
   }, [key, x, current, width, gap, transitioning, reverse, reduced]);
 
-  if (reduced) {
-    return <div className={cx("flex flex-wrap", className)} style={{ gap }}>{children}</div>;
-  }
-
+  // Same markup whether or not motion is reduced (a different tree would
+  // mismatch the server render); reduced motion just never starts the loop.
   const hover = durationOnHover
     ? { onHoverStart: () => { setTransitioning(true); setCurrent(durationOnHover); }, onHoverEnd: () => { setTransitioning(true); setCurrent(duration); } }
     : {};
