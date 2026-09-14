@@ -64,7 +64,7 @@ export function ResultsBento({ metrics, blocks }: { metrics: Metric[]; blocks: B
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-6 md:grid-rows-[auto_auto] gap-2 lg:max-w-[960px]">
+    <div className="grid grid-cols-1 md:grid-cols-6 md:grid-rows-[auto_auto] gap-2 lg:max-w-[960px] lg:mx-auto">
       {Lead}
       {right}
     </div>
