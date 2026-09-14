@@ -393,28 +393,6 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 /* Case cover fallback: fade in only where View Transitions are unsupported. */
 @supports not (view-transition-name: none) {
   .cover-in { animation: rise var(--duration-base) var(--ease-out) both; }
-  /* Case hero: a soft, layered drop shadow that fades out in steps, so the
-     frame lifts off the matte ground instead of sitting flat on it. */
-  .case-hero {
-    box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.08),
-      0 12px 24px rgb(0 0 0 / 0.5),
-      0 32px 64px rgb(0 0 0 / 0.5),
-      0 72px 120px rgb(0 0 0 / 0.45);
-  }
-  /* On the matte ground a black shadow alone barely reads, so a soft bone glow
-     sits behind and below the frame: the gradient the eye actually sees. */
-  .case-hero-wrap { position: relative; isolation: isolate; }
-  .case-hero-wrap::before {
-    content: "";
-    position: absolute;
-    inset: -6% -8% -22%;
-    z-index: 0;
-    pointer-events: none;
-    background: radial-gradient(ellipse 60% 55% at 50% 62%, rgb(236 238 232 / 0.16), rgb(236 238 232 / 0.05) 45%, transparent 72%);
-    filter: blur(28px);
-  }
-  .case-hero-wrap > .case-hero { position: relative; z-index: 1; }
 }
 
 /* Visually hidden, available to assistive tech. */
@@ -595,3 +573,29 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 /* Page behind the wrapper (overscroll) matches. */
 html:has(.site-ground) { background: var(--matte, #1a1a1a); }
 html:has(.site-ground) body { background: color-mix(in srgb, #ECEEE8 5%, #000000); }
+
+/* ---- Case hero lift (top level: the .cover-in rule above sits inside a
+   @supports block that Chromium never enters). ---- */
+/* Case hero: a soft, layered drop shadow that fades out in steps, so the
+   frame lifts off the matte ground instead of sitting flat on it. */
+.case-hero {
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.08),
+    0 12px 24px rgb(0 0 0 / 0.5),
+    0 32px 64px rgb(0 0 0 / 0.5),
+    0 72px 120px rgb(0 0 0 / 0.45);
+}
+/* On the matte ground a black shadow alone barely reads, so a soft bone glow
+   sits behind and below the frame: the gradient the eye actually sees. */
+.case-hero-wrap { position: relative; isolation: isolate; }
+.case-hero-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 10% -10% -30%;
+  z-index: 0;
+  pointer-events: none;
+  /* Brightest just under the frame's bottom edge, fading out below and to the sides. */
+  background: radial-gradient(ellipse 70% 60% at 50% 55%, rgb(236 238 232 / 0.28), rgb(236 238 232 / 0.10) 45%, transparent 75%);
+  filter: blur(20px);
+}
+.case-hero-wrap > .case-hero { position: relative; z-index: 1; }
