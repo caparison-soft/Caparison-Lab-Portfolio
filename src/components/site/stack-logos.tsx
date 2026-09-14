@@ -32,21 +32,19 @@ function iconFor(name: string): Icon | null {
   return icon ? { path: icon.path, title: icon.title } : null;
 }
 
-/** One mark for the marquee: a larger tile, name in a tooltip and for screen readers. */
-export function StackMark({ name, size = 28 }: { name: string; size?: number }) {
+/**
+ * One mark for the marquee: a tile with the icon; on hover or focus the icon
+ * slides up and the name appears inside the tile (an overlay outside the
+ * tile would be clipped by the slider's overflow). Name is the aria-label.
+ */
+export function StackMark({ name, size = 26 }: { name: string; size?: number }) {
   const icon = iconFor(name);
   return (
-    <span className="relative group inline-block">
-      {icon ? (
-        <span tabIndex={0} aria-label={name} className="stack-logo inline-flex items-center justify-center h-[56px] w-[56px] rounded-lg bg-paper border border-divider-light text-ink transition-colors dur-fast hover:border-ash focus-visible:border-ash">
-          <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg>
-        </span>
-      ) : (
-        <span className="stack-tag data inline-flex items-center h-[56px] px-3 rounded-lg bg-paper border border-divider-light text-ink">{name}</span>
-      )}
-      {icon ? (
-        <span role="tooltip" className="stack-tip pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-1 whitespace-nowrap rounded-sm bg-ink text-bone text-small px-1 py-[2px] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity dur-fast z-20">{name}</span>
-      ) : null}
+    <span tabIndex={0} aria-label={name} className="stack-mark group relative inline-flex flex-col items-center justify-center h-[64px] w-[64px] rounded-lg bg-paper border border-divider-light text-ink transition-colors dur-fast hover:border-ash focus-visible:border-ash overflow-hidden">
+      <span className="flex items-center justify-center transition-transform dur-base ease-out group-hover:-translate-y-[9px] group-focus-visible:-translate-y-[9px]">
+        {icon ? <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg> : <span className="data text-small">{name}</span>}
+      </span>
+      <span aria-hidden="true" className="absolute inset-x-0 bottom-[6px] text-center text-[11px] leading-none text-ash opacity-0 translate-y-[6px] transition-[opacity,transform] dur-base ease-out group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0 truncate px-1">{name}</span>
     </span>
   );
 }

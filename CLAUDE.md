@@ -213,7 +213,9 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   2026-09-14): src/components/site/infinite-slider.tsx (ibelick
   infinite-slider rebuilt on motion + ResizeObserver, children rendered
   twice, slows on hover, static under reduced motion) scrolling StackMark
-  tiles (56px) with faded edges. /work rows keep the small StackLogos row.
+  tiles (64px, name slides in inside the tile on hover since anything outside
+  is clipped by the slider) in a 520px strip with faded edges, five tiles
+  across; short stacks repeat to fill the loop. /work rows keep the small StackLogos row.
 - Stack tags on the case page and the /work rows render as brand marks
   (simple-icons, CC0, monochrome in the text colour) with the name in a
   tooltip on hover or focus and as aria-label; names without a mark (AWS,
