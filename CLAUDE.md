@@ -155,6 +155,14 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   (color-mix bone 5% into ink) and grain, no threads. The old rail thumbnails
   and their :has() CSS are gone; ProjectRows still serves /work.
 
+## Process section (home and about)
+- Owner-supplied "how it works" cards (2026-09-14), rebuilt as
+  src/components/site/home/process-cards.tsx: pinned, tilted cards in a
+  zig-zag (positions for up to five steps in a 1000-wide frame) joined by a
+  dashed path whose dashes crawl (motion; still under reduced motion), ruled
+  lines behind, lime pin and mono number; stacked in order under md. Data is
+  the ProcessStep rows; no colour themes, tokens only.
+
 ## Hero ground (weave + grain)
 - src/lib/hero-weave.ts: our own WebGL2 fragment shader (fbm domain-warped
   thread field, gaussian pointer well, per-thread brightness, one lime thread,
