@@ -69,6 +69,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   Editor saving (owner's call, 2026-09-14): autosave runs for drafts only and
   never flips a draft to Published; a live page changes only via "Update live
   page"; moving a draft to Published shows an inline "Publish now" confirm.
+  RichTextEditor round-trips Tiptap JSON through JSON.stringify before
+  handing it to the form: ProseMirror attrs are null-prototype objects and a
+  server action rejects them ("Cannot access toStringTag", found live
+  2026-09-14 the first time a heading was added).
 - @tanstack/react-table is pinned to v8; v9 has a different API.
 - Draft preview: /preview/[slug]?token=HMAC(slug) from src/lib/preview.ts.
 - Media locally: `npm run dev:s3` runs scripts/dev-s3.mjs, an S3 stand-in on

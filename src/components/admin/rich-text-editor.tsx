@@ -30,7 +30,11 @@ export function RichTextEditor({ value, onChange, id, label }: RichTextEditorPro
     content: (value as object | undefined) ?? { type: "doc", content: [{ type: "paragraph" }] },
     immediatelyRender: false,
     editorProps: { attributes: { class: "editor-prose min-h-[320px] outline-none", id: id ?? "body", "aria-label": label ?? "Body" } },
-    onUpdate: ({ editor }) => onChange(editor.getJSON()),
+    // ProseMirror builds node attrs with Object.create(null). React treats a
+    // null-prototype object as a client reference when it crosses into a server
+    // action, and the save fails with "Cannot access toStringTag on the server".
+    // Round-trip through JSON so the form only ever holds plain data.
+    onUpdate: ({ editor }) => onChange(JSON.parse(JSON.stringify(editor.getJSON()))),
   });
 
   useEffect(() => () => { editor?.destroy(); }, [editor]);
