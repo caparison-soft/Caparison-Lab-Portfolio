@@ -73,12 +73,18 @@ export async function saveProject(id: string, values: ProjectInput): Promise<Sav
           videoUrl: v.videoUrl, videoProvider: v.videoProvider, ctaMode: v.ctaMode, ctaLabel: v.ctaLabel, ctaHref: v.ctaHref, ctaNote: v.ctaNote,
           metaTitle: v.metaTitle, metaDescription: v.metaDescription, ogImageUrl: v.ogImageUrl,
           status: v.status, featured: v.featured, currentlyBuilding: v.currentlyBuilding, buildNote: v.buildNote, publishedAt,
+          outcome: v.outcome, role: v.role, platforms: v.platforms, stage: v.stage, launchedAt: v.launchedAt ? new Date(v.launchedAt) : null, afterNote: v.afterNote,
+          team: { set: v.teamMemberIds.map((id) => ({ id })) },
         },
       });
+      await tx.projectDecision.deleteMany({ where: { projectId: id } });
+      if (v.decisions.length > 0) await tx.projectDecision.createMany({ data: v.decisions.map((d, i) => ({ projectId: id, title: d.title, reason: d.reason, order: i })) });
+      await tx.projectPhase.deleteMany({ where: { projectId: id } });
+      if (v.phases.length > 0) await tx.projectPhase.createMany({ data: v.phases.map((f, i) => ({ projectId: id, label: f.label, when: f.when, note: f.note, order: i })) });
       await tx.projectTag.deleteMany({ where: { projectId: id } });
       if (v.tagIds.length > 0) await tx.projectTag.createMany({ data: v.tagIds.map((tagId) => ({ projectId: id, tagId })), skipDuplicates: true });
       await tx.projectMetric.deleteMany({ where: { projectId: id } });
-      if (v.metrics.length > 0) await tx.projectMetric.createMany({ data: v.metrics.map((m, i) => ({ projectId: id, label: m.label, value: m.value, note: m.note, order: i })) });
+      if (v.metrics.length > 0) await tx.projectMetric.createMany({ data: v.metrics.map((m, i) => ({ projectId: id, label: m.label, value: m.value, note: m.note, period: m.period, source: m.source, order: i })) });
     });
 
     const action = existing.status !== "PUBLISHED" && v.status === "PUBLISHED" ? "project.publish" : v.status !== "PUBLISHED" && existing.status === "PUBLISHED" ? "project.unpublish" : "project.save";

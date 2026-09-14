@@ -33,17 +33,20 @@ export type EditorData = {
   tags: { id: string; name: string; kind: "STACK" | "INDUSTRY" | "SERVICE" }[];
   media: { id: string; type: "IMAGE" | "VIDEO"; keyPrefix: string; alt: string | null; width: number | null; height: number | null }[];
   coverImageId: string | null;
+  /** Published and draft team members, for the "who worked on it" picker. */
+  teamMembers: { id: string; name: string; role: string }[];
 };
 
 export async function getProjectForEditor(id: string): Promise<EditorData | null> {
   const p = await prisma.project.findFirst({
     where: { id, deletedAt: null },
-    include: { tags: { select: { tagId: true } }, metrics: { orderBy: { order: "asc" } }, media: { orderBy: { order: "asc" }, select: { id: true, type: true, keyPrefix: true, alt: true, width: true, height: true } } },
+    include: { tags: { select: { tagId: true } }, metrics: { orderBy: { order: "asc" } }, decisions: { orderBy: { order: "asc" } }, phases: { orderBy: { order: "asc" } }, team: { select: { id: true } }, media: { orderBy: { order: "asc" }, select: { id: true, type: true, keyPrefix: true, alt: true, width: true, height: true } } },
   });
   if (!p) return null;
-  const [categories, tags] = await Promise.all([
+  const [categories, tags, teamMembers] = await Promise.all([
     prisma.category.findMany({ orderBy: { order: "asc" }, select: { id: true, name: true } }),
     prisma.tag.findMany({ orderBy: [{ kind: "asc" }, { order: "asc" }], select: { id: true, name: true, kind: true } }),
+    prisma.teamMember.findMany({ orderBy: { order: "asc" }, select: { id: true, name: true, role: true } }),
   ]);
   const s = (v: string | number | null | undefined) => (v == null ? "" : String(v));
   return {
@@ -53,6 +56,7 @@ export async function getProjectForEditor(id: string): Promise<EditorData | null
     coverImageId: p.coverImageId,
     categories,
     tags,
+    teamMembers,
     media: p.media,
     values: {
       title: p.title, slug: p.slug, summary: p.summary, body: p.body ?? undefined,
@@ -60,7 +64,11 @@ export async function getProjectForEditor(id: string): Promise<EditorData | null
       clientName: s(p.clientName), clientLogoUrl: s(p.clientLogoUrl), year: s(p.year), teamSize: s(p.teamSize), liveUrl: s(p.liveUrl), repoUrl: s(p.repoUrl),
       budgetMin: s(p.budgetMin), budgetMax: s(p.budgetMax), budgetCurrency: p.budgetCurrency, budgetDisplay: s(p.budgetDisplay),
       durationValue: s(p.durationValue), durationUnit: p.durationUnit, durationDisplay: s(p.durationDisplay),
-      metrics: p.metrics.map((m) => ({ label: m.label, value: m.value, note: s(m.note) })),
+      metrics: p.metrics.map((m) => ({ label: m.label, value: m.value, note: s(m.note), period: s(m.period), source: s(m.source) })),
+      outcome: s(p.outcome), role: s(p.role), platforms: p.platforms, stage: p.stage ?? "", launchedAt: p.launchedAt ? p.launchedAt.toISOString().slice(0, 10) : "", afterNote: s(p.afterNote),
+      decisions: p.decisions.map((d) => ({ title: d.title, reason: d.reason })),
+      phases: p.phases.map((f) => ({ label: f.label, when: f.when, note: s(f.note) })),
+      teamMemberIds: p.team.map((m) => m.id),
       videoUrl: s(p.videoUrl), videoProvider: p.videoProvider,
       ctaMode: p.ctaMode, ctaLabel: s(p.ctaLabel), ctaHref: s(p.ctaHref), ctaNote: s(p.ctaNote),
       metaTitle: s(p.metaTitle), metaDescription: s(p.metaDescription), ogImageUrl: s(p.ogImageUrl),

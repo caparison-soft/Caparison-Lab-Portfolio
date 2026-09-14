@@ -62,6 +62,13 @@ enum PublishStatus {
   PUBLISHED
 }
 
+/// Where a shipped project stands today, shown in the case-page sidebar.
+enum ProjectStage {
+  LIVE
+  BETA
+  RETIRED
+}
+
 enum MediaType {
   IMAGE
   VIDEO
@@ -179,6 +186,16 @@ model Project {
   title           String
   slug            String        @unique
   summary         String        @db.VarChar(160)
+  /// One bold line under the summary: the result, with a number where possible.
+  outcome         String?       @db.VarChar(200)
+  /// What the studio did on this project, e.g. "design, frontend, backend, deployment".
+  role            String?
+  /// e.g. ["web", "macOS", "Premiere Pro plugin"].
+  platforms       String[]      @default([])
+  stage           ProjectStage?
+  launchedAt      DateTime?
+  /// One line on what happened after launch, e.g. "retainer since month two".
+  afterNote       String?
   body            Json?
   coverImageId    String?       @unique
   heroMediaId     String?       @unique
@@ -223,6 +240,9 @@ model Project {
   media        Media[]         @relation("ProjectMedia")
   tags         ProjectTag[]
   metrics      ProjectMetric[]
+  decisions    ProjectDecision[]
+  phases       ProjectPhase[]
+  team         TeamMember[]
   testimonials Testimonial[]
   inquiries    Inquiry[]
 
@@ -249,6 +269,35 @@ model ProjectMetric {
   projectId String
   label     String
   value     String
+  note      String?
+  /// When it was measured, e.g. "first 90 days".
+  period    String?
+  /// How it was measured, e.g. "Mixpanel" or "client-reported".
+  source    String?
+  order     Int     @default(0)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, order])
+}
+
+/// A key decision on a project and why it was taken. Two or three per case.
+model ProjectDecision {
+  id        String  @id @default(cuid())
+  projectId String
+  title     String
+  reason    String
+  order     Int     @default(0)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, order])
+}
+
+/// One step of the project's own timeline, e.g. label "Scope", when "week 1".
+model ProjectPhase {
+  id        String  @id @default(cuid())
+  projectId String
+  label     String
+  when      String
   note      String?
   order     Int     @default(0)
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -363,6 +412,7 @@ model TeamMember {
   socials   Json?
   order     Int           @default(0)
   status    PublishStatus @default(DRAFT)
+  projects  Project[]
 
   @@index([status, order])
 }

@@ -155,6 +155,24 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   globals.css @theme) so the two long sentences stay one line each beside the
   glass logo; phones keep display-xl.
 
+## Case study page (owner's brief, 2026-09-14)
+- Project story fields: outcome (bold line under the summary), role ("our
+  part"), platforms[], stage (LIVE/BETA/RETIRED), launchedAt (replaces year in
+  the sidebar when set), afterNote ("since launch", under the results);
+  ProjectDecision (title + reason, "key decisions") and ProjectPhase (label +
+  when + note, "how it went") child tables; Project.team implicit m2m to
+  TeamMember ("who worked on it", published members only); ProjectMetric.period
+  and .source ("first 90 days, measured by Mixpanel"). Published testimonials
+  linked to the project render as one pull quote under the results. Admin:
+  Details tab (role, stage, launch date, platforms, team picker) and a Story
+  tab (outcome, decisions, timeline, since launch); metrics rows carry period
+  and source. Migration 20260914180000_case_story was written by hand
+  (migrate diff cannot introspect this database because of the auth.users
+  reference) and enables RLS on the three new tables with published-project
+  read policies. Copy keys case.decisionsHeading, timelineHeading,
+  teamHeading, afterLabel, meta.role/platform/stage/launched, stage.*,
+  metricMeasured.
+
 ## Work section (home)
 - Owner-supplied interactive hover links (2026-09-14, replacing the earlier
   showcase), rebuilt as src/components/site/home/project-showcase.tsx: each

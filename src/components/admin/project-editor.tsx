@@ -24,6 +24,7 @@ const TABS: TabDef[] = [
   { id: "content", label: "Content" },
   { id: "media", label: "Media" },
   { id: "details", label: "Details" },
+  { id: "story", label: "Story" },
   { id: "commercials", label: "Commercials" },
   { id: "cta", label: "CTA" },
   { id: "seo", label: "SEO" },
@@ -33,6 +34,8 @@ const TABS: TabDef[] = [
 const tabOfField: Record<string, string> = {
   title: "content", slug: "content", summary: "content", body: "content",
   categoryId: "details", tagIds: "details", clientName: "details", clientLogoUrl: "details", year: "details", teamSize: "details", liveUrl: "details", repoUrl: "details",
+  role: "details", platforms: "details", stage: "details", launchedAt: "details", teamMemberIds: "details",
+  outcome: "story", decisions: "story", phases: "story", afterNote: "story",
   budgetMin: "commercials", budgetMax: "commercials", budgetCurrency: "commercials", budgetDisplay: "commercials", durationValue: "commercials", durationUnit: "commercials", durationDisplay: "commercials", metrics: "commercials",
   videoUrl: "media", videoProvider: "media",
   ctaMode: "cta", ctaLabel: "cta", ctaHref: "cta", ctaNote: "cta",
@@ -68,6 +71,7 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
   const metaDescription = watch("metaDescription");
   const videoProvider = watch("videoProvider");
   const currentlyBuilding = watch("currentlyBuilding");
+  const outcome = watch("outcome");
 
   // Auto-slug from title until the slug is edited by hand.
   useEffect(() => {
@@ -146,6 +150,9 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
   }, [formState.isDirty]);
 
   const metrics = useFieldArray({ control, name: "metrics" });
+  const decisions = useFieldArray({ control, name: "decisions" });
+  const phases = useFieldArray({ control, name: "phases" });
+  const platformList = useFieldArray({ control, name: "platforms" as never });
   const err = (n: keyof ProjectInput) => (formState.errors[n]?.message as string | undefined) ?? undefined;
   const dirty = formState.isDirty;
 
@@ -240,9 +247,109 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
               <Controller control={control} name="tagIds" render={({ field }) => <TagPicker tags={data.tags} value={field.value ?? []} onChange={field.onChange} />} />
             </div>
             <Field id="teamSize" label="Team size" error={err("teamSize")}><Input type="number" min={1} max={50} {...register("teamSize")} /></Field>
-            <div />
+            <Field id="role" label="Our part" error={err("role")} help="What the studio did, e.g. design, frontend, backend, deployment. Shown in the sidebar."><Input {...register("role")} /></Field>
+            <Field id="stage" label="Status today" error={err("stage")} help="Where the product stands now. Shown in the sidebar.">
+              <Select {...register("stage")}><option value="">Not shown</option><option value="LIVE">Live</option><option value="BETA">In beta</option><option value="RETIRED">Retired</option></Select>
+            </Field>
+            <Field id="launchedAt" label="Launch date" error={err("launchedAt")} help="Shown instead of the year when set."><Input type="date" {...register("launchedAt")} /></Field>
+            <div className="md:col-span-2">
+              <div className="flex items-baseline justify-between mb-1">
+                <p className="text-small text-ash max-w-none">Platforms. e.g. web, macOS, Windows, iOS, Premiere Pro plugin.</p>
+                <Button type="button" size="sm" variant="secondary" onClick={() => platformList.append("" as never)}>Add platform</Button>
+              </div>
+              {platformList.fields.length === 0 ? <p className="text-small text-ash py-1">None yet.</p> : null}
+              <ul className="list-none m-0 p-0 flex flex-col gap-1">
+                {platformList.fields.map((f, i) => (
+                  <li key={f.id} className="flex gap-1">
+                    <Input {...register(`platforms.${i}` as const)} aria-label={`Platform ${i + 1}`} />
+                    <Button type="button" variant="ghost" size="sm" onClick={() => platformList.remove(i)}>Remove</Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="md:col-span-2">
+              <p className="text-small text-ash max-w-none mb-1">Who worked on it. Shown at the foot of the case page; add people in Team first.</p>
+              {data.teamMembers.length === 0 ? <p className="text-small text-ash py-1">No team members yet.</p> : null}
+              <Controller
+                control={control}
+                name="teamMemberIds"
+                render={({ field }) => (
+                  <ul className="list-none m-0 p-0 flex flex-wrap gap-2">
+                    {data.teamMembers.map((m) => {
+                      const on = (field.value ?? []).includes(m.id);
+                      return (
+                        <li key={m.id}>
+                          <label className="inline-flex items-center gap-1 text-small border border-divider-light rounded-sm px-2 py-1 bg-paper cursor-pointer">
+                            <input type="checkbox" className="w-2 h-2 accent-[#D6F631]" checked={on} onChange={(e) => field.onChange(e.target.checked ? [...(field.value ?? []), m.id] : (field.value ?? []).filter((id: string) => id !== m.id))} />
+                            {m.name} <span className="text-ash">{m.role}</span>
+                          </label>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              />
+            </div>
             <Field id="liveUrl" label="Live URL" error={err("liveUrl")}><Input type="url" {...register("liveUrl")} /></Field>
             <Field id="repoUrl" label="Repository URL" error={err("repoUrl")}><Input type="url" {...register("repoUrl")} /></Field>
+          </div>
+        </TabPanel>
+
+        <TabPanel id="story" active={tab} idPrefix="pe">
+          <div className="grid grid-cols-1 gap-4">
+            <Field id="outcome" label={`Outcome line (${(outcome ?? "").length}/200)`} error={err("outcome")} help="One bold line under the summary: the result, with a number where you have one. e.g. 700+ assets in one Premiere panel, 4,000 editors in the first quarter.">
+              <Input {...register("outcome")} maxLength={200} />
+            </Field>
+            <div>
+              <div className="flex items-baseline justify-between mb-1">
+                <p className="text-small text-ash max-w-none">Key decisions. Two or three: what you chose and why. Drag to reorder.</p>
+                <Button type="button" size="sm" variant="secondary" onClick={() => decisions.append({ title: "", reason: "" })}>Add decision</Button>
+              </div>
+              {decisions.fields.length === 0 ? <p className="text-small text-ash py-2">None yet. e.g. &ldquo;A Premiere panel, not a separate app&rdquo; because editors never leave the timeline.</p> : null}
+              <SortableList
+                items={decisions.fields.map((f) => ({ id: f.id }))}
+                onReorder={(ids) => { const order = ids.map((id) => decisions.fields.findIndex((f) => f.id === id)); const next = order.map((i) => getValues(`decisions.${i}`)).filter((d): d is { title: string; reason: string } => Boolean(d)); decisions.replace(next); }}
+                itemClassName="border-b border-divider-light"
+                renderItem={(item, handle) => {
+                  const i = decisions.fields.findIndex((f) => f.id === item.id);
+                  return (
+                    <div className="grid grid-cols-[24px_minmax(0,1fr)_minmax(0,2fr)_auto] gap-2 items-start py-2">
+                      <span className="pt-3">{handle}</span>
+                      <Field id={`decision-title-${i}`} label="Decision"><Input {...register(`decisions.${i}.title`)} /></Field>
+                      <Field id={`decision-reason-${i}`} label="Why"><Textarea {...register(`decisions.${i}.reason`)} rows={2} /></Field>
+                      <Button type="button" variant="ghost" size="sm" className="mt-4" onClick={() => decisions.remove(i)}>Remove</Button>
+                    </div>
+                  );
+                }}
+              />
+            </div>
+            <div>
+              <div className="flex items-baseline justify-between mb-1">
+                <p className="text-small text-ash max-w-none">Timeline. The project&rsquo;s own steps, e.g. Scope / week 1, Beta / week 7, Launch / week 9. Drag to reorder.</p>
+                <Button type="button" size="sm" variant="secondary" onClick={() => phases.append({ label: "", when: "", note: "" })}>Add step</Button>
+              </div>
+              {phases.fields.length === 0 ? <p className="text-small text-ash py-2">None yet.</p> : null}
+              <SortableList
+                items={phases.fields.map((f) => ({ id: f.id }))}
+                onReorder={(ids) => { const order = ids.map((id) => phases.fields.findIndex((f) => f.id === id)); const next = order.map((i) => getValues(`phases.${i}`)).filter((f): f is { label: string; when: string; note: string } => Boolean(f)); phases.replace(next); }}
+                itemClassName="border-b border-divider-light"
+                renderItem={(item, handle) => {
+                  const i = phases.fields.findIndex((f) => f.id === item.id);
+                  return (
+                    <div className="grid grid-cols-[24px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,2fr)_auto] gap-2 items-start py-2">
+                      <span className="pt-3">{handle}</span>
+                      <Field id={`phase-label-${i}`} label="Step"><Input {...register(`phases.${i}.label`)} /></Field>
+                      <Field id={`phase-when-${i}`} label="When"><Input {...register(`phases.${i}.when`)} className="font-mono text-mono" placeholder="week 1" /></Field>
+                      <Field id={`phase-note-${i}`} label="Note (optional)"><Input {...register(`phases.${i}.note`)} /></Field>
+                      <Button type="button" variant="ghost" size="sm" className="mt-4" onClick={() => phases.remove(i)}>Remove</Button>
+                    </div>
+                  );
+                }}
+              />
+            </div>
+            <Field id="afterNote" label="Since launch" error={err("afterNote")} help="One line on what happened after, e.g. retainer since month two, v2 scoped, the client runs it themselves. Shown under the results.">
+              <Input {...register("afterNote")} />
+            </Field>
           </div>
         </TabPanel>
 
@@ -258,21 +365,23 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
             <div className="md:col-span-4">
               <div className="flex items-baseline justify-between mb-1">
                 <p className="text-small text-ash max-w-none">Metrics. The result blocks on the case page. Drag to reorder.</p>
-                <Button type="button" size="sm" variant="secondary" onClick={() => metrics.append({ label: "", value: "", note: "" })}>Add metric</Button>
+                <Button type="button" size="sm" variant="secondary" onClick={() => metrics.append({ label: "", value: "", note: "", period: "", source: "" })}>Add metric</Button>
               </div>
               {metrics.fields.length === 0 ? <p className="text-small text-ash py-2">No metrics yet. Add the numbers a client would want.</p> : null}
               <SortableList
                 items={metrics.fields.map((f) => ({ id: f.id }))}
-                onReorder={(ids) => { const order = ids.map((id) => metrics.fields.findIndex((f) => f.id === id)); const next = order.map((i) => getValues(`metrics.${i}`)).filter((m): m is { label: string; value: string; note: string } => Boolean(m)); metrics.replace(next); }}
+                onReorder={(ids) => { const order = ids.map((id) => metrics.fields.findIndex((f) => f.id === id)); const next = order.map((i) => getValues(`metrics.${i}`)).filter((m): m is { label: string; value: string; note: string; period: string; source: string } => Boolean(m)); metrics.replace(next); }}
                 itemClassName="py-1"
                 renderItem={(item, handle) => {
                   const i = metrics.fields.findIndex((f) => f.id === item.id);
                   return (
-                    <div className="grid grid-cols-[24px_1fr_1fr_1.5fr_auto] gap-2 items-end">
+                    <div className="grid grid-cols-[24px_1fr_1fr_1.5fr_1fr_1fr_auto] gap-2 items-end">
                       <span className="pb-2">{handle}</span>
                       <Field id={`metric-value-${i}`} label="Value"><Input {...register(`metrics.${i}.value`)} className="font-mono text-mono" /></Field>
                       <Field id={`metric-label-${i}`} label="Label"><Input {...register(`metrics.${i}.label`)} /></Field>
                       <Field id={`metric-note-${i}`} label="Note"><Input {...register(`metrics.${i}.note`)} /></Field>
+                      <Field id={`metric-period-${i}`} label="Period"><Input {...register(`metrics.${i}.period`)} placeholder="first 90 days" /></Field>
+                      <Field id={`metric-source-${i}`} label="Measured by"><Input {...register(`metrics.${i}.source`)} placeholder="Mixpanel" /></Field>
                       <Button type="button" size="sm" variant="ghost" onClick={() => metrics.remove(i)} className="mb-[2px]">Remove</Button>
                     </div>
                   );

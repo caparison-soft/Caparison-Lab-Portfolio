@@ -31,7 +31,16 @@ export const projectSchema = z.object({
   durationValue: optionalInt,
   durationUnit: z.enum(["DAYS", "WEEKS", "MONTHS"]),
   durationDisplay: optionalString,
-  metrics: z.array(z.object({ label: z.string().trim().min(1, "Label"), value: z.string().trim().min(1, "Value"), note: optionalString })).default([]),
+  metrics: z.array(z.object({ label: z.string().trim().min(1, "Label"), value: z.string().trim().min(1, "Value"), note: optionalString, period: optionalString, source: optionalString })).default([]),
+  outcome: z.preprocess(emptyToNull, z.string().trim().max(200).nullable()),
+  role: optionalString,
+  platforms: z.array(z.string().trim().min(1)).default([]),
+  stage: z.preprocess(emptyToNull, z.enum(["LIVE", "BETA", "RETIRED"]).nullable()),
+  launchedAt: optionalDate,
+  afterNote: optionalString,
+  decisions: z.array(z.object({ title: z.string().trim().min(1, "Title"), reason: z.string().trim().min(1, "Reason") })).default([]),
+  phases: z.array(z.object({ label: z.string().trim().min(1, "Label"), when: z.string().trim().min(1, "When"), note: optionalString })).default([]),
+  teamMemberIds: z.array(z.string()).default([]),
   videoUrl: optionalString,
   videoProvider: z.enum(["R2", "YOUTUBE", "VIMEO"]),
   ctaMode: z.enum(["ENQUIRY", "EXTERNAL", "NONE"]),
@@ -56,7 +65,11 @@ export type ProjectInput = {
   clientName: string; clientLogoUrl: string; year: string; teamSize: string; liveUrl: string; repoUrl: string;
   budgetMin: string; budgetMax: string; budgetCurrency: string; budgetDisplay: string;
   durationValue: string; durationUnit: "DAYS" | "WEEKS" | "MONTHS"; durationDisplay: string;
-  metrics: { label: string; value: string; note: string }[];
+  metrics: { label: string; value: string; note: string; period: string; source: string }[];
+  outcome: string; role: string; platforms: string[]; stage: "" | "LIVE" | "BETA" | "RETIRED"; launchedAt: string; afterNote: string;
+  decisions: { title: string; reason: string }[];
+  phases: { label: string; when: string; note: string }[];
+  teamMemberIds: string[];
   videoUrl: string; videoProvider: "R2" | "YOUTUBE" | "VIMEO";
   ctaMode: "ENQUIRY" | "EXTERNAL" | "NONE"; ctaLabel: string; ctaHref: string; ctaNote: string;
   metaTitle: string; metaDescription: string; ogImageUrl: string;

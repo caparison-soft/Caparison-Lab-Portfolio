@@ -134,7 +134,17 @@ export type CaseStudy = {
   media: MediaItem[];
   /** Videos section, in order. */
   videos: MediaItem[];
-  metrics: { label: string; value: string; note: string | null }[];
+  metrics: { label: string; value: string; note: string | null; period: string | null; source: string | null }[];
+  outcome: string | null;
+  role: string | null;
+  platforms: string[];
+  stage: "LIVE" | "BETA" | "RETIRED" | null;
+  launchedAt: string | null;
+  afterNote: string | null;
+  decisions: { title: string; reason: string }[];
+  phases: { label: string; when: string; note: string | null }[];
+  team: { name: string; role: string; avatarUrl: string | null }[];
+  testimonials: { quote: string; authorName: string; authorRole: string | null; company: string | null; avatarUrl: string | null }[];
   next: { slug: string; title: string } | null;
 };
 
@@ -157,11 +167,16 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
         liveUrl: true, videoUrl: true, videoProvider: true,
         ctaMode: true, ctaLabel: true, ctaHref: true, ctaNote: true,
         metaTitle: true, metaDescription: true, ogImageUrl: true, publishedAt: true, updatedAt: true,
+        outcome: true, role: true, platforms: true, stage: true, launchedAt: true, afterNote: true,
+        decisions: { select: { title: true, reason: true }, orderBy: { order: "asc" } },
+        phases: { select: { label: true, when: true, note: true }, orderBy: { order: "asc" } },
+        team: { where: { status: "PUBLISHED" }, orderBy: { order: "asc" }, select: { name: true, role: true, avatarUrl: true } },
+        testimonials: { where: { status: "PUBLISHED", deletedAt: null }, orderBy: { order: "asc" }, select: { quote: true, authorName: true, authorRole: true, company: true, avatarUrl: true } },
         category: { select: { name: true, slug: true } },
         cover: { select: mediaSelect },
         hero: { select: mediaSelect },
         media: { select: mediaSelect, orderBy: { order: "asc" } },
-        metrics: { select: { label: true, value: true, note: true }, orderBy: { order: "asc" } },
+        metrics: { select: { label: true, value: true, note: true, period: true, source: true }, orderBy: { order: "asc" } },
         tags: { select: { tag: { select: { name: true, kind: true, order: true } } } },
       },
     });
@@ -180,10 +195,11 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
         select: { slug: true, title: true },
       }));
 
-    const { tags, cover, hero, media, publishedAt, updatedAt, ...rest } = p;
+    const { tags, cover, hero, media, publishedAt, updatedAt, launchedAt, ...rest } = p;
     return {
       ...rest,
       publishedAt: publishedAt ? publishedAt.toISOString() : null,
+      launchedAt: launchedAt ? launchedAt.toISOString() : null,
       updatedAt: updatedAt.toISOString(),
       stack: tags.filter((x) => x.tag.kind === "STACK").sort((a, b) => a.tag.order - b.tag.order).map((x) => x.tag.name),
       cover: cover ? toMedia(cover) : null,

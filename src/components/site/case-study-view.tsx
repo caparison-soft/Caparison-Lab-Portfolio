@@ -31,11 +31,16 @@ function VideoItem({ m }: { m: MediaItem }) {
 export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; blocks: Blocks; preview?: boolean }) {
   const budget = formatBudget(p);
   const duration = formatDuration(p, "long");
+  const launched = p.launchedAt ? new Date(p.launchedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : null;
+  const stageLabel = p.stage ? t(blocks, `case.stage.${p.stage.toLowerCase()}`) : null;
   const meta = [
     ...(p.clientName ? [{ label: t(blocks, "case.meta.client"), value: p.clientName }] : []),
+    ...(p.role ? [{ label: t(blocks, "case.meta.role"), value: p.role }] : []),
     ...(budget ? [{ label: t(blocks, "case.meta.budget"), value: budget }] : []),
     ...(duration ? [{ label: t(blocks, "case.meta.duration"), value: duration }] : []),
-    ...(p.year ? [{ label: t(blocks, "case.meta.year"), value: String(p.year) }] : []),
+    ...(launched ? [{ label: t(blocks, "case.meta.launched"), value: launched }] : p.year ? [{ label: t(blocks, "case.meta.year"), value: String(p.year) }] : []),
+    ...(stageLabel ? [{ label: t(blocks, "case.meta.stage"), value: stageLabel }] : []),
+    ...(p.platforms.length > 0 ? [{ label: t(blocks, "case.meta.platform"), value: p.platforms.join(", ") }] : []),
     ...(p.teamSize ? [{ label: t(blocks, "case.meta.team"), value: String(p.teamSize) }] : []),
   ];
 
@@ -75,6 +80,7 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
               {p.category ? <SectionMarker>{p.category.name.toLowerCase()}</SectionMarker> : null}
               <h1 className="mt-2 text-display-l">{p.title}</h1>
               <p className="mt-2 text-body-l text-ash max-w-[52ch]">{p.summary}</p>
+              {p.outcome ? <p className="mt-3 text-h3 font-bold text-ink max-w-[40ch] leading-tight">{p.outcome}</p> : null}
             </header>
 
             {/* Mobile metadata: a two-column sheet between summary and cover. */}
@@ -98,18 +104,69 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
               <RichText content={p.body} />
             </div>
 
+            {p.decisions.length > 0 ? (
+              <section className="mt-5" aria-labelledby="decisions-heading">
+                <SectionMarker as="h2" id="decisions-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.decisionsHeading")}</SectionMarker>
+                <ol className="list-none m-0 p-0 mt-3 grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
+                  {p.decisions.map((d, i) => (
+                    <li key={i} className="border-l border-divider-light pl-3">
+                      <p className="data text-ash max-w-none">{String(i + 1).padStart(2, "0")}</p>
+                      <h3 className="text-h4 font-medium text-ink mt-1">{d.title}</h3>
+                      <p className="mt-1 text-body text-ash max-w-[36ch]">{d.reason}</p>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            ) : null}
+
+            {p.phases.length > 0 ? (
+              <section className="mt-5" aria-labelledby="timeline-heading">
+                <SectionMarker as="h2" id="timeline-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.timelineHeading")}</SectionMarker>
+                <ol className="list-none m-0 p-0 mt-3 flex flex-col md:flex-row gap-3 md:gap-0 md:divide-x divide-divider-light">
+                  {p.phases.map((f, i) => (
+                    <li key={i} className="md:flex-1 md:px-3 first:md:pl-0">
+                      <p className="data text-ash max-w-none">{f.when}</p>
+                      <p className="text-body font-medium text-ink max-w-none mt-[4px]">{f.label}</p>
+                      {f.note ? <p className="text-small text-ash max-w-[32ch] mt-[4px]">{f.note}</p> : null}
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            ) : null}
+
             {p.metrics.length > 0 ? (
               <section className="mt-5" aria-labelledby="metrics-heading">
                 <SectionMarker as="h2" id="metrics-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.metricsHeading")}</SectionMarker>
                 <div className={cx("sheet mt-3 grid-cols-1", p.metrics.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2")}>
-                  {p.metrics.map((m, i) => (
-                    <div key={i} className="p-3 bg-bone">
-                      <p className="font-mono text-h3 text-ink max-w-none tabular-nums">{m.value}</p>
-                      <p className="text-body text-ink max-w-none mt-1">{m.label}</p>
-                      {m.note ? <p className="text-small text-ash max-w-none mt-[4px]">{m.note}</p> : null}
-                    </div>
-                  ))}
+                  {p.metrics.map((m, i) => {
+                    const how = [m.period, m.source ? `${t(blocks, "case.metricMeasured")} ${m.source}` : null].filter(Boolean).join(", ");
+                    return (
+                      <div key={i} className="p-3 bg-bone">
+                        <p className="font-mono text-h3 text-ink max-w-none tabular-nums">{m.value}</p>
+                        <p className="text-body text-ink max-w-none mt-1">{m.label}</p>
+                        {m.note ? <p className="text-small text-ash max-w-none mt-[4px]">{m.note}</p> : null}
+                        {how ? <p className="data text-ash max-w-none mt-1">{how}</p> : null}
+                      </div>
+                    );
+                  })}
                 </div>
+                {p.afterNote ? (
+                  <p className="mt-3 text-body text-ash max-w-[60ch]"><span className="text-small text-ash">{t(blocks, "case.afterLabel")}</span> <span className="text-ink">{p.afterNote}</span></p>
+                ) : null}
+              </section>
+            ) : null}
+
+            {p.testimonials.length > 0 ? (
+              <section className="mt-5" aria-label="Client testimonial">
+                {p.testimonials.slice(0, 1).map((q, i) => (
+                  <figure key={i} className="m-0 border-l-2 border-lime pl-3 md:pl-4 max-w-[64ch]">
+                    <blockquote className="m-0 text-h3 font-medium text-ink leading-snug">{q.quote}</blockquote>
+                    <figcaption className="mt-2 flex items-center gap-2">
+                      {q.avatarUrl ? <img src={q.avatarUrl} alt="" width={32} height={32} className="w-[32px] h-[32px] rounded-full object-cover" loading="lazy" /> : null}
+                      <span className="text-small text-ash"><span className="text-ink font-medium">{q.authorName}</span>{q.authorRole ? `, ${q.authorRole}` : ""}{q.company ? `, ${q.company}` : ""}</span>
+                    </figcaption>
+                  </figure>
+                ))}
               </section>
             ) : null}
 
@@ -126,6 +183,20 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
                 <div className="flex flex-col gap-3">
                   {p.videos.map((m) => <VideoItem key={m.id} m={m} />)}
                 </div>
+              </section>
+            ) : null}
+
+            {p.team.length > 0 ? (
+              <section className="mt-5" aria-labelledby="team-heading">
+                <SectionMarker as="h2" id="team-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.teamHeading")}</SectionMarker>
+                <ul className="list-none m-0 p-0 mt-3 flex flex-wrap gap-3">
+                  {p.team.map((m) => (
+                    <li key={m.name} className="flex items-center gap-2">
+                      {m.avatarUrl ? <img src={m.avatarUrl} alt="" width={40} height={40} className="w-[40px] h-[40px] rounded-full object-cover" loading="lazy" /> : <span aria-hidden="true" className="w-[40px] h-[40px] rounded-full bg-paper border border-divider-light" />}
+                      <span><span className="block text-body font-medium text-ink">{m.name}</span><span className="block text-small text-ash">{m.role}</span></span>
+                    </li>
+                  ))}
+                </ul>
               </section>
             ) : null}
 
