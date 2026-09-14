@@ -97,11 +97,12 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   confirm step warns otherwise), HERO (one image or video,
   Project.heroMediaId: top of the case page; a YouTube/Vimeo videoUrl takes
   precedence), GALLERY (images with title + caption-as-subtitle, the
-  case-page carousel, src/components/site/gallery-carousel.tsx: centred
-  active slide, neighbours peek at 0.86 scale, title and subtitle above,
-  dots below, infinite loop via three rendered copies with a silent jump
-  back to the middle copy on settle, mouse drag, arrow keys on focus or
-  hover, flex spacers centre the ends) and VIDEO
+  case-page zoom slider, src/components/site/gallery-carousel.tsx: the active
+  slide large in the centre, two neighbours small each side, a move shrinks
+  the old and grows the new (motion layout spring), drag or swipe, arrow
+  buttons with a counter, arrow keys on focus or hover, loops; title and
+  subtitle above crossfade; owner-supplied zoom-slider design 2026-09-14,
+  rebuilt without GSAP/SplitText) and VIDEO
   (the videos section). Single slots replace on upload (claimSingleSlot
   deletes the old row and objects) and empty via clearSlot; deleteMedia
   refuses thumbnails and heroes. Admin: src/components/admin/project-media.tsx.

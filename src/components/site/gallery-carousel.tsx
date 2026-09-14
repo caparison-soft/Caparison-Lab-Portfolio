@@ -1,17 +1,14 @@
 "use client";
-// Client component: the case-page gallery as a centred, looping carousel.
-// The active slide sits in the middle at full size with its neighbours
-// peeking either side; the list wraps so there is always a slide on both
-// sides. Native scroll-snap does the sliding (touch, trackpad); the mouse can
-// drag; arrow keys work while the carousel is focused or under the pointer;
-// dots below; the active slide's title and subtitle above.
-//
-// The loop: the slides are rendered three times and the view starts on the
-// middle copy. When a scroll settles on a slide in the first or last copy the
-// track jumps, without animation, to the same slide in the middle copy.
-// Reduced motion: instant scrolling, no scale transition.
+// Client component: the case-page gallery as a zoom slider (owner-supplied
+// "zoom-slider" design, 2026-09-14, rebuilt on our tokens without GSAP or
+// SplitText). One slide is active and large in the centre; the others sit
+// small in a strip beside it. Moving to a neighbour shrinks the old slide
+// and grows the new one (small to grow). Drag with the mouse or a finger,
+// use the arrow buttons, or the keyboard arrows. The list loops. Title and
+// subtitle of the active slide sit above. Reduced motion: instant swap.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { MediaFrame } from "@/components/ui";
 import type { MediaItem } from "@/lib/queries/work";
 import { imageSrcSet } from "@/lib/media";
@@ -19,198 +16,124 @@ import { cx } from "@/lib/cx";
 
 type Props = { items: MediaItem[]; labels: { slide: string } };
 
-const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SMALL = 0.28; // neighbour scale relative to the active frame
 
 export function GalleryCarousel({ items, labels }: Props) {
   const n = items.length;
-  const loop = n > 1;
-  const copies = loop ? 3 : 1;
-  const slides = Array.from({ length: copies }, (_, c) => items.map((m, i) => ({ m, i, key: `${m.id}-${c}` }))).flat();
-
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState(loop ? n : 0); // index into `slides`
+  const [index, setIndex] = useState(0);
+  const reduced = useReducedMotion();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ x: number; moved: boolean } | null>(null);
   const hovered = useRef(false);
-  const drag = useRef<{ x: number; left: number; moved: boolean; id: number } | null>(null);
-  const settle = useRef(0);
-
-  const stride = () => {
-    const t = trackRef.current;
-    if (!t || t.children.length < 2) return 0;
-    return (t.children[1] as HTMLElement).offsetLeft - (t.children[0] as HTMLElement).offsetLeft;
-  };
-  const leftFor = (i: number) => {
-    const t = trackRef.current;
-    const s = t?.children[i] as HTMLElement | undefined;
-    if (!t || !s) return 0;
-    return s.offsetLeft - (t.clientWidth - s.offsetWidth) / 2;
-  };
-  const nearest = () => {
-    const t = trackRef.current;
-    if (!t) return 0;
-    const centre = t.scrollLeft + t.clientWidth / 2;
-    let best = 0;
-    let dist = Infinity;
-    Array.from(t.children).forEach((el, i) => {
-      const s = el as HTMLElement;
-      const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - centre);
-      if (d < dist) { dist = d; best = i; }
-    });
-    return best;
-  };
-
-  // Start on the middle copy, without animation.
-  useEffect(() => {
-    const t = trackRef.current;
-    if (!t) return;
-    t.scrollLeft = leftFor(loop ? n : 0);
-  }, [loop, n]);
-
-  // Track the active slide; once a scroll settles on an outer copy, jump to the middle copy.
-  useEffect(() => {
-    const t = trackRef.current;
-    if (!t) return;
-    let raf = 0;
-    const onScroll = () => {
-      if (!raf) raf = window.requestAnimationFrame(() => { raf = 0; setPos(nearest()); });
-      if (!loop) return;
-      window.clearTimeout(settle.current);
-      settle.current = window.setTimeout(() => {
-        if (drag.current) return;
-        const i = nearest();
-        if (i < n || i >= 2 * n) {
-          const same = n + (((i % n) + n) % n);
-          t.scrollLeft += (same - i) * stride();
-          setPos(same);
-        }
-      }, 120);
-    };
-    t.addEventListener("scroll", onScroll, { passive: true });
-    const onResize = () => { t.scrollLeft = leftFor(nearest()); };
-    window.addEventListener("resize", onResize);
-    return () => { t.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onResize); if (raf) window.cancelAnimationFrame(raf); window.clearTimeout(settle.current); };
-  }, [loop, n]);
 
   const go = useCallback((to: number) => {
-    const t = trackRef.current;
-    if (!t) return;
-    const i = loop ? to : Math.max(0, Math.min(n - 1, to));
-    t.scrollTo({ left: leftFor(i), behavior: reducedMotion() ? "auto" : "smooth" });
-  }, [loop, n]);
+    if (n < 2) return;
+    setIndex(((to % n) + n) % n);
+  }, [n]);
+  const next = useCallback(() => go(index + 1), [go, index]);
+  const prev = useCallback(() => go(index - 1), [go, index]);
 
-  // Arrow keys while the pointer is over the carousel (focus is handled on the track itself).
+  // Arrow keys while the slider is focused or under the pointer.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (!hovered.current || document.activeElement === trackRef.current) return;
+      const focused = rootRef.current?.contains(document.activeElement);
+      if (!hovered.current && !focused) return;
       const el = e.target as HTMLElement | null;
-      const tag = el?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || el?.isContentEditable) return;
-      if (e.key === "ArrowRight") { e.preventDefault(); go(pos + 1); }
-      if (e.key === "ArrowLeft") { e.preventDefault(); go(pos - 1); }
+      if (el?.tagName === "INPUT" || el?.tagName === "TEXTAREA" || el?.isContentEditable) return;
+      if (e.key === "ArrowRight") { e.preventDefault(); next(); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, pos]);
+  }, [next, prev]);
 
-  // Mouse drag. Touch already scrolls natively.
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== "mouse" || e.button !== 0) return;
-    const t = trackRef.current;
-    if (!t) return;
-    drag.current = { x: e.clientX, left: t.scrollLeft, moved: false, id: e.pointerId };
-    t.setPointerCapture(e.pointerId);
-    t.classList.add("is-dragging");
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    drag.current = { x: e.clientX, moved: false };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const d = drag.current;
-    const t = trackRef.current;
-    if (!d || !t) return;
-    const dx = e.clientX - d.x;
-    if (Math.abs(dx) > 4) d.moved = true;
-    t.scrollLeft = d.left - dx;
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!drag.current) return;
+    if (Math.abs(e.clientX - drag.current.x) > 8) drag.current.moved = true;
   };
-  const endDrag = () => {
+  const onPointerUp = (e: React.PointerEvent) => {
     const d = drag.current;
-    const t = trackRef.current;
-    if (!d || !t) return;
-    t.classList.remove("is-dragging");
-    if (t.hasPointerCapture(d.id)) t.releasePointerCapture(d.id);
-    const moved = d.moved;
     drag.current = null;
-    go(nearest());
-    // Swallow the click that follows a drag so it does not also jump to a neighbour.
-    if (moved) t.dataset.swallowClick = "1";
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    if (dx < -40) next();
+    else if (dx > 40) prev();
   };
 
-  const activeIndex = ((pos % n) + n) % n;
-  const active = items[activeIndex];
+  // The strip shows the active slide plus two neighbours on each side, looped.
+  const order = n < 2 ? [0] : [-2, -1, 0, 1, 2].map((o) => ((index + o) % n + n) % n);
+  const active = items[index];
   const hasText = items.some((m) => m.title || m.caption);
+  const spring = reduced ? { duration: 0 } : { type: "spring" as const, stiffness: 220, damping: 28 };
+  const fade = reduced ? { duration: 0 } : { duration: 0.2 };
+
+  const Arrow = ({ d, onClick, label }: { d: "left" | "right"; onClick: () => void; label: string }) => (
+    <button type="button" onClick={onClick} aria-label={label} className="h-[40px] w-[40px] inline-flex items-center justify-center rounded-full bg-paper border border-divider-light text-ink hover:bg-bone transition-colors dur-fast">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d={d === "left" ? "M10 3 5 8l5 5" : "M6 3l5 5-5 5"} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    </button>
+  );
 
   return (
-    <div className="gallery">
+    <div ref={rootRef} className="gallery" onMouseEnter={() => { hovered.current = true; }} onMouseLeave={() => { hovered.current = false; }}>
       {hasText ? (
         <div className="text-center mb-3 min-h-[56px]" aria-live="polite">
-          {active?.title ? <p className="text-h4 font-medium text-ink max-w-none">{active.title}</p> : null}
-          {active?.caption ? <p className="text-small text-ash max-w-[60ch] mx-auto mt-[2px]">{active.caption}</p> : null}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div key={index} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={fade}>
+              {active?.title ? <p className="text-h4 font-medium text-ink max-w-none">{active.title}</p> : null}
+              {active?.caption ? <p className="text-small text-ash max-w-[60ch] mx-auto mt-[2px]">{active.caption}</p> : null}
+            </motion.div>
+          </AnimatePresence>
         </div>
       ) : null}
 
       <div
-        ref={trackRef}
-        className="gallery-track relative flex items-center gap-2 md:gap-3 overflow-x-auto snap-x snap-mandatory py-2 -my-2 cursor-grab"
+        className="relative flex items-center justify-center gap-2 md:gap-3 select-none cursor-grab active:cursor-grabbing touch-pan-y overflow-hidden py-2"
         tabIndex={0}
+        role="region"
         aria-roledescription="carousel"
         aria-label={labels.slide}
-        onMouseEnter={() => { hovered.current = true; }}
-        onMouseLeave={() => { hovered.current = false; }}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowRight") { e.preventDefault(); go(pos + 1); }
-          if (e.key === "ArrowLeft") { e.preventDefault(); go(pos - 1); }
-        }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onClickCapture={(e) => { const t = trackRef.current; if (t?.dataset.swallowClick) { delete t.dataset.swallowClick; e.stopPropagation(); e.preventDefault(); } }}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
       >
-        {slides.map((s, idx) => {
-          const on = idx === pos;
-          const clone = loop && (idx < n || idx >= 2 * n);
+        {order.map((i, pos) => {
+          const m = items[i];
+          const on = pos === (n < 2 ? 0 : 2);
+          const dist = Math.abs(pos - 2);
           return (
-            <figure
-              key={s.key}
-              className={cx(
-                "m-0 w-[62%] md:w-[56%] flex-none snap-center transition-[transform,opacity] dur-slow ease-out motion-reduce:transition-none select-none",
-                on ? "scale-100 opacity-100" : "scale-[0.86] opacity-60 cursor-pointer",
-              )}
+            <motion.figure
+              key={`${m.id}-${pos}`}
+              layout
+              initial={reduced ? false : { opacity: 0, scale: SMALL * 0.8 }}
+              animate={{ opacity: dist > 1 ? 0.35 : dist === 1 ? 0.6 : 1, scale: 1 }}
+              transition={spring}
+              style={{ width: on ? "min(62%, 720px)" : `${SMALL * 100}%`, maxWidth: on ? 720 : 200 }}
+              className={cx("m-0 flex-none", !on && "cursor-pointer hidden sm:block")}
+              onClick={() => { if (!on && !drag.current?.moved) go(i); }}
               aria-roledescription="slide"
-              aria-label={`${labels.slide} ${s.i + 1} / ${n}`}
+              aria-label={`${labels.slide} ${i + 1} / ${n}`}
               aria-current={on ? "true" : undefined}
-              aria-hidden={clone || undefined}
-              onClick={() => { if (!on) go(idx); }}
+              aria-hidden={!on || undefined}
             >
-              <MediaFrame ratio={16 / 10} blurDataUrl={s.m.blurDataUrl ?? undefined}>
-                <img {...imageSrcSet(s.m.keyPrefix, s.m.variants)} sizes="(min-width: 1024px) 600px, 62vw" alt={clone ? "" : (s.m.alt ?? "")} width={s.m.width ?? 16} height={s.m.height ?? 10} loading={clone ? "lazy" : "eager"} decoding="async" draggable={false} />
+              <MediaFrame ratio={16 / 10} blurDataUrl={m.blurDataUrl ?? undefined} className={cx(on && "shadow-[0_24px_48px_rgb(0_0_0/0.45)]")}>
+                <img {...imageSrcSet(m.keyPrefix, m.variants)} sizes={on ? "(min-width: 1024px) 720px, 62vw" : "200px"} alt={on ? (m.alt ?? "") : ""} width={m.width ?? 16} height={m.height ?? 10} loading={on ? "eager" : "lazy"} decoding="async" draggable={false} />
               </MediaFrame>
-            </figure>
+            </motion.figure>
           );
         })}
       </div>
 
       {n > 1 ? (
-        <div className="mt-3 flex justify-center gap-1" role="tablist" aria-label={labels.slide}>
-          {items.map((m, i) => (
-            <button
-              key={m.id}
-              type="button"
-              role="tab"
-              aria-selected={i === activeIndex}
-              aria-label={`${labels.slide} ${i + 1}`}
-              onClick={() => go(pos + (i - activeIndex))}
-              className="h-[24px] w-[24px] inline-flex items-center justify-center rounded-full"
-            >
-              <span className={cx("block h-[8px] w-[8px] rounded-full transition-colors dur-fast", i === activeIndex ? "bg-ink" : "bg-ash/35 hover:bg-ash")} />
-            </button>
-          ))}
+        <div className="mt-3 flex items-center justify-center gap-3">
+          <Arrow d="left" onClick={prev} label={`${labels.slide} ${((index - 1 + n) % n) + 1}`} />
+          <p className="data text-ash max-w-none tabular-nums">{index + 1} / {n}</p>
+          <Arrow d="right" onClick={next} label={`${labels.slide} ${(index + 1) % n + 1}`} />
         </div>
       ) : null}
     </div>

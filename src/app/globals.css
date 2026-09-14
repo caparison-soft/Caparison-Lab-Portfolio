@@ -500,24 +500,6 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 .site-notch-card:hover { background: var(--color-bone); }
 .site-notch :focus-visible { outline-color: var(--color-ink); }
 
-/* ---- Case gallery carousel: native scroll-snap, no visible scrollbar. ---- */
-.gallery-track { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.gallery-track::-webkit-scrollbar { display: none; }
-.gallery-track:focus-visible { outline-offset: 4px; }
-/* Spacers either end let the first and last slide sit centred. They are flex
-   items (not padding) so slide widths stay a percentage of the full track.
-   Keep in step with the slide widths in gallery-carousel.tsx: (100 - 62) / 2
-   and (100 - 56) / 2. */
-.gallery-track::before, .gallery-track::after { content: ""; flex: 0 0 19%; }
-.gallery-track { scroll-padding-inline: 19%; scroll-behavior: auto; }
-/* While the mouse drags, snapping is off so the track follows the hand; it snaps again on release. */
-.gallery-track.is-dragging { scroll-snap-type: none; cursor: grabbing; }
-.gallery-track.is-dragging figure { cursor: grabbing; }
-@media (min-width: 768px) {
-  .gallery-track::before, .gallery-track::after { flex-basis: 22%; }
-  .gallery-track { scroll-padding-inline: 22%; }
-}
-
 /* ---- The public site on matte black (owner's call, 2026-09-14). The admin
    keeps the light palette. Every colour utility resolves through these
    variables, so remapping them on the wrapper turns light surfaces dark:
