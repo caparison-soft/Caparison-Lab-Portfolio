@@ -87,7 +87,9 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   precedence), GALLERY (images with title + caption-as-subtitle, the
   case-page carousel, src/components/site/gallery-carousel.tsx: centred
   active slide, neighbours peek at 0.86 scale, title and subtitle above,
-  dots below, flex spacers centre the ends) and VIDEO
+  dots below, infinite loop via three rendered copies with a silent jump
+  back to the middle copy on settle, mouse drag, arrow keys on focus or
+  hover, flex spacers centre the ends) and VIDEO
   (the videos section). Single slots replace on upload (claimSingleSlot
   deletes the old row and objects) and empty via clearSlot; deleteMedia
   refuses thumbnails and heroes. Admin: src/components/admin/project-media.tsx.

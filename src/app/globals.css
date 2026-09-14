@@ -508,7 +508,10 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
    Keep in step with the slide widths in gallery-carousel.tsx: (100 - 62) / 2
    and (100 - 56) / 2. */
 .gallery-track::before, .gallery-track::after { content: ""; flex: 0 0 19%; }
-.gallery-track { scroll-padding-inline: 19%; }
+.gallery-track { scroll-padding-inline: 19%; scroll-behavior: auto; }
+/* While the mouse drags, snapping is off so the track follows the hand; it snaps again on release. */
+.gallery-track.is-dragging { scroll-snap-type: none; cursor: grabbing; }
+.gallery-track.is-dragging figure { cursor: grabbing; }
 @media (min-width: 768px) {
   .gallery-track::before, .gallery-track::after { flex-basis: 22%; }
   .gallery-track { scroll-padding-inline: 22%; }
