@@ -71,7 +71,11 @@ export function VideoPlayer({ src, poster, label, width, height }: Props) {
   const [speed, setSpeedState] = useState(1);
   const [show, setShow] = useState(false);
 
-  useEffect(() => { setReady(true); }, []);
+  useEffect(() => {
+    setReady(true);
+    const el = v.current;
+    if (el && Number.isFinite(el.duration) && el.duration > 0) setDuration(el.duration);
+  }, []);
 
   const reveal = useCallback(() => {
     setShow(true);
@@ -131,7 +135,8 @@ export function VideoPlayer({ src, poster, label, width, height }: Props) {
         onPause={() => { setPlaying(false); setShow(true); }}
         onEnded={() => { setPlaying(false); setShow(true); }}
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-        onTimeUpdate={(e) => { const el = e.currentTarget; setTime(el.currentTime); if (Number.isFinite(el.duration) && el.duration > 0) setProgress((el.currentTime / el.duration) * 100); }}
+        onDurationChange={(e) => setDuration(e.currentTarget.duration)}
+        onTimeUpdate={(e) => { const el = e.currentTarget; setTime(el.currentTime); if (Number.isFinite(el.duration) && el.duration > 0) { setDuration(el.duration); setProgress((el.currentTime / el.duration) * 100); } }}
       />
 
       {/* Big play mark while paused, before the first play. */}
