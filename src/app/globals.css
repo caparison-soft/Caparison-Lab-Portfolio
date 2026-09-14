@@ -608,3 +608,12 @@ html:has(.site-ground) body { background: color-mix(in srgb, #ECEEE8 5%, #000000
     to { opacity: 1; }
   }
 }
+
+/* ---- Case gallery (Swiper coverflow): our pagination and spacing. ---- */
+.gallery-swiper { padding-bottom: 36px; overflow: hidden; }
+.gallery-swiper .swiper-pagination { bottom: 8px; }
+.gallery-swiper .swiper-pagination-bullet { width: 8px; height: 8px; background: var(--color-ash); opacity: 0.35; transition: opacity var(--duration-fast) var(--ease-out); }
+.gallery-swiper .swiper-pagination-bullet:hover { opacity: 0.7; }
+.gallery-swiper .swiper-pagination-bullet-active { background: var(--color-ink); opacity: 1; }
+.gallery-swiper .swiper-slide { transition-property: transform, opacity; }
+.gallery-swiper .swiper-slide:not(.swiper-slide-active) { opacity: 0.6; }
