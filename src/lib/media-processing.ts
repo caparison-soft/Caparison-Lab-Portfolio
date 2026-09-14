@@ -12,7 +12,9 @@ const execFileAsync = promisify(execFile);
 export const IMAGE_WIDTHS = [400, 800, 1200, 1920] as const;
 export const IMAGE_MAX_BYTES = 8 * 1024 * 1024;
 export const VIDEO_SOFT_BYTES = 15 * 1024 * 1024;
-export const VIDEO_HARD_BYTES = 60 * 1024 * 1024;
+export const VIDEO_HARD_BYTES = 200 * 1024 * 1024;
+/** How much of a video the confirm step reads for probing and the poster before falling back to the whole file. */
+export const VIDEO_HEAD_BYTES = 16 * 1024 * 1024;
 export const VIDEO_MAX_HEIGHT = 1080;
 export const VIDEO_MAX_WIDTH = 1920;
 

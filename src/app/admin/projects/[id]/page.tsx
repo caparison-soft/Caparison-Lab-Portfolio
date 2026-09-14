@@ -4,6 +4,9 @@ import { getProjectForEditor } from "@/lib/admin/admin-queries";
 import { getProjectMedia } from "@/lib/admin/media-queries";
 import { signPreview } from "@/lib/preview";
 
+// Server actions on this page confirm uploads (a 200 MB video may need a full read plus ffmpeg).
+export const maxDuration = 300;
+
 export default async function ProjectEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const data = await getProjectForEditor(id);

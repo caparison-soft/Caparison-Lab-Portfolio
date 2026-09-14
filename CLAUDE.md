@@ -37,7 +37,11 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   -> presigned PUT, never proxied through a Vercel function (4.5MB body limit).
   Store keyPrefix, derive URLs from NEXT_PUBLIC_CDN_URL at read time.
 - R2 has no image transforms and no video transcoding. sharp makes the variants
-  at upload; videos need a poster frame and a 15MB soft cap.
+  at upload; videos need a poster frame, 15MB soft cap, 200MB hard cap (owner,
+  2026-09-14). Confirm reads only the first 16MB of a video (getObjectHead) to
+  sniff, probe and grab frame 0, and falls back to the whole file when the
+  moov atom is at the end; the admin pages that host the upload actions set
+  maxDuration 300.
 - Never run R2 images through Vercel's image optimiser. srcset from the stored
   variants, or next/image with unoptimized (set globally in next.config.ts).
 - Supabase free tier pauses after 7 days idle. The /api/cron/keepalive job is

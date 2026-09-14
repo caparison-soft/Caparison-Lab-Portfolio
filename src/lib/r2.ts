@@ -57,6 +57,19 @@ export async function getObjectBuffer(key: string): Promise<{ body: Buffer; cont
   return { body: Buffer.from(bytes), contentType: res.ContentType, size: bytes.byteLength };
 }
 
+/**
+ * The first `bytes` of an object plus its full size. Enough for sniffing and,
+ * for a faststart MP4 or a WebM, for ffmpeg to read dimensions and frame 0
+ * without pulling the whole file into the function.
+ */
+export async function getObjectHead(key: string, bytes: number): Promise<{ body: Buffer; contentType: string | undefined; size: number }> {
+  const res = await r2().send(new GetObjectCommand({ Bucket: BUCKET, Key: key, Range: `bytes=0-${bytes - 1}` }));
+  const arr = await res.Body?.transformToByteArray();
+  if (!arr) throw new Error(`Object ${key} is empty.`);
+  const total = Number(res.ContentRange?.split("/")[1] ?? res.ContentLength ?? arr.byteLength);
+  return { body: Buffer.from(arr), contentType: res.ContentType, size: Number.isFinite(total) ? total : arr.byteLength };
+}
+
 export async function headObject(key: string): Promise<{ size: number; contentType: string | undefined } | null> {
   try {
     const res = await r2().send(new HeadObjectCommand({ Bucket: BUCKET, Key: key }));

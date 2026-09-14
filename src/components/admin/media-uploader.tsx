@@ -11,7 +11,7 @@ import { cx } from "@/lib/cx";
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const VIDEO_TYPES = ["video/mp4", "video/webm"];
 const SOFT = 15 * 1024 * 1024;
-const HARD = 60 * 1024 * 1024;
+const HARD = 200 * 1024 * 1024;
 const IMAGE_MAX = 8 * 1024 * 1024;
 
 type Item = {
@@ -82,7 +82,7 @@ export function MediaUploader({ projectId, onUploaded, compact = false, slot, si
       if (!kind) { next.push({ ...base, error: "Not a supported type. Images: JPEG, PNG, WebP, AVIF. Video: MP4, WebM." }); continue; }
       if (!accept.includes(file.type)) { next.push({ ...base, kind, error: acceptsVideo && !acceptsImage ? "This section takes video only (MP4 or WebM)." : "This slot takes an image (JPEG, PNG, WebP, AVIF)." }); continue; }
       if (kind === "image" && file.size > IMAGE_MAX) { next.push({ ...base, kind, error: `Over 8 MB (${mb(file.size)}). Export it smaller.` }); continue; }
-      if (kind === "video" && file.size > HARD) { next.push({ ...base, kind, error: `Over the 60 MB hard cap (${mb(file.size)}). Compress it, or use a YouTube or Vimeo link.` }); continue; }
+      if (kind === "video" && file.size > HARD) { next.push({ ...base, kind, error: `Over the 200 MB hard cap (${mb(file.size)}). Compress it, or use a YouTube or Vimeo link.` }); continue; }
       next.push({
         ...base, kind, previewUrl: URL.createObjectURL(file), state: "queued",
         warning: kind === "video" && file.size > SOFT ? `${mb(file.size)}. Over 15 MB is slow to start on mobile data in Bangladesh; a shorter or more compressed export is better.` : undefined,
@@ -137,7 +137,7 @@ export function MediaUploader({ projectId, onUploaded, compact = false, slot, si
       >
         <p className="text-body text-ink max-w-none">{prompt ?? (acceptsImage && acceptsVideo ? "Drop images or videos here, or choose files." : acceptsImage ? (single ? "Drop an image here, or choose a file." : "Drop images here, or choose files.") : (single ? "Drop a video here, or choose a file." : "Drop videos here, or choose files."))}</p>
         <p className="text-small text-ash max-w-none mt-[4px]">
-          {acceptsImage ? "JPEG, PNG, WebP, AVIF up to 8 MB." : null}{acceptsImage && acceptsVideo ? " " : null}{acceptsVideo ? "MP4 or WebM up to 60 MB, 1080p, 15 MB recommended." : null}
+          {acceptsImage ? "JPEG, PNG, WebP, AVIF up to 8 MB." : null}{acceptsImage && acceptsVideo ? " " : null}{acceptsVideo ? "MP4 or WebM up to 200 MB, 1080p, 15 MB recommended." : null}
         </p>
         <input ref={inputRef} type="file" multiple={!single} accept={accept.join(",")} className="sr-only" onChange={(e) => { if (e.target.files) add(e.target.files); e.target.value = ""; }} />
       </div>

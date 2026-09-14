@@ -1,5 +1,8 @@
 import { EntityPage } from "@/components/admin/entity-page";
 
+// Server actions on this page confirm uploads (a 200 MB video may need a full read plus ffmpeg).
+export const maxDuration = 300;
+
 export default function CapabilitiesAdmin() {
   return (
     <EntityPage

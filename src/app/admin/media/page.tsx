@@ -1,6 +1,9 @@
 import { MediaLibrary } from "@/components/admin/media-library";
 import { getLatestReconcile, getMediaRows } from "@/lib/admin/media-queries";
 
+// Server actions on this page confirm uploads (a 200 MB video may need a full read plus ffmpeg).
+export const maxDuration = 300;
+
 export default async function MediaAdmin() {
   const [rows, report] = await Promise.all([getMediaRows(), getLatestReconcile()]);
   return (

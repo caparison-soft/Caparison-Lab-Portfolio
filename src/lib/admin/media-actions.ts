@@ -7,9 +7,9 @@ import { prisma } from "@/lib/db";
 import { assertAdmin } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { CACHE_TAGS } from "@/lib/queries/content";
-import { deletePrefix, getObjectBuffer, presignPut, putObject } from "@/lib/r2";
+import { deletePrefix, getObjectBuffer, getObjectHead, presignPut, putObject } from "@/lib/r2";
 import { EXT, IMAGE_MIMES, VIDEO_MIMES, sniffMime, type SniffedMime } from "@/lib/sniff";
-import { IMAGE_MAX_BYTES, VIDEO_HARD_BYTES, VIDEO_MAX_HEIGHT, VIDEO_MAX_WIDTH, extractPoster, makeImageVariants, makePoster, probeVideo } from "@/lib/media-processing";
+import { IMAGE_MAX_BYTES, VIDEO_HARD_BYTES, VIDEO_HEAD_BYTES, VIDEO_MAX_HEIGHT, VIDEO_MAX_WIDTH, extractPoster, makeImageVariants, makePoster, probeVideo } from "@/lib/media-processing";
 import type { Prisma } from "@/generated/prisma/client";
 
 type Ok<T> = { ok: true } & T;
@@ -61,7 +61,7 @@ export async function requestUpload(input: z.input<typeof requestSchema>): Promi
 
     if (v.kind === "video") {
       if (!VIDEO_MIMES.includes(mime)) return { ok: false, error: "Video must be MP4 (H.264) or WebM." };
-      if (v.size > VIDEO_HARD_BYTES) return { ok: false, error: "Video is over the 60 MB hard cap. Compress it or use a YouTube or Vimeo link." };
+      if (v.size > VIDEO_HARD_BYTES) return { ok: false, error: "Video is over the 200 MB hard cap. Compress it or use a YouTube or Vimeo link." };
       const id = nanoid();
       const keyPrefix = `video/${id}`;
       const key = `${keyPrefix}/source.${EXT[mime]}`;
@@ -138,7 +138,12 @@ export async function confirmUpload(input: z.input<typeof confirmSchema>): Promi
   };
 
   try {
-    const { body, size } = await getObjectBuffer(sourceKey);
+    // Images are small and fully needed (sharp). Videos: only the head, which is
+    // enough to sniff, probe and grab frame 0 from a faststart MP4 or a WebM.
+    // If the moov atom sits at the end, the probe fails and we fetch it all.
+    const read = v.kind === "video" ? await getObjectHead(sourceKey, VIDEO_HEAD_BYTES) : await getObjectBuffer(sourceKey);
+    let body = read.body;
+    const size = read.size;
     const mime = sniffMime(body);
     const slot: MediaSlot = v.slot ?? (v.kind === "video" ? "VIDEO" : "GALLERY");
     if (!slotAccepts(slot, v.kind)) return fail(slot === "VIDEO" ? "The videos section takes video only." : "This slot takes an image.");
@@ -173,8 +178,15 @@ export async function confirmUpload(input: z.input<typeof confirmSchema>): Promi
 
     // Video
     if (!mime || !VIDEO_MIMES.includes(mime)) return fail("That file isn't an MP4 or WebM video.");
-    if (size > VIDEO_HARD_BYTES) return fail("Video is over the 60 MB hard cap.");
-    const probe = await probeVideo(body, EXT[mime]);
+    if (size > VIDEO_HARD_BYTES) return fail("Video is over the 200 MB hard cap.");
+    let probe;
+    try {
+      probe = await probeVideo(body, EXT[mime]);
+    } catch (headError) {
+      if (body.byteLength >= size) throw headError;
+      ({ body } = await getObjectBuffer(sourceKey));
+      probe = await probeVideo(body, EXT[mime]);
+    }
     if (probe.height > VIDEO_MAX_HEIGHT || probe.width > VIDEO_MAX_WIDTH) return fail(`Video is ${probe.width}x${probe.height}. 1080p is the maximum; export it at 1920x1080 or smaller.`);
 
     let poster: Buffer;
