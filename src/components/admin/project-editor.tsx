@@ -197,7 +197,7 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
         <TabPanel id="details" active={tab} idPrefix="pe">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Field id="clientName" label="Client name" error={err("clientName")}><Input {...register("clientName")} /></Field>
-            <Field id="clientLogoUrl" label="Client logo URL" error={err("clientLogoUrl")} help="Upload arrives in the media phase; a URL works now."><Input type="url" {...register("clientLogoUrl")} /></Field>
+            <Field id="clientLogoUrl" label="Client logo URL" error={err("clientLogoUrl")} help="Upload the logo in Media, open it and press Copy URL, then paste here."><Input type="url" {...register("clientLogoUrl")} /></Field>
             <Field id="year" label="Year" error={err("year")}><Input type="number" min={2000} max={2100} {...register("year")} /></Field>
             <Field id="categoryId" label="Type" error={err("categoryId")}>
               <Select {...register("categoryId")}><option value="">None</option>{data.categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>

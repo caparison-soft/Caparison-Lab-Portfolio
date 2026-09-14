@@ -11,11 +11,23 @@ import type { MediaRow, ReconcileReport } from "@/lib/admin/media-queries";
 import { cx } from "@/lib/cx";
 
 const cdn = (process.env.NEXT_PUBLIC_CDN_URL ?? "").replace(/\/$/, "");
+/** The address to paste elsewhere (client logo, social image): the 800px variant for images, the source for video. */
+const publicUrl = (m: { type: string; keyPrefix: string }) => (m.type === "VIDEO" ? `${cdn}/${m.keyPrefix}/source.mp4` : `${cdn}/${m.keyPrefix}/w800.webp`);
 const thumb = (m: MediaRow) => (m.type === "VIDEO" ? `${cdn}/${m.posterKey ?? `${m.keyPrefix}/poster.jpg`}` : `${cdn}/${m.keyPrefix}/w400.webp`);
 const mb = (n: number | null) => (n == null ? "" : n >= 1024 * 1024 ? `${(n / (1024 * 1024)).toFixed(2)} MB` : `${Math.round(n / 1024)} KB`);
 
 export function MediaLibrary({ rows: initial, report }: { rows: MediaRow[]; report: ReconcileReport | null }) {
   const [rows, setRows] = useState(initial);
+  const [copied, setCopied] = useState<string | null>(null);
+  async function copyUrl(m: { id: string; type: string; keyPrefix: string }) {
+    try {
+      await navigator.clipboard.writeText(publicUrl(m));
+      setCopied(m.id);
+      window.setTimeout(() => setCopied((c) => (c === m.id ? null : c)), 1500);
+    } catch {
+      window.prompt("Copy this URL", publicUrl(m));
+    }
+  }
   const [type, setType] = useState("");
   const [orphans, setOrphans] = useState(false);
   const [q, setQ] = useState("");
@@ -102,6 +114,7 @@ export function MediaLibrary({ rows: initial, report }: { rows: MediaRow[]; repo
               <dt className="text-ash">size</dt><dd className="data">{current.width}x{current.height}  {mb(current.sizeBytes)}</dd>
               {current.durationSec != null ? <><dt className="text-ash">duration</dt><dd className="data">{current.durationSec}s</dd></> : null}
               <dt className="text-ash">key</dt><dd className="data break-all">{current.keyPrefix}</dd>
+              <dt className="text-ash">url</dt><dd className="data break-all">{publicUrl(current)}</dd>
               <dt className="text-ash">added</dt><dd className="data" suppressHydrationWarning>{new Date(current.createdAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</dd>
             </dl>
             <div className="text-small">
@@ -114,7 +127,8 @@ export function MediaLibrary({ rows: initial, report }: { rows: MediaRow[]; repo
                 </ul>
               ) : <p className="text-ink max-w-none">Nothing. Safe to delete.</p>}
             </div>
-            <div className="flex gap-2 pt-1 border-t border-divider-light">
+            <div className="flex flex-wrap gap-2 pt-1 border-t border-divider-light">
+              <Button size="sm" variant="secondary" onClick={() => copyUrl(current)}>{copied === current.id ? "Copied" : "Copy URL"}</Button>
               <Button size="sm" variant="destructive" onClick={() => remove(current)}>Delete</Button>
               <Button size="sm" variant="ghost" onClick={() => setOpen(null)}>Close</Button>
             </div>
