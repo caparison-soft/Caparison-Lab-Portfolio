@@ -90,7 +90,8 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
               <div className="mt-5 border-t border-divider-light pt-3">
                 <p className="text-small text-ash max-w-none text-center mb-2">{t(blocks, "case.meta.stack")}</p>
                 <InfiniteSlider gap={24} duration={40} durationOnHover={120} reverse className="[mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] py-2">
-                  {p.stack.map((s) => <StackMark key={s} name={s} />)}
+                  {/* Repeat short stacks so the loop never shows a gap. */}
+                  {Array.from({ length: Math.max(1, Math.ceil(12 / p.stack.length)) }, () => p.stack).flat().map((s, i) => <StackMark key={`${s}-${i}`} name={s} />)}
                 </InfiniteSlider>
               </div>
             ) : null}
