@@ -22,14 +22,16 @@ const CORE_BASE = "/ffmpeg";
 const MAX_VIDEO_KBPS = 6000;
 const MIN_VIDEO_KBPS = 1200;
 const AUDIO_KBPS = 128;
-const TARGET_FILL = 0.9; // aim 10% under the cap so muxing overhead never tips it over
+const TARGET_FILL = 0.85; // aim under the cap: encoders overshoot a target average bitrate
+/** Passes allowed when an encoder still overshoots: each one scales the bitrate by what it missed by. */
+const MAX_PASSES = 3;
 const MAX_HEIGHT = 1080;
 const MAX_WIDTH = 1920;
 
-/** Video bitrate (kbps) that fills the cap for this duration, within the quality band. */
-function budgetKbps(seconds: number): number {
+/** Video bitrate (kbps) that fills the cap for this duration, within the quality band, times `scale` for retries. */
+function budgetKbps(seconds: number, scale = 1): number {
   const budget = seconds > 0 ? Math.floor((VIDEO_HARD_BYTES * 8 * TARGET_FILL) / seconds / 1000) - AUDIO_KBPS : MAX_VIDEO_KBPS;
-  return Math.max(MIN_VIDEO_KBPS, Math.min(MAX_VIDEO_KBPS, budget));
+  return Math.max(400, Math.min(MAX_VIDEO_KBPS, Math.floor(Math.max(MIN_VIDEO_KBPS, budget) * scale)));
 }
 
 export type CompressResult = { file: File; originalBytes: number; skipped: boolean; engine: "webcodecs" | "ffmpeg" | "none" };
@@ -42,32 +44,42 @@ export async function compressVideo(file: File, onProgress?: (ratio: number) => 
   if (file.size <= VIDEO_SOFT_BYTES) return { file, originalBytes: file.size, skipped: true, engine: "none" };
   if (file.size > VIDEO_INPUT_MAX_BYTES) throw new Error(`Over ${Math.round(VIDEO_INPUT_MAX_BYTES / 1048576)} MB. Trim or export it smaller first.`);
 
-  let out: File | null = null;
-  let engine: CompressResult["engine"] = "ffmpeg";
+  // Encoders treat a target bitrate as a hint and can land over it. When a pass
+  // overshoots the cap, run again with the bitrate scaled by what it missed by.
+  const run = async (encode: (scale: number) => Promise<File>): Promise<File> => {
+    let scale = 1;
+    let out: File | null = null;
+    for (let pass = 1; pass <= MAX_PASSES; pass++) {
+      onProgress?.(0);
+      out = await encode(scale);
+      if (out.size <= VIDEO_HARD_BYTES) return out;
+      scale *= (VIDEO_HARD_BYTES * TARGET_FILL) / out.size;
+    }
+    throw new Error(`Still ${Math.round((out as File).size / 1048576)} MB after compressing. Trim the video or use a YouTube or Vimeo link.`);
+  };
+
   if (typeof VideoEncoder !== "undefined") {
     try {
-      out = await compressWithWebCodecs(file, onProgress);
-      engine = "webcodecs";
+      const out = await run((scale) => compressWithWebCodecs(file, onProgress, scale));
+      return { file: out, originalBytes: file.size, skipped: false, engine: "webcodecs" };
     } catch (e) {
+      if (e instanceof Error && /^Still \d+ MB/.test(e.message)) throw e;
       console.warn("WebCodecs compression unavailable, falling back to ffmpeg.wasm:", e);
-      onProgress?.(0);
     }
   }
-  if (!out) out = await compressWithFfmpeg(file, onProgress);
-
-  if (out.size > VIDEO_HARD_BYTES) throw new Error(`Still ${Math.round(out.size / 1048576)} MB after compressing. Trim the video or use a YouTube or Vimeo link.`);
-  return { file: out, originalBytes: file.size, skipped: false, engine };
+  const out = await run((scale) => compressWithFfmpeg(file, onProgress, scale));
+  return { file: out, originalBytes: file.size, skipped: false, engine: "ffmpeg" };
 }
 
 // ---- Engine 1: WebCodecs via mediabunny -----------------------------------
 
-async function compressWithWebCodecs(file: File, onProgress?: (ratio: number) => void): Promise<File> {
+async function compressWithWebCodecs(file: File, onProgress: ((ratio: number) => void) | undefined, scale: number): Promise<File> {
   const mb = await import("mediabunny");
   const input = new mb.Input({ formats: mb.ALL_FORMATS, source: new mb.BlobSource(file) });
   const track = await input.getPrimaryVideoTrack();
   if (!track) throw new Error("No video track.");
   const seconds = await input.computeDuration();
-  const kbps = budgetKbps(seconds);
+  const kbps = budgetKbps(seconds, scale);
 
   // Fit inside 1920x1080 without changing the aspect.
   const w = track.displayWidth;
@@ -79,7 +91,8 @@ async function compressWithWebCodecs(file: File, onProgress?: (ratio: number) =>
     size.height = Math.round((h * scale) / 2) * 2;
   }
 
-  const quality = new mb.Quality({ bitrate: kbps * 1000, bitrateMode: "variable" });
+  // Constant mode: hardware encoders hold a CBR target far more tightly than a VBR average.
+  const quality = new mb.Quality({ bitrate: kbps * 1000, bitrateMode: "constant" });
   if (!(await mb.canEncodeVideo("avc", { width: size.width ?? w, height: size.height ?? h, quality }))) throw new Error("This browser cannot encode H.264.");
 
   const output = new mb.Output({ format: new mb.Mp4OutputFormat({ fastStart: "in-memory" }), target: new mb.BufferTarget() });
@@ -128,7 +141,7 @@ async function duration(ff: FFmpeg, input: string): Promise<number> {
   return m ? Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3]) : 0;
 }
 
-async function compressWithFfmpeg(file: File, onProgress?: (ratio: number) => void): Promise<File> {
+async function compressWithFfmpeg(file: File, onProgress: ((ratio: number) => void) | undefined, scale: number): Promise<File> {
   const ff = await ffmpeg();
   const { fetchFile } = await import("@ffmpeg/util");
   const ext = file.name.toLowerCase().endsWith(".webm") ? "webm" : "mp4";
@@ -137,7 +150,7 @@ async function compressWithFfmpeg(file: File, onProgress?: (ratio: number) => vo
   await ff.writeFile(input, await fetchFile(file));
 
   try {
-    const kbps = budgetKbps(await duration(ff, input));
+    const kbps = budgetKbps(await duration(ff, input), scale);
 
     const onProgress2 = ({ progress }: { progress: number }) => onProgress?.(Math.max(0, Math.min(1, progress)));
     ff.on("progress", onProgress2);
