@@ -92,7 +92,7 @@ function Row({ p, reduced }: { p: ShowcaseProject; reduced: boolean }) {
           alt=""
           loading="lazy"
           decoding="async"
-          className="pointer-events-none absolute z-0 hidden [@media(hover:hover)]:block h-[96px] w-[160px] md:h-[180px] md:w-[288px] rounded-lg object-cover shadow-[0_24px_48px_rgb(0_0_0/0.45)]"
+          className="pointer-events-none absolute z-20 hidden [@media(hover:hover)]:block h-[96px] w-[160px] md:h-[180px] md:w-[288px] rounded-lg object-cover shadow-[0_24px_48px_rgb(0_0_0/0.45)]"
         />
       ) : null}
 
