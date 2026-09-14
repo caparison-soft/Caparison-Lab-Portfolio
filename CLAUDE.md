@@ -160,6 +160,12 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   glass logo; phones keep display-xl.
 
 ## Case study page (owner's brief, 2026-09-14)
+- Uploaded videos (hero and the videos section) play in
+  src/components/site/video-player.tsx (owner-supplied design, rebuilt:
+  floating blurred control pill on hover/focus/touch with seek, volume,
+  play, mute, speed, fullscreen; keyboard space/k/arrows/m/f; inline SVG;
+  motion; native controls until hydration). YouTube/Vimeo stay iframes.
+  The hero frame is capped at 880px on lg+.
 - Layout (owner, 2026-09-14): no side rail; back link, header, then a
   horizontal facts strip (client, our part, budget, duration, launched or
   year, status, platform, team; stack tags and live link below it) above the

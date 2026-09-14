@@ -1,4 +1,5 @@
 import { MediaFrame } from "@/components/ui";
+import { VideoPlayer } from "@/components/site/video-player";
 import type { MediaItem } from "@/lib/queries/work";
 import { embedSrc, imageSrcSet, posterSrc, videoSrc } from "@/lib/media";
 
@@ -36,9 +37,7 @@ export function CaseCover({ slug, hero, videoUrl, videoProvider, title }: CaseCo
   if (hero.type === "VIDEO") {
     return (
       <MediaFrame width={hero.width ?? 16} height={hero.height ?? 9} style={vtStyle} className="cover-in case-hero">
-        <video controls preload="metadata" playsInline poster={posterSrc(hero.posterKey, hero.keyPrefix)} width={hero.width ?? 16} height={hero.height ?? 9} aria-label={hero.alt ?? title}>
-          <source src={videoSrc(hero.keyPrefix)} type="video/mp4" />
-        </video>
+        <VideoPlayer src={videoSrc(hero.keyPrefix)} poster={posterSrc(hero.posterKey, hero.keyPrefix)} label={hero.alt ?? title} width={hero.width ?? 16} height={hero.height ?? 9} />
       </MediaFrame>
     );
   }

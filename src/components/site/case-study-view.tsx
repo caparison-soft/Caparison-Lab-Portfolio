@@ -4,6 +4,7 @@ import { StackLogos } from "@/components/site/stack-logos";
 import { RichText } from "@/components/site/rich-text";
 import { CaseCover } from "@/components/site/case-cover";
 import { GalleryCarousel } from "@/components/site/gallery-carousel";
+import { VideoPlayer } from "@/components/site/video-player";
 import type { Blocks } from "@/lib/queries/content";
 import { t } from "@/lib/queries/content";
 import type { CaseStudy, MediaItem } from "@/lib/queries/work";
@@ -15,9 +16,7 @@ function VideoItem({ m }: { m: MediaItem }) {
   return (
     <figure className="m-0">
       <MediaFrame width={m.width ?? 16} height={m.height ?? 9}>
-        <video controls preload="metadata" playsInline poster={posterSrc(m.posterKey, m.keyPrefix)} width={m.width ?? 16} height={m.height ?? 9} aria-label={m.alt ?? m.title ?? undefined}>
-          <source src={videoSrc(m.keyPrefix)} type="video/mp4" />
-        </video>
+        <VideoPlayer src={videoSrc(m.keyPrefix)} poster={posterSrc(m.posterKey, m.keyPrefix)} label={m.alt ?? m.title ?? undefined} width={m.width ?? 16} height={m.height ?? 9} />
       </MediaFrame>
       {m.title || m.caption ? (
         <figcaption className="mt-1">
@@ -96,7 +95,7 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             </div>
 
             {p.hero || (p.videoUrl && p.videoProvider !== "R2") ? (
-              <div className="mt-4 case-hero-wrap">
+              <div className="mt-4 case-hero-wrap lg:max-w-[880px]">
                 <CaseCover slug={p.slug} hero={p.hero} videoUrl={p.videoUrl} videoProvider={p.videoProvider} title={p.title} />
               </div>
             ) : null}
