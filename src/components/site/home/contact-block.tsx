@@ -11,8 +11,8 @@ const availabilityStatus = { AVAILABLE: "live", LIMITED: "progress", BOOKED: "dr
 export function ContactBlock({ blocks, settings, sourcePath }: ContactBlockProps) {
   return (
     <section id="contact" className="section-dark on-dark px-3 md:px-[48px] pt-6 pb-5">
-      <div className="max-w-layout mx-auto grid grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)] gap-3 lg:gap-5">
-        <aside className="lg:sticky lg:top-3 lg:self-start flex flex-col gap-2">
+      <div className="max-w-layout mx-auto flex flex-col gap-3">
+        <aside className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <p className="text-body font-medium text-sage max-w-none m-0">{t(blocks, "home.contact.marker")}</p>
           <StatusDot surface="dark" status={availabilityStatus[settings.availabilityStatus]} label={settings.availabilityNote ?? settings.availabilityStatus.toLowerCase()} />
         </aside>

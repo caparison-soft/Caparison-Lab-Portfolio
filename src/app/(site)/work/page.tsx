@@ -53,10 +53,10 @@ export default async function WorkPage({ searchParams }: { searchParams: SearchP
         <Spine
           sticky={false}
           rail={
-            <nav aria-label="Filters" className="flex flex-col gap-3">
+            <nav aria-label="Filters" className="flex flex-col md:flex-row md:flex-wrap gap-3 md:gap-x-6">
               <div>
                 <p className="text-small text-ash mb-1 max-w-none">{t(blocks, "work.filters.categoryLabel")}</p>
-                <ul className="flex flex-wrap lg:flex-col gap-1 list-none m-0 p-0 items-start">
+                <ul className="flex flex-wrap gap-1 list-none m-0 p-0 items-start">
                   <li><Tag variant="filter" selected={!validType} href={href(undefined, validStack)}>{t(blocks, "work.filters.allLabel")}</Tag></li>
                   {filters.categories.map((c) => (
                     <li key={c.slug}>
@@ -67,7 +67,7 @@ export default async function WorkPage({ searchParams }: { searchParams: SearchP
               </div>
               <div>
                 <p className="text-small text-ash mb-1 max-w-none">{t(blocks, "work.filters.stackLabel")}</p>
-                <ul className="flex flex-wrap lg:flex-col gap-1 list-none m-0 p-0 items-start">
+                <ul className="flex flex-wrap gap-1 list-none m-0 p-0 items-start">
                   <li><Tag variant="filter" selected={!validStack} href={href(validType, undefined)}>{t(blocks, "work.filters.allLabel")}</Tag></li>
                   {filters.stack.map((s) => (
                     <li key={s.slug}>

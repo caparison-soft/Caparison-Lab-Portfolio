@@ -121,6 +121,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   CSV at /admin/inquiries/export; Resend webhook at /api/webhooks/resend.
 
 ## Navigation
+- No left rail (owner's call, 2026-09-14): Spine renders the rail (marker,
+  index, filters) as a row above full-width content inside the 1240px
+  container; the 180px column is gone everywhere, /work filters wrap
+  horizontally.
 - The whole public site sits on matte black (owner's call, 2026-09-14):
   .site-ground wraps main + footer in the (site) layout and root not-found and
   remaps the colour tokens (bone/paper to two matte greys, ink/ash to

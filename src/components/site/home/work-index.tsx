@@ -24,8 +24,8 @@ export function WorkIndex({ blocks, projects, total }: WorkIndexProps) {
 
   return (
     <section id="work" className="section-dark ground-matte on-dark relative overflow-hidden px-3 md:px-[48px] pt-5 pb-6">
-      <div className="relative z-10 max-w-layout mx-auto grid grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)] gap-3 lg:gap-5">
-        <aside className="lg:sticky lg:top-3 lg:self-start">
+      <div className="relative z-10 max-w-layout mx-auto flex flex-col gap-3">
+        <aside>
           <SectionMarker surface="dark" count={total} as="h2">{t(blocks, "home.work.marker")}</SectionMarker>
         </aside>
         <div className="min-w-0">

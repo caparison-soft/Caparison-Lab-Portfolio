@@ -16,7 +16,7 @@ export function Testimonials({ items, labels }: TestimonialsProps) {
   const btn = "inline-flex items-center justify-center w-[40px] h-[40px] rounded-sm border border-divider-light text-ink hover:border-ink transition-colors dur-fast disabled:opacity-50 disabled:pointer-events-none";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)] gap-3 lg:gap-5">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center lg:items-start lg:flex-col gap-2">
         <p className="data text-ash max-w-none" aria-live="polite">{i + 1} {labels.of} {items.length}</p>
         {canNav ? (
