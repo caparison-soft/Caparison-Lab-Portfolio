@@ -144,12 +144,14 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   glass logo; phones keep display-xl.
 
 ## Work section (home)
-- Owner-supplied hover showcase (2026-09-13), rebuilt as
-  src/components/site/home/project-showcase.tsx: rows are links to the case
-  study; hover underlines the title, slides in an inline-SVG arrow, lifts the
-  row, and floats the cover beside the pointer (hover devices only, eased on
-  refs, hidden when the project has no cover). First row keeps the site's one
-  scroll reveal. The section sits on .ground-matte: the hero's tone
+- Owner-supplied interactive hover links (2026-09-14, replacing the earlier
+  showcase), rebuilt as src/components/site/home/project-showcase.tsx: each
+  row is a Next link with a display-size title whose letters fan out on hover
+  (motion variants with stagger), the thumbnail springs in and follows the
+  pointer (useSpring on motion values, hover devices only, none without a
+  cover), an inline-SVG arrow slides in from the right; keyboard focus shows
+  the same state; reduced motion drops stagger and spring. First row keeps
+  the site's one scroll reveal. The section sits on .ground-matte: the hero's tone
   (color-mix bone 5% into ink) and grain, no threads. The old rail thumbnails
   and their :has() CSS are gone; ProjectRows still serves /work.
 

@@ -1,23 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
+import { useRef } from "react";
 import { RevealRow } from "@/components/site/reveal-row";
 import { cx } from "@/lib/cx";
 
 /**
- * Hover showcase (owner-supplied design, 2026-09-13), rebuilt on our
- * primitives: a list of projects where hovering a row underlines the title,
- * slides in an arrow, and floats the cover beside the cursor. The floating
- * cover exists only on hover devices; keyboard focus gets the same row state
- * without it. A project without a cover shows no floating card. Reduced motion
- * snaps the cover instead of easing it.
- *
- * Differences from the pasted component: rows are Next links to the case
- * study, data comes from the database (no placeholder images), the arrow is
- * inline SVG, the cover is positioned inside the section (not fixed), and
- * the pointer easing runs on refs, not React state, so nothing re-renders
- * per frame.
+ * Home work rows (owner-supplied design, 2026-09-14), rebuilt on our
+ * primitives: each row is a link whose title letters fan out on hover, the
+ * thumbnail springs in and follows the pointer, and an arrow slides in from
+ * the right. Data comes from the database (no placeholder images); the
+ * arrow is inline SVG; rows are Next links; keyboard focus shows the same
+ * state; reduced motion drops the letter stagger and the spring and just
+ * shows the image. The first row keeps the site's one scroll reveal.
  */
 
 export type ShowcaseProject = {
@@ -29,111 +25,93 @@ export type ShowcaseProject = {
   cover: { src: string; srcSet: string; blurDataUrl: string | null } | null;
 };
 
-function ArrowUpRight({ className }: { className?: string }) {
+const MotionLink = motion.create(Link);
+
+function Arrow() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className={className}>
-      <path d="M4.5 11.5 11.5 4.5M6 4.5h5.5V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true" className="w-[28px] h-[28px] md:w-[40px] md:h-[40px]">
+      <path d="M8 20h24M22 10l10 10-10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-export function ProjectShowcase({ projects }: { projects: ShowcaseProject[] }) {
-  const [hovered, setHovered] = useState<number | null>(null);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
-  const target = useRef({ x: 0, y: 0 });
-  const current = useRef({ x: 0, y: 0 });
-  const raf = useRef(0);
+function Row({ p, reduced }: { p: ShowcaseProject; reduced: boolean }) {
+  const ref = useRef<HTMLAnchorElement | null>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 200, damping: 25 });
+  const sy = useSpring(y, { stiffness: 200, damping: 25 });
+  const top = useTransform(sy, [0.5, -0.5], ["40%", "60%"]);
+  const left = useTransform(sx, [0.5, -0.5], ["60%", "40%"]);
 
-  // Ease the cover toward the pointer. Runs only while a row is hovered.
-  useEffect(() => {
-    if (hovered === null) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const tick = () => {
-      const k = reduced ? 1 : 0.15;
-      current.current.x += (target.current.x - current.current.x) * k;
-      current.current.y += (target.current.y - current.current.y) * k;
-      if (previewRef.current) {
-        previewRef.current.style.transform = `translate3d(${current.current.x + 24}px, ${current.current.y - 100}px, 0)`;
-      }
-      raf.current = window.requestAnimationFrame(tick);
-    };
-    raf.current = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(raf.current);
-  }, [hovered]);
-
-  const onMove = (e: React.MouseEvent) => {
-    const rect = rootRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    target.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    // First hover: start where the pointer is instead of easing in from the corner.
-    if (hovered === null) current.current = { ...target.current };
+  const onMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const r = ref.current?.getBoundingClientRect();
+    if (!r) return;
+    x.set((e.clientX - r.left) / r.width - 0.5);
+    y.set((e.clientY - r.top) / r.height - 0.5);
   };
 
+  const spring = reduced ? { duration: 0 } : { type: "spring" as const, stiffness: 260, damping: 24 };
+
   return (
-    <div ref={rootRef} onMouseMove={onMove} className="relative">
-      {/* The floating cover: hover devices only. */}
-      <div
-        ref={previewRef}
-        aria-hidden="true"
-        className={cx(
-          "pointer-events-none absolute left-0 top-0 z-30 hidden w-[280px] overflow-hidden rounded-lg transition-[opacity,scale] dur-base ease-out [@media(hover:hover)]:block",
-          hovered === null || !projects[hovered]?.cover ? "opacity-0 scale-90" : "opacity-100 scale-100",
-        )}
-        style={{ boxShadow: "0 24px 48px rgb(0 0 0 / 0.45)" }}
-      >
-        <div className="relative h-[180px] w-full bg-olive-950">
-          {projects.map((p, i) =>
-            p.cover ? (
-              <img
-                key={p.id}
-                src={p.cover.src}
-                srcSet={p.cover.srcSet}
-                sizes="280px"
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className={cx("absolute inset-0 h-full w-full object-cover transition-[opacity,scale,filter] dur-slow ease-out", hovered === i ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-110 blur-md")}
-              />
-            ) : null,
-          )}
-        </div>
+    <MotionLink
+      href={`/work/${p.slug}`}
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={() => { x.set(0); y.set(0); }}
+      initial="initial"
+      whileHover="hover"
+      whileFocus="hover"
+      className="group relative flex items-center justify-between gap-3 border-b border-olive-600 py-3 md:py-4 no-underline transition-colors dur-slow hover:border-bone focus-visible:border-bone"
+    >
+      <div className="min-w-0">
+        <motion.span
+          variants={{ initial: { x: 0 }, hover: { x: -12 } }}
+          transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 24, staggerChildren: 0.03, delayChildren: 0.1 }}
+          className="relative z-10 block text-h2 md:text-display-l text-sage group-hover:text-bone group-focus-visible:text-bone transition-colors dur-slow"
+        >
+          {reduced
+            ? p.title
+            : p.title.split("").map((ch, i) => (
+                <motion.span key={i} variants={{ initial: { x: 0 }, hover: { x: 12 } }} transition={spring} className={cx("inline-block", ch === " " && "w-[0.3em]")}>
+                  {ch === " " ? " " : ch}
+                </motion.span>
+              ))}
+        </motion.span>
+        <span className="relative z-10 mt-1 block text-body text-ash group-hover:text-bone group-focus-visible:text-bone transition-colors dur-slow max-w-[60ch]">{p.summary}</span>
       </div>
 
-      <ol className="list-none m-0 p-0">
-        {projects.map((p, i) => {
-          const active = hovered === i;
-          const inner = (
-            <Link
-              href={`/work/${p.slug}`}
-              className="group relative block no-underline py-3"
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-            >
-              {/* Row highlight */}
-              <span aria-hidden="true" className={cx("absolute inset-y-0 -inset-x-2 rounded-lg bg-olive-800/40 transition-[opacity,scale] dur-base ease-out group-focus-visible:opacity-100", active ? "opacity-100 scale-100" : "opacity-0 scale-[0.98]")} />
-              <span className="relative flex items-start justify-between gap-3">
-                <span className="min-w-0 flex-1">
-                  <span className="inline-flex items-center gap-1">
-                    <h3 className="text-h4 font-medium text-bone m-0">
-                      <span className="relative">
-                        {p.title}
-                        <span aria-hidden="true" className={cx("absolute left-0 -bottom-[2px] h-px bg-bone transition-[width] dur-base ease-out group-focus-visible:w-full", active ? "w-full" : "w-0")} />
-                      </span>
-                    </h3>
-                    <ArrowUpRight className={cx("text-sage transition-[opacity,transform] dur-base ease-out group-focus-visible:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:translate-y-0", active ? "opacity-100 translate-x-0 translate-y-0" : "opacity-0 -translate-x-1 translate-y-1")} />
-                  </span>
-                  <span className={cx("mt-0.5 block text-small transition-colors dur-base ease-out", active ? "text-bone" : "text-sage")}>{p.summary}</span>
-                </span>
-                {p.year ? <span className={cx("data text-small tabular-nums transition-colors dur-base", active ? "text-bone" : "text-sage")}>{p.year}</span> : null}
-              </span>
-            </Link>
-          );
-          const cls = "border-t border-olive-600";
-          return i === 0 ? <RevealRow key={p.id} className={cls}>{inner}</RevealRow> : <li key={p.id} className={cls}>{inner}</li>;
-        })}
-      </ol>
-      <div className="border-t border-olive-600" />
-    </div>
+      {p.cover ? (
+        <motion.img
+          style={{ top, left, translateX: "-10%", translateY: "-50%" }}
+          variants={reduced ? { initial: { opacity: 0 }, hover: { opacity: 1 } } : { initial: { scale: 0, rotate: "-12.5deg" }, hover: { scale: 1, rotate: "12.5deg" } }}
+          transition={spring}
+          src={p.cover.src}
+          srcSet={p.cover.srcSet}
+          sizes="256px"
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="pointer-events-none absolute z-0 hidden [@media(hover:hover)]:block h-[96px] w-[160px] md:h-[180px] md:w-[288px] rounded-lg object-cover shadow-[0_24px_48px_rgb(0_0_0/0.45)]"
+        />
+      ) : null}
+
+      <div className="overflow-hidden flex-none">
+        <motion.div variants={{ initial: { x: "100%", opacity: 0 }, hover: { x: "0%", opacity: 1 } }} transition={spring} className="relative z-10 p-1 text-bone">
+          <Arrow />
+        </motion.div>
+      </div>
+    </MotionLink>
+  );
+}
+
+export function ProjectShowcase({ projects }: { projects: ShowcaseProject[] }) {
+  const reduced = useReducedMotion() ?? false;
+  return (
+    <ol className="list-none m-0 p-0 border-t border-olive-600">
+      {projects.map((p, i) =>
+        i === 0 ? <RevealRow key={p.id}><Row p={p} reduced={reduced} /></RevealRow> : <li key={p.id}><Row p={p} reduced={reduced} /></li>,
+      )}
+    </ol>
   );
 }
