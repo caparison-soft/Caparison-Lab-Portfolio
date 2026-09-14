@@ -591,11 +591,11 @@ html:has(.site-ground) body { background: color-mix(in srgb, #ECEEE8 5%, #000000
 .case-hero-wrap::before {
   content: "";
   position: absolute;
-  inset: 10% -10% -30%;
+  inset: 0 -14% -40%;
   z-index: 0;
   pointer-events: none;
   /* Brightest just under the frame's bottom edge, fading out below and to the sides. */
-  background: radial-gradient(ellipse 70% 60% at 50% 55%, rgb(236 238 232 / 0.28), rgb(236 238 232 / 0.10) 45%, transparent 75%);
-  filter: blur(20px);
+  background: radial-gradient(ellipse 75% 60% at 50% 58%, rgb(236 238 232 / 0.55), rgb(236 238 232 / 0.22) 40%, rgb(236 238 232 / 0.06) 62%, transparent 78%);
+  filter: blur(36px);
 }
 .case-hero-wrap > .case-hero { position: relative; z-index: 1; }
