@@ -101,8 +101,11 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   Swiper (MIT) with the owner's Skiper 47 settings (effect coverflow, rotate
   0, depth 100, modifier 2.5, 2.43 slides per view on md+, 1.6 below, gap 40,
   centred, loop, grab cursor, keyboard), our pagination dots, arrow buttons
-  with a counter, title and subtitle above crossfading; owner rejected the
-  hand-rolled zoom slider 2026-09-14) and VIDEO
+  with a counter, own dots (role=tab) and title and subtitle above
+  crossfading. Short galleries are repeated to at least eight slides because
+  Swiper disables loop when fewer than ~2.5 fit plus spares; counter, dots
+  and title map realIndex % n. Owner rejected the hand-rolled zoom slider
+  2026-09-14) and VIDEO
   (the videos section). Single slots replace on upload (claimSingleSlot
   deletes the old row and objects) and empty via clearSlot; deleteMedia
   refuses thumbnails and heroes. Admin: src/components/admin/project-media.tsx.
