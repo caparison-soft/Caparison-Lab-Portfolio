@@ -82,6 +82,8 @@ export const getWorkFilters = unstable_cache(
 export type MediaItem = {
   id: string;
   type: "IMAGE" | "VIDEO";
+  slot: "THUMBNAIL" | "HERO" | "GALLERY" | "VIDEO";
+  title: string | null;
   keyPrefix: string;
   posterKey: string | null;
   alt: string | null;
@@ -124,20 +126,26 @@ export type CaseStudy = {
   updatedAt: string;
   category: { name: string; slug: string } | null;
   stack: string[];
+  /** Thumbnail: the home card and index. */
   cover: MediaItem | null;
+  /** Hero: image or video at the top of the case page. */
+  hero: MediaItem | null;
+  /** Gallery slides, in order. */
   media: MediaItem[];
+  /** Videos section, in order. */
+  videos: MediaItem[];
   metrics: { label: string; value: string; note: string | null }[];
   next: { slug: string; title: string } | null;
 };
 
 function toMedia(m: {
-  id: string; type: "IMAGE" | "VIDEO"; keyPrefix: string; posterKey: string | null; alt: string | null; caption: string | null;
+  id: string; type: "IMAGE" | "VIDEO"; slot: "THUMBNAIL" | "HERO" | "GALLERY" | "VIDEO"; title: string | null; keyPrefix: string; posterKey: string | null; alt: string | null; caption: string | null;
   width: number | null; height: number | null; blurDataUrl: string | null; variants: unknown; order: number;
 }): MediaItem {
   return { ...m, variants: (m.variants as Record<string, string> | null) ?? null };
 }
 
-const mediaSelect = { id: true, type: true, keyPrefix: true, posterKey: true, alt: true, caption: true, width: true, height: true, blurDataUrl: true, variants: true, order: true } as const;
+const mediaSelect = { id: true, type: true, slot: true, title: true, keyPrefix: true, posterKey: true, alt: true, caption: true, width: true, height: true, blurDataUrl: true, variants: true, order: true } as const;
 
 async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<CaseStudy | null> {
     const p = await prisma.project.findFirst({
@@ -151,6 +159,7 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
         metaTitle: true, metaDescription: true, ogImageUrl: true, publishedAt: true, updatedAt: true,
         category: { select: { name: true, slug: true } },
         cover: { select: mediaSelect },
+        hero: { select: mediaSelect },
         media: { select: mediaSelect, orderBy: { order: "asc" } },
         metrics: { select: { label: true, value: true, note: true }, orderBy: { order: "asc" } },
         tags: { select: { tag: { select: { name: true, kind: true, order: true } } } },
@@ -171,15 +180,16 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
         select: { slug: true, title: true },
       }));
 
-    const { tags, cover, media, publishedAt, updatedAt, ...rest } = p;
+    const { tags, cover, hero, media, publishedAt, updatedAt, ...rest } = p;
     return {
       ...rest,
       publishedAt: publishedAt ? publishedAt.toISOString() : null,
       updatedAt: updatedAt.toISOString(),
       stack: tags.filter((x) => x.tag.kind === "STACK").sort((a, b) => a.tag.order - b.tag.order).map((x) => x.tag.name),
       cover: cover ? toMedia(cover) : null,
-      // The cover image and the cover video are shown at the top, not again in the gallery.
-      media: media.filter((m) => m.id !== cover?.id && !(p.videoProvider === "R2" && p.videoUrl && m.keyPrefix === p.videoUrl)).map(toMedia),
+      hero: hero ? toMedia(hero) : null,
+      media: media.filter((m) => m.slot === "GALLERY" && m.type === "IMAGE").map(toMedia),
+      videos: media.filter((m) => m.slot === "VIDEO" && m.type === "VIDEO").map(toMedia),
       next,
     };
 }

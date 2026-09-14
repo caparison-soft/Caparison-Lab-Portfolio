@@ -5,7 +5,7 @@
 
 import { useRef, useState } from "react";
 import { Button, Field, Input } from "@/components/ui";
-import { confirmUpload, requestUpload, type ConfirmedMedia } from "@/lib/admin/media-actions";
+import { confirmUpload, requestUpload, type ConfirmedMedia, type MediaSlot } from "@/lib/admin/media-actions";
 import { cx } from "@/lib/cx";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
@@ -19,6 +19,7 @@ type Item = {
   file: File;
   kind: "image" | "video";
   previewUrl: string;
+  title: string;
   alt: string;
   caption: string;
   poster: File | null;
@@ -44,26 +45,50 @@ function putWithProgress(url: string, file: File, onProgress: (pct: number) => v
   });
 }
 
-export function MediaUploader({ projectId, onUploaded, compact = false }: { projectId: string | null; onUploaded: (m: ConfirmedMedia) => void; compact?: boolean }) {
+type UploaderProps = {
+  projectId: string | null;
+  onUploaded: (m: ConfirmedMedia) => void;
+  compact?: boolean;
+  /** Where the upload goes. Library uploads leave this unset. */
+  slot?: MediaSlot;
+  /** One file at a time (thumbnail, hero). */
+  single?: boolean;
+  /** Gallery and video items carry a title and a subtitle shown on the site. */
+  titled?: boolean;
+  /** Replaces the drop zone's first line. */
+  prompt?: string;
+};
+
+const ACCEPT: Record<MediaSlot, string[]> = {
+  THUMBNAIL: IMAGE_TYPES, HERO: [...IMAGE_TYPES, ...VIDEO_TYPES], GALLERY: IMAGE_TYPES, VIDEO: VIDEO_TYPES,
+};
+
+export function MediaUploader({ projectId, onUploaded, compact = false, slot, single = false, titled = false, prompt }: UploaderProps) {
   const [items, setItems] = useState<Item[]>([]);
+  const accept = slot ? ACCEPT[slot] : [...IMAGE_TYPES, ...VIDEO_TYPES];
+  const acceptsImage = accept.some((t) => t.startsWith("image/"));
+  const acceptsVideo = accept.some((t) => t.startsWith("video/"));
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function add(files: FileList | File[]) {
     const next: Item[] = [];
-    for (const file of Array.from(files)) {
+    const list = single ? Array.from(files).slice(0, 1) : Array.from(files);
+    for (const file of list) {
       const kind = VIDEO_TYPES.includes(file.type) ? "video" : IMAGE_TYPES.includes(file.type) ? "image" : null;
       const id = `${file.name}-${file.size}-${Date.now()}-${Math.random()}`;
-      if (!kind) { next.push({ id, file, kind: "image", previewUrl: "", alt: "", caption: "", poster: null, progress: 0, state: "error", error: "Not a supported type. Images: JPEG, PNG, WebP, AVIF. Video: MP4, WebM." }); continue; }
-      if (kind === "image" && file.size > IMAGE_MAX) { next.push({ id, file, kind, previewUrl: "", alt: "", caption: "", poster: null, progress: 0, state: "error", error: `Over 8 MB (${mb(file.size)}). Export it smaller.` }); continue; }
-      if (kind === "video" && file.size > HARD) { next.push({ id, file, kind, previewUrl: "", alt: "", caption: "", poster: null, progress: 0, state: "error", error: `Over the 60 MB hard cap (${mb(file.size)}). Compress it, or use a YouTube or Vimeo link.` }); continue; }
+      const base: Item = { id, file, kind: kind ?? "image", previewUrl: "", title: "", alt: "", caption: "", poster: null, progress: 0, state: "error" };
+      if (!kind) { next.push({ ...base, error: "Not a supported type. Images: JPEG, PNG, WebP, AVIF. Video: MP4, WebM." }); continue; }
+      if (!accept.includes(file.type)) { next.push({ ...base, kind, error: acceptsVideo && !acceptsImage ? "This section takes video only (MP4 or WebM)." : "This slot takes an image (JPEG, PNG, WebP, AVIF)." }); continue; }
+      if (kind === "image" && file.size > IMAGE_MAX) { next.push({ ...base, kind, error: `Over 8 MB (${mb(file.size)}). Export it smaller.` }); continue; }
+      if (kind === "video" && file.size > HARD) { next.push({ ...base, kind, error: `Over the 60 MB hard cap (${mb(file.size)}). Compress it, or use a YouTube or Vimeo link.` }); continue; }
       next.push({
-        id, file, kind, previewUrl: URL.createObjectURL(file), alt: "", caption: "", poster: null, progress: 0, state: "queued",
+        ...base, kind, previewUrl: URL.createObjectURL(file), state: "queued",
         warning: kind === "video" && file.size > SOFT ? `${mb(file.size)}. Over 15 MB is slow to start on mobile data in Bangladesh; a shorter or more compressed export is better.` : undefined,
       });
     }
-    setItems((s) => [...s, ...next]);
+    setItems((s) => (single ? next : [...s, ...next]));
   }
 
   const patch = (id: string, p: Partial<Item>) => setItems((s) => s.map((i) => (i.id === id ? { ...i, ...p } : i)));
@@ -75,7 +100,7 @@ export function MediaUploader({ projectId, onUploaded, compact = false }: { proj
     for (const item of ready) {
       try {
         patch(item.id, { state: "uploading", progress: 0 });
-        const t = await requestUpload({ filename: item.file.name, mimeType: item.file.type, size: item.file.size, kind: item.kind, projectId });
+        const t = await requestUpload({ filename: item.file.name, mimeType: item.file.type, size: item.file.size, kind: item.kind, projectId, slot });
         if (!t.ok) throw new Error(t.error);
         await putWithProgress(t.uploadUrl, item.file, (pct) => patch(item.id, { progress: pct }));
         let posterExt: string | undefined;
@@ -86,7 +111,7 @@ export function MediaUploader({ projectId, onUploaded, compact = false }: { proj
           posterExt = pt.ext;
         }
         patch(item.id, { state: "processing", progress: 100 });
-        const c = await confirmUpload({ keyPrefix: t.keyPrefix, ext: t.ext, kind: item.kind, projectId, alt: item.alt.trim(), caption: item.caption.trim(), posterExt });
+        const c = await confirmUpload({ keyPrefix: t.keyPrefix, ext: t.ext, kind: item.kind, projectId, slot, title: item.title.trim(), alt: item.alt.trim(), caption: item.caption.trim(), posterExt });
         if (!c.ok) throw new Error(c.error);
         patch(item.id, { state: "done", warning: c.media.warning ?? item.warning });
         onUploaded(c.media);
@@ -110,9 +135,11 @@ export function MediaUploader({ projectId, onUploaded, compact = false }: { proj
         onDrop={(e) => { e.preventDefault(); setDragging(false); add(e.dataTransfer.files); }}
         className={cx("rounded-lg border border-dashed transition-colors dur-fast cursor-pointer text-center", compact ? "p-2" : "p-4", dragging ? "border-ink bg-paper" : "border-ash bg-bone hover:bg-paper")}
       >
-        <p className="text-body text-ink max-w-none">Drop images or videos here, or choose files.</p>
-        <p className="text-small text-ash max-w-none mt-[4px]">JPEG, PNG, WebP, AVIF up to 8 MB. MP4 or WebM up to 60 MB, 1080p, 15 MB recommended.</p>
-        <input ref={inputRef} type="file" multiple accept={[...IMAGE_TYPES, ...VIDEO_TYPES].join(",")} className="sr-only" onChange={(e) => { if (e.target.files) add(e.target.files); e.target.value = ""; }} />
+        <p className="text-body text-ink max-w-none">{prompt ?? (acceptsImage && acceptsVideo ? "Drop images or videos here, or choose files." : acceptsImage ? (single ? "Drop an image here, or choose a file." : "Drop images here, or choose files.") : (single ? "Drop a video here, or choose a file." : "Drop videos here, or choose files."))}</p>
+        <p className="text-small text-ash max-w-none mt-[4px]">
+          {acceptsImage ? "JPEG, PNG, WebP, AVIF up to 8 MB." : null}{acceptsImage && acceptsVideo ? " " : null}{acceptsVideo ? "MP4 or WebM up to 60 MB, 1080p, 15 MB recommended." : null}
+        </p>
+        <input ref={inputRef} type="file" multiple={!single} accept={accept.join(",")} className="sr-only" onChange={(e) => { if (e.target.files) add(e.target.files); e.target.value = ""; }} />
       </div>
 
       {items.length > 0 ? (
@@ -126,12 +153,24 @@ export function MediaUploader({ projectId, onUploaded, compact = false }: { proj
                 <p className="text-small text-ink max-w-none truncate">{it.file.name} <span className="data text-ash">{mb(it.file.size)}</span></p>
                 {it.state === "queued" ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
-                    <Field id={`alt-${it.id}`} label={it.kind === "image" ? "Alt text (required)" : "Description (optional)"}>
-                      <Input value={it.alt} onChange={(e) => patch(it.id, { alt: e.target.value })} className="h-[32px] text-small" placeholder={it.kind === "image" ? "What the image shows" : ""} />
+                    {titled ? (
+                      <Field id={`title-${it.id}`} label="Title" help="Shown over the slide on the site.">
+                        <Input value={it.title} onChange={(e) => patch(it.id, { title: e.target.value })} className="h-[32px] text-small" maxLength={120} />
+                      </Field>
+                    ) : null}
+                    {titled ? (
+                      <Field id={`cap-${it.id}`} label="Subtitle" help="One line under the title. Optional.">
+                        <Input value={it.caption} onChange={(e) => patch(it.id, { caption: e.target.value })} className="h-[32px] text-small" maxLength={300} />
+                      </Field>
+                    ) : null}
+                    <Field id={`alt-${it.id}`} label={it.kind === "image" ? "Alt text (required)" : "Description (optional)"} className={titled ? "md:col-span-2" : undefined}>
+                      <Input value={it.alt} onChange={(e) => patch(it.id, { alt: e.target.value })} className="h-[32px] text-small" placeholder={it.kind === "image" ? "What the image shows, for screen readers" : ""} />
                     </Field>
-                    <Field id={`cap-${it.id}`} label="Caption">
-                      <Input value={it.caption} onChange={(e) => patch(it.id, { caption: e.target.value })} className="h-[32px] text-small" />
-                    </Field>
+                    {!titled ? (
+                      <Field id={`cap-${it.id}`} label="Caption">
+                        <Input value={it.caption} onChange={(e) => patch(it.id, { caption: e.target.value })} className="h-[32px] text-small" />
+                      </Field>
+                    ) : null}
                     {it.kind === "video" ? (
                       <div className="md:col-span-2 flex flex-wrap items-center gap-2">
                         <label className="text-small text-ash">

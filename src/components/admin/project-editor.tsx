@@ -14,7 +14,7 @@ import { SortableList } from "@/components/admin/sortable-list";
 import { ConfirmDelete } from "@/components/admin/confirm-delete";
 import { TagPicker } from "@/components/admin/tag-picker";
 import { ProjectMedia } from "@/components/admin/project-media";
-import type { ProjectMediaItem } from "@/lib/admin/media-queries";
+import type { ProjectMediaState } from "@/lib/admin/media-queries";
 import { checkSlug, deleteProject, saveProject } from "@/lib/admin/project-actions";
 import { slugify, type ProjectInput } from "@/lib/admin/schemas";
 import type { EditorData } from "@/lib/admin/admin-queries";
@@ -46,7 +46,7 @@ function clock(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 
-export function ProjectEditor({ data, previewToken, media }: { data: EditorData; previewToken: string; media: { items: ProjectMediaItem[]; coverImageId: string | null; videoKeyPrefix: string | null } }) {
+export function ProjectEditor({ data, previewToken, media }: { data: EditorData; previewToken: string; media: ProjectMediaState }) {
   const router = useRouter();
   const form = useForm<ProjectInput>({ defaultValues: data.values });
   const { register, control, watch, setValue, getValues, reset, setError, clearErrors, formState } = form;
@@ -214,10 +214,10 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
 
         <TabPanel id="media" active={tab} idPrefix="pe">
           <div className="flex flex-col gap-4">
-            <ProjectMedia projectId={data.id} items={media.items} coverImageId={media.coverImageId} videoKeyPrefix={media.videoKeyPrefix} />
+            <ProjectMedia projectId={data.id} items={media.items} coverImageId={media.coverImageId} heroMediaId={media.heroMediaId} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-divider-light pt-3">
-              <Field id="videoProvider" label="Cover video source" help="Uploaded file is set from the gallery above. Choose YouTube or Vimeo to embed instead.">
-                <Select {...register("videoProvider")}><option value="R2">Uploaded file</option><option value="YOUTUBE">YouTube</option><option value="VIMEO">Vimeo</option></Select>
+              <Field id="videoProvider" label="Hero from a link" help="Uploaded hero is the default. Choose YouTube or Vimeo to embed a link at the top instead; it takes precedence over an uploaded hero. Saved with the page.">
+                <Select {...register("videoProvider")}><option value="R2">Uploaded hero (above)</option><option value="YOUTUBE">YouTube</option><option value="VIMEO">Vimeo</option></Select>
               </Field>
               {videoProvider !== "R2" ? (
                 <Field id="videoUrl" label="Video URL" error={err("videoUrl")} help="Paste the public watch URL.">

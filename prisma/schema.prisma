@@ -67,6 +67,17 @@ enum MediaType {
   VIDEO
 }
 
+/// Where a project's media item is used. THUMBNAIL: the home hover card and
+/// the index (one image, 16:9). HERO: the top of the case page (one image or
+/// video). GALLERY: the carousel (images, each with title and subtitle).
+/// VIDEO: the videos section. Library items (no project) keep GALLERY.
+enum MediaSlot {
+  THUMBNAIL
+  HERO
+  GALLERY
+  VIDEO
+}
+
 enum TagKind {
   STACK
   INDUSTRY
@@ -170,6 +181,7 @@ model Project {
   summary         String        @db.VarChar(160)
   body            Json?
   coverImageId    String?       @unique
+  heroMediaId     String?       @unique
   videoUrl        String?
   videoProvider   VideoProvider @default(R2)
   categoryId      String?
@@ -207,6 +219,7 @@ model Project {
 
   category     Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   cover        Media?          @relation("ProjectCover", fields: [coverImageId], references: [id], onDelete: SetNull)
+  hero         Media?          @relation("ProjectHero", fields: [heroMediaId], references: [id], onDelete: SetNull)
   media        Media[]         @relation("ProjectMedia")
   tags         ProjectTag[]
   metrics      ProjectMetric[]
@@ -249,6 +262,8 @@ model Media {
   id          String    @id @default(cuid())
   keyPrefix   String    @unique
   type        MediaType
+  slot        MediaSlot @default(GALLERY)
+  title       String?
   variants    Json?
   posterKey   String?
   alt         String?
@@ -265,8 +280,9 @@ model Media {
 
   project      Project? @relation("ProjectMedia", fields: [projectId], references: [id], onDelete: SetNull)
   coverOf      Project? @relation("ProjectCover")
+  heroOf       Project? @relation("ProjectHero")
 
-  @@index([projectId, order])
+  @@index([projectId, slot, order])
   @@index([type])
 }
 

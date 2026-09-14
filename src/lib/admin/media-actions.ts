@@ -25,12 +25,24 @@ function bust(projectId?: string | null) {
 
 // ---- 1. Presign --------------------------------------------------------
 
+const slotSchema = z.enum(["THUMBNAIL", "HERO", "GALLERY", "VIDEO"]);
+export type MediaSlot = z.infer<typeof slotSchema>;
+
+/** What each slot accepts. Thumbnail: one image. Hero: one image or video. Gallery: images. Video: videos. */
+function slotAccepts(slot: MediaSlot, kind: "image" | "video"): boolean {
+  if (slot === "THUMBNAIL") return kind === "image";
+  if (slot === "GALLERY") return kind === "image";
+  if (slot === "VIDEO") return kind === "video";
+  return true;
+}
+
 const requestSchema = z.object({
   filename: z.string().min(1).max(200),
   mimeType: z.string().min(1),
   size: z.number().int().positive(),
   kind: z.enum(["image", "video", "poster"]),
   projectId: z.string().nullable().optional(),
+  slot: slotSchema.optional(),
   /** For posters: the video's key prefix. */
   videoKeyPrefix: z.string().optional(),
 });
@@ -43,6 +55,9 @@ export async function requestUpload(input: z.input<typeof requestSchema>): Promi
     await assertAdmin();
     const v = requestSchema.parse(input);
     const mime = v.mimeType as SniffedMime;
+    if (v.slot && v.kind !== "poster" && !slotAccepts(v.slot, v.kind)) {
+      return { ok: false, error: v.slot === "VIDEO" ? "The videos section takes MP4 or WebM only." : "This slot takes an image." };
+    }
 
     if (v.kind === "video") {
       if (!VIDEO_MIMES.includes(mime)) return { ok: false, error: "Video must be MP4 (H.264) or WebM." };
@@ -78,12 +93,34 @@ const confirmSchema = z.object({
   ext: z.string().min(2).max(5),
   kind: z.enum(["image", "video"]),
   projectId: z.string().nullable().optional(),
+  slot: slotSchema.optional(),
+  title: z.string().trim().max(120).optional(),
   alt: z.string().trim().max(300).optional(),
   caption: z.string().trim().max(300).optional(),
   posterExt: z.string().min(2).max(5).optional(),
 });
 
-export type ConfirmedMedia = { id: string; type: "IMAGE" | "VIDEO"; keyPrefix: string; posterKey: string | null; alt: string | null; caption: string | null; width: number | null; height: number | null; durationSec: number | null; sizeBytes: number | null; order: number; warning?: string };
+export type ConfirmedMedia = { id: string; type: "IMAGE" | "VIDEO"; slot: MediaSlot; keyPrefix: string; posterKey: string | null; title: string | null; alt: string | null; caption: string | null; width: number | null; height: number | null; durationSec: number | null; sizeBytes: number | null; order: number; warning?: string };
+
+/**
+ * Single slots (thumbnail, hero) hold one item: point the project at the new
+ * one and remove what was there. Returns the previous item's prefix so its
+ * objects can go too. Runs inside the caller's transaction.
+ */
+async function claimSingleSlot(tx: Prisma.TransactionClient, projectId: string, slot: "THUMBNAIL" | "HERO", mediaId: string): Promise<string | null> {
+  const field = slot === "THUMBNAIL" ? "coverImageId" : "heroMediaId";
+  const p = await tx.project.findUnique({ where: { id: projectId }, select: { coverImageId: true, heroMediaId: true } });
+  const previous = p?.[field] ?? null;
+  await tx.project.update({ where: { id: projectId }, data: { [field]: mediaId, ...(slot === "HERO" ? { videoUrl: null, videoProvider: "R2" } : {}) } });
+  if (previous && previous !== mediaId) {
+    const old = await tx.media.findUnique({ where: { id: previous }, select: { keyPrefix: true, coverOf: { select: { id: true } }, heroOf: { select: { id: true } } } });
+    // Still used by the other slot (an old cover that was also the hero)? Keep the row, just re-slot it.
+    if (old && (old.coverOf || old.heroOf)) return null;
+    await tx.media.delete({ where: { id: previous } });
+    return old?.keyPrefix ?? null;
+  }
+  return null;
+}
 
 /**
  * Fetches the uploaded object, sniffs the real type, enforces the caps,
@@ -103,8 +140,11 @@ export async function confirmUpload(input: z.input<typeof confirmSchema>): Promi
   try {
     const { body, size } = await getObjectBuffer(sourceKey);
     const mime = sniffMime(body);
-    const last = await prisma.media.aggregate({ _max: { order: true }, where: { projectId: v.projectId ?? null } });
+    const slot: MediaSlot = v.slot ?? (v.kind === "video" ? "VIDEO" : "GALLERY");
+    if (!slotAccepts(slot, v.kind)) return fail(slot === "VIDEO" ? "The videos section takes video only." : "This slot takes an image.");
+    const last = await prisma.media.aggregate({ _max: { order: true }, where: { projectId: v.projectId ?? null, slot } });
     const order = (last._max.order ?? 0) + 1;
+    const single = v.projectId && (slot === "THUMBNAIL" || slot === "HERO") ? slot : null;
 
     if (v.kind === "image") {
       if (!mime || !IMAGE_MIMES.includes(mime)) return fail("That file isn't a JPEG, PNG, WebP or AVIF image.");
@@ -113,15 +153,22 @@ export async function confirmUpload(input: z.input<typeof confirmSchema>): Promi
       const out = await makeImageVariants(body);
       await Promise.all(out.files.map((f) => putObject(`${v.keyPrefix}/${f.name}`, f.body, "image/webp")));
       const variants: Record<string, string> = Object.fromEntries(out.files.map((f) => [f.name.replace(".webp", ""), `${v.keyPrefix}/${f.name}`]));
-      const media = await prisma.media.create({
-        data: {
-          keyPrefix: v.keyPrefix, type: "IMAGE", variants, alt: v.alt, caption: v.caption || null, width: out.width, height: out.height,
-          sizeBytes: size, mimeType: mime, blurDataUrl: out.blurDataUrl, order, projectId: v.projectId ?? null,
-        },
+      const { media, replaced } = await prisma.$transaction(async (tx) => {
+        const media = await tx.media.create({
+          data: {
+            keyPrefix: v.keyPrefix, type: "IMAGE", slot, variants, title: v.title || null, alt: v.alt, caption: v.caption || null, width: out.width, height: out.height,
+            sizeBytes: size, mimeType: mime, blurDataUrl: out.blurDataUrl, order, projectId: v.projectId ?? null,
+          },
+        });
+        const replaced = single ? await claimSingleSlot(tx, v.projectId as string, single, media.id) : null;
+        return { media, replaced };
       });
-      await logAudit({ userId: user.id, action: "media.upload", entity: "Media", entityId: media.id, diff: { type: "IMAGE", keyPrefix: v.keyPrefix, bytes: size } });
+      if (replaced) { try { await deletePrefix(replaced); } catch (e) { console.error("replaced media cleanup failed", e); } }
+      await logAudit({ userId: user.id, action: "media.upload", entity: "Media", entityId: media.id, diff: { type: "IMAGE", slot, keyPrefix: v.keyPrefix, bytes: size } });
       bust(v.projectId);
-      return { ok: true, media: { ...media, order: media.order } };
+      const ratio = out.width / out.height;
+      const warning = slot === "THUMBNAIL" && Math.abs(ratio - 16 / 9) > 0.08 ? `This is ${out.width}x${out.height}; the home card crops to 16:9, so the edges will be cut. A 1600x900 export fits exactly.` : undefined;
+      return { ok: true, media: { ...media, order: media.order, warning } };
     }
 
     // Video
@@ -142,13 +189,18 @@ export async function confirmUpload(input: z.input<typeof confirmSchema>): Promi
     const posterKey = `${v.keyPrefix}/poster.jpg`;
     await putObject(posterKey, poster, "image/jpeg");
 
-    const media = await prisma.media.create({
-      data: {
-        keyPrefix: v.keyPrefix, type: "VIDEO", posterKey, alt: v.alt || null, caption: v.caption || null, width: probe.width, height: probe.height,
-        durationSec: probe.durationSec, sizeBytes: size, mimeType: mime, order, projectId: v.projectId ?? null,
-      },
+    const { media, replaced } = await prisma.$transaction(async (tx) => {
+      const media = await tx.media.create({
+        data: {
+          keyPrefix: v.keyPrefix, type: "VIDEO", slot, posterKey, title: v.title || null, alt: v.alt || null, caption: v.caption || null, width: probe.width, height: probe.height,
+          durationSec: probe.durationSec, sizeBytes: size, mimeType: mime, order, projectId: v.projectId ?? null,
+        },
+      });
+      const replaced = single ? await claimSingleSlot(tx, v.projectId as string, single, media.id) : null;
+      return { media, replaced };
     });
-    await logAudit({ userId: user.id, action: "media.upload", entity: "Media", entityId: media.id, diff: { type: "VIDEO", keyPrefix: v.keyPrefix, bytes: size, durationSec: probe.durationSec } });
+    if (replaced) { try { await deletePrefix(replaced); } catch (e) { console.error("replaced media cleanup failed", e); } }
+    await logAudit({ userId: user.id, action: "media.upload", entity: "Media", entityId: media.id, diff: { type: "VIDEO", slot, keyPrefix: v.keyPrefix, bytes: size, durationSec: probe.durationSec } });
     bust(v.projectId);
     const warning = size > 15 * 1024 * 1024 ? "Over 15 MB. On mobile data this will be slow to start; consider a shorter or more compressed export." : undefined;
     return { ok: true, media: { ...media, warning } };
@@ -160,14 +212,14 @@ export async function confirmUpload(input: z.input<typeof confirmSchema>): Promi
 
 // ---- Edits -------------------------------------------------------------
 
-export async function updateMedia(id: string, patch: { alt?: string; caption?: string }): Promise<Ok<object> | Fail> {
+export async function updateMedia(id: string, patch: { title?: string; alt?: string; caption?: string }): Promise<Ok<object> | Fail> {
   try {
     const user = await assertAdmin();
     const m = await prisma.media.findUnique({ where: { id }, select: { type: true, projectId: true } });
     if (!m) return { ok: false, error: "That media item no longer exists." };
     const alt = patch.alt?.trim();
     if (m.type === "IMAGE" && alt !== undefined && alt.length === 0) return { ok: false, error: "Alt text is required for every image." };
-    await prisma.media.update({ where: { id }, data: { ...(alt !== undefined ? { alt } : {}), ...(patch.caption !== undefined ? { caption: patch.caption.trim() || null } : {}) } });
+    await prisma.media.update({ where: { id }, data: { ...(alt !== undefined ? { alt } : {}), ...(patch.caption !== undefined ? { caption: patch.caption.trim() || null } : {}), ...(patch.title !== undefined ? { title: patch.title.trim().slice(0, 120) || null } : {}) } });
     await logAudit({ userId: user.id, action: "media.update", entity: "Media", entityId: id, diff: patch as Prisma.InputJsonObject });
     bust(m.projectId);
     return { ok: true };
@@ -204,21 +256,26 @@ export async function setCover(projectId: string, mediaId: string | null): Promi
   }
 }
 
-export async function setCoverVideo(projectId: string, mediaId: string | null): Promise<Ok<object> | Fail> {
+/** Empty a single slot: the project forgets the item and the item goes (row and objects). */
+export async function clearSlot(projectId: string, slot: "THUMBNAIL" | "HERO"): Promise<Ok<object> | Fail> {
   try {
     const user = await assertAdmin();
-    let videoUrl: string | null = null;
-    if (mediaId) {
-      const m = await prisma.media.findUnique({ where: { id: mediaId }, select: { type: true, keyPrefix: true } });
-      if (!m || m.type !== "VIDEO") return { ok: false, error: "That item isn't a video." };
-      videoUrl = m.keyPrefix;
+    const field = slot === "THUMBNAIL" ? "coverImageId" : "heroMediaId";
+    const p = await prisma.project.findUnique({ where: { id: projectId }, select: { coverImageId: true, heroMediaId: true } });
+    const id = p?.[field];
+    if (!id) return { ok: true };
+    const m = await prisma.media.findUnique({ where: { id }, select: { keyPrefix: true, coverOf: { select: { id: true } }, heroOf: { select: { id: true } } } });
+    await prisma.project.update({ where: { id: projectId }, data: { [field]: null } });
+    const stillUsed = slot === "THUMBNAIL" ? Boolean(m?.heroOf) : Boolean(m?.coverOf);
+    if (m && !stillUsed) {
+      await deletePrefix(m.keyPrefix);
+      await prisma.media.delete({ where: { id } });
     }
-    await prisma.project.update({ where: { id: projectId }, data: { videoUrl, videoProvider: "R2" } });
-    await logAudit({ userId: user.id, action: "project.coverVideo", entity: "Project", entityId: projectId, diff: { mediaId } });
+    await logAudit({ userId: user.id, action: "project.clearSlot", entity: "Project", entityId: projectId, diff: { slot, mediaId: id } });
     bust(projectId);
     return { ok: true };
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : "Could not set the video." };
+    return { ok: false, error: error instanceof Error ? error.message : "Could not remove it." };
   }
 }
 
@@ -230,16 +287,15 @@ export async function setCoverVideo(projectId: string, mediaId: string | null): 
 export async function deleteMedia(id: string, opts?: { fromProjectId?: string }): Promise<Ok<object> | Fail> {
   try {
     const user = await assertAdmin();
-    const m = await prisma.media.findUnique({ where: { id }, include: { coverOf: { select: { id: true, title: true } }, project: { select: { id: true, title: true } } } });
+    const m = await prisma.media.findUnique({ where: { id }, include: { coverOf: { select: { id: true, title: true } }, heroOf: { select: { id: true, title: true } }, project: { select: { id: true, title: true } } } });
     if (!m) return { ok: false, error: "That media item no longer exists." };
 
     const blockers: string[] = [];
-    if (m.coverOf) blockers.push(`it is the cover of "${m.coverOf.title}"`);
+    if (m.coverOf) blockers.push(`it is the thumbnail of "${m.coverOf.title}" (use Remove on that slot)`);
+    if (m.heroOf) blockers.push(`it is the hero of "${m.heroOf.title}" (use Remove on that slot)`);
     const inline = await prisma.$queryRaw<{ title: string }[]>`select title from "Project" where "deletedAt" is null and body::text like ${"%" + m.keyPrefix + "%"}`;
     if (inline.length > 0) blockers.push(`it appears inside ${inline.map((p) => `"${p.title}"`).join(", ")}`);
-    const usedAsVideo = await prisma.project.findFirst({ where: { videoUrl: m.keyPrefix, deletedAt: null }, select: { title: true } });
-    if (usedAsVideo) blockers.push(`it is the cover video of "${usedAsVideo.title}"`);
-    if (m.project && m.project.id !== opts?.fromProjectId) blockers.push(`it is in the gallery of "${m.project.title}"`);
+    if (m.project && m.project.id !== opts?.fromProjectId) blockers.push(`it belongs to "${m.project.title}"`);
     if (blockers.length > 0) return { ok: false, error: `Can't delete: ${blockers.join("; ")}. Remove it there first.` };
 
     const deleted = await deletePrefix(m.keyPrefix);

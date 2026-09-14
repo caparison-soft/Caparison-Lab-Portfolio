@@ -498,3 +498,8 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 .site-notch-tab a { color: inherit; }
 .site-notch-card:hover { background: var(--color-bone); }
 .site-notch :focus-visible { outline-color: var(--color-ink); }
+
+/* ---- Case gallery carousel: native scroll-snap, no visible scrollbar. ---- */
+.gallery-track { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.gallery-track::-webkit-scrollbar { display: none; }
+.gallery-track:focus-visible { outline-offset: 4px; }

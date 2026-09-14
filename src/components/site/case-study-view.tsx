@@ -2,64 +2,32 @@ import Link from "next/link";
 import { Button, DataLine, MediaFrame, SectionMarker, TagList } from "@/components/ui";
 import { RichText } from "@/components/site/rich-text";
 import { CaseCover } from "@/components/site/case-cover";
+import { GalleryCarousel } from "@/components/site/gallery-carousel";
 import type { Blocks } from "@/lib/queries/content";
 import { t } from "@/lib/queries/content";
 import type { CaseStudy, MediaItem } from "@/lib/queries/work";
 import { formatBudget, formatDuration } from "@/lib/format";
-import { imageSrcSet, posterSrc, videoSrc } from "@/lib/media";
+import { posterSrc, videoSrc } from "@/lib/media";
 import { cx } from "@/lib/cx";
 
-function GalleryItem({ m, sizes }: { m: MediaItem; sizes: string }) {
-  if (m.type === "VIDEO") {
-    return (
-      <figure className="m-0">
-        <MediaFrame width={m.width ?? 16} height={m.height ?? 9}>
-          <video controls preload="metadata" playsInline poster={posterSrc(m.posterKey, m.keyPrefix)} width={m.width ?? 16} height={m.height ?? 9}>
-            <source src={videoSrc(m.keyPrefix)} type="video/mp4" />
-          </video>
-        </MediaFrame>
-        {m.caption ? <figcaption className="mt-1 text-small text-ash">{m.caption}</figcaption> : null}
-      </figure>
-    );
-  }
+function VideoItem({ m }: { m: MediaItem }) {
   return (
     <figure className="m-0">
-      <MediaFrame width={m.width ?? 16} height={m.height ?? 10} blurDataUrl={m.blurDataUrl ?? undefined}>
-        <img {...imageSrcSet(m.keyPrefix, m.variants)} sizes={sizes} alt={m.alt ?? ""} width={m.width ?? 16} height={m.height ?? 10} loading="lazy" decoding="async" />
+      <MediaFrame width={m.width ?? 16} height={m.height ?? 9}>
+        <video controls preload="metadata" playsInline poster={posterSrc(m.posterKey, m.keyPrefix)} width={m.width ?? 16} height={m.height ?? 9} aria-label={m.alt ?? m.title ?? undefined}>
+          <source src={videoSrc(m.keyPrefix)} type="video/mp4" />
+        </video>
       </MediaFrame>
-      {m.caption ? <figcaption className="mt-1 text-small text-ash">{m.caption}</figcaption> : null}
+      {m.title || m.caption ? (
+        <figcaption className="mt-1">
+          {m.title ? <p className="text-body font-medium text-ink max-w-none">{m.title}</p> : null}
+          {m.caption ? <p className="text-small text-ash max-w-[60ch]">{m.caption}</p> : null}
+        </figcaption>
+      ) : null}
     </figure>
   );
 }
 
-/**
- * Gallery: first item full width, then pairs alternating 2:1 and 1:2.
- * Mixed sizes by rule, not by hand.
- */
-function Gallery({ items }: { items: MediaItem[] }) {
-  const [first, ...rest] = items;
-  const pairs: MediaItem[][] = [];
-  for (let i = 0; i < rest.length; i += 2) pairs.push(rest.slice(i, i + 2));
-  return (
-    <div className="flex flex-col gap-2">
-      {first ? <GalleryItem m={first} sizes="(min-width: 1024px) 1000px, 100vw" /> : null}
-      {pairs.map((pair, i) => (
-        <div key={i} className={cx("grid gap-2 grid-cols-1 md:grid-cols-3")}>
-          {pair.map((m, j) => {
-            const wide = pair.length === 2 && ((i % 2 === 0 && j === 0) || (i % 2 === 1 && j === 1));
-            return (
-              <div key={m.id} className={cx(pair.length === 1 ? "md:col-span-3" : wide ? "md:col-span-2" : "md:col-span-1")}>
-                <GalleryItem m={m} sizes={wide ? "(min-width: 1024px) 660px, 100vw" : "(min-width: 1024px) 330px, 100vw"} />
-              </div>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/** The case study, shared by the public page and the signed draft preview. */
 export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; blocks: Blocks; preview?: boolean }) {
   const budget = formatBudget(p);
   const duration = formatDuration(p, "long");
@@ -120,9 +88,9 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
               ) : null}
             </div>
 
-            {p.cover || p.videoUrl ? (
+            {p.hero || (p.videoUrl && p.videoProvider !== "R2") ? (
               <div className="mt-4">
-                <CaseCover slug={p.slug} cover={p.cover} videoUrl={p.videoUrl} videoProvider={p.videoProvider} title={p.title} />
+                <CaseCover slug={p.slug} hero={p.hero} videoUrl={p.videoUrl} videoProvider={p.videoProvider} title={p.title} />
               </div>
             ) : null}
 
@@ -148,7 +116,16 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             {p.media.length > 0 ? (
               <section className="mt-5" aria-labelledby="gallery-heading">
                 <SectionMarker as="h2" id="gallery-heading" className="border-t border-divider-light pt-2 mb-3">{t(blocks, "case.galleryHeading")}</SectionMarker>
-                <Gallery items={p.media} />
+                <GalleryCarousel items={p.media} labels={{ prev: t(blocks, "case.carouselPrev"), next: t(blocks, "case.carouselNext") }} />
+              </section>
+            ) : null}
+
+            {p.videos.length > 0 ? (
+              <section className="mt-5" aria-labelledby="videos-heading">
+                <SectionMarker as="h2" id="videos-heading" className="border-t border-divider-light pt-2 mb-3">{t(blocks, "case.videosHeading")}</SectionMarker>
+                <div className="flex flex-col gap-3">
+                  {p.videos.map((m) => <VideoItem key={m.id} m={m} />)}
+                </div>
               </section>
             ) : null}
 
