@@ -13,7 +13,8 @@ import { cx } from "@/lib/cx";
  * - Fluid width from the label instead of a fixed 142px, two heights (md, sm).
  * - Renders a Next <Link> when `href` is given; supports type="submit",
  *   disabled and pending, so it can stand in for every public-site button.
- * - Label is sage (7.8:1 on ink) rather than #666 (3.9:1 fails AA); bone on hover.
+ * - Label is bone (the hero's .section-dark a rule made it bone there; the owner
+ *   wants every button to match), never #666 (3.9:1 fails AA).
  * - The shader mounts only while the button is near the viewport and is
  *   disposed when it leaves, so a page never holds more WebGL contexts than
  *   it has buttons on screen. Reduced motion freezes the shader at speed 0.
@@ -169,7 +170,7 @@ export function LiquidMetalButton(props: LiquidMetalButtonProps) {
   const interactive = cx(
     "liquid-metal-hit relative z-40 inline-flex items-center justify-center gap-1 whitespace-nowrap select-none no-underline font-medium leading-none overflow-hidden",
     heights[size],
-    hovered ? "text-bone" : "text-sage",
+    "text-bone",
   );
   const rippleNodes = ripples.map((r) => <span key={r.id} className="liquid-metal-ripple" style={{ left: r.x, top: r.y }} aria-hidden="true" />);
 

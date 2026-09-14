@@ -150,7 +150,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - The notch (owner's reference, 2026-09-13): src/components/site/nav-menu.tsx.
   At lg+ a 460px bone tab hangs from the page's top edge, straight sides
   (owner dropped the inverted corners) and a rounded bottom, holding the links. No action in the header (owner removed it);
-  the hero carries the CTA. Wordmark 92x24, hex mark 24. "work" opens a panel of the featured projects
+  the hero carries the CTA. Wordmark 92x24, hex mark 24. The liquid metal
+  button is listed with the dark-surface exceptions in .site-ground so its
+  olive-950/ink body and sage label look the same on every page (owner
+  found the case-page CTA washed out, 2026-09-14). "work" opens a panel of the featured projects
   (getFeaturedProjects(4), budget and duration as data) and "capabilities" the
   first four capabilities; both end in an all-link (nav.workAll,
   nav.capabilitiesAll). Escape, outside click and route change close it. Under
