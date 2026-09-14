@@ -209,6 +209,11 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   metricMeasured.
 
 ## Stack marks
+- On the case page the stack is its own strip under the facts (owner,
+  2026-09-14): src/components/site/infinite-slider.tsx (ibelick
+  infinite-slider rebuilt on motion + ResizeObserver, children rendered
+  twice, slows on hover, static under reduced motion) scrolling StackMark
+  tiles (56px) with faded edges. /work rows keep the small StackLogos row.
 - Stack tags on the case page and the /work rows render as brand marks
   (simple-icons, CC0, monochrome in the text colour) with the name in a
   tooltip on hover or focus and as aria-label; names without a mark (AWS,

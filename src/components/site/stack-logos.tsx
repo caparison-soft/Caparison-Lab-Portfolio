@@ -32,6 +32,25 @@ function iconFor(name: string): Icon | null {
   return icon ? { path: icon.path, title: icon.title } : null;
 }
 
+/** One mark for the marquee: a larger tile, name in a tooltip and for screen readers. */
+export function StackMark({ name, size = 28 }: { name: string; size?: number }) {
+  const icon = iconFor(name);
+  return (
+    <span className="relative group inline-block">
+      {icon ? (
+        <span tabIndex={0} aria-label={name} className="stack-logo inline-flex items-center justify-center h-[56px] w-[56px] rounded-lg bg-paper border border-divider-light text-ink transition-colors dur-fast hover:border-ash focus-visible:border-ash">
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg>
+        </span>
+      ) : (
+        <span className="stack-tag data inline-flex items-center h-[56px] px-3 rounded-lg bg-paper border border-divider-light text-ink">{name}</span>
+      )}
+      {icon ? (
+        <span role="tooltip" className="stack-tip pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-1 whitespace-nowrap rounded-sm bg-ink text-bone text-small px-1 py-[2px] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity dur-fast z-20">{name}</span>
+      ) : null}
+    </span>
+  );
+}
+
 export function StackLogos({ items, className, size = 20 }: { items: string[]; className?: string; size?: number }) {
   return (
     <ul className={cx("list-none m-0 p-0 flex flex-wrap items-center gap-1", className)}>

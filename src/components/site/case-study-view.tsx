@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button, MediaFrame, SectionMarker } from "@/components/ui";
-import { StackLogos } from "@/components/site/stack-logos";
+import { StackMark } from "@/components/site/stack-logos";
+import { InfiniteSlider } from "@/components/site/infinite-slider";
 import { RichText } from "@/components/site/rich-text";
 import { CaseCover } from "@/components/site/case-cover";
 import { GalleryCarousel } from "@/components/site/gallery-carousel";
@@ -78,22 +79,21 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
                   </div>
                 ))}
               </dl>
-              {p.stack.length > 0 || p.liveUrl ? (
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                  {p.stack.length > 0 ? (
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-small text-ash">{t(blocks, "case.meta.stack")}</span>
-                      <StackLogos items={p.stack} />
-                    </div>
-                  ) : null}
-                  {p.liveUrl ? (
-                    <a href={p.liveUrl} rel="noopener noreferrer" target="_blank" className="inline-flex text-small font-medium text-cobalt">
-                      {t(blocks, "case.meta.liveLabel")}
-                    </a>
-                  ) : null}
-                </div>
+              {p.liveUrl ? (
+                <a href={p.liveUrl} rel="noopener noreferrer" target="_blank" className="mt-3 inline-flex text-small font-medium text-cobalt">
+                  {t(blocks, "case.meta.liveLabel")}
+                </a>
               ) : null}
             </div>
+
+            {p.stack.length > 0 ? (
+              <div className="mt-5 border-t border-divider-light pt-3">
+                <p className="text-small text-ash max-w-none text-center mb-2">{t(blocks, "case.meta.stack")}</p>
+                <InfiniteSlider gap={24} duration={40} durationOnHover={120} reverse className="[mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] py-2">
+                  {p.stack.map((s) => <StackMark key={s} name={s} />)}
+                </InfiniteSlider>
+              </div>
+            ) : null}
 
             {p.hero || (p.videoUrl && p.videoProvider !== "R2") ? (
               <div className="mt-4 case-hero-wrap lg:max-w-[880px] lg:mx-auto">
