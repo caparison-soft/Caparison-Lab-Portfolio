@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Button, MediaFrame, SectionMarker, TagList } from "@/components/ui";
+import { Button, MediaFrame, SectionMarker } from "@/components/ui";
+import { StackLogos } from "@/components/site/stack-logos";
 import { RichText } from "@/components/site/rich-text";
 import { CaseCover } from "@/components/site/case-cover";
 import { GalleryCarousel } from "@/components/site/gallery-carousel";
@@ -82,7 +83,7 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
                   {p.stack.length > 0 ? (
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-small text-ash">{t(blocks, "case.meta.stack")}</span>
-                      <TagList items={p.stack} />
+                      <StackLogos items={p.stack} />
                     </div>
                   ) : null}
                   {p.liveUrl ? (

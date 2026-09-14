@@ -1,5 +1,5 @@
 import { TransitionLink } from "@/components/site/view-transitions";
-import { TagList } from "@/components/ui";
+import { StackLogos } from "@/components/site/stack-logos";
 import { RevealRow } from "@/components/site/reveal-row";
 import { cx } from "@/lib/cx";
 import type { Blocks } from "@/lib/queries/content";
@@ -53,7 +53,7 @@ export function ProjectRows({ blocks, projects, surface = "dark", revealFirst = 
                 <span className={cx("data md:text-left text-right", title)}>{formatDuration(p) ?? ""}</span>
               </div>
               <p className={cx("mt-1 text-body max-w-[60ch]", muted)}>{p.summary}</p>
-              <TagList className="mt-1" surface={surface} items={p.stack.slice(0, 5)} />
+              <StackLogos className="mt-1" size={16} items={p.stack.slice(0, 6)} />
             </TransitionLink>
           );
           const cls = cx("work-row border-b", line, !dark && "work-row-light");

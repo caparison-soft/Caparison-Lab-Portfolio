@@ -177,6 +177,13 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   teamHeading, afterLabel, meta.role/platform/stage/launched, stage.*,
   metricMeasured.
 
+## Stack marks
+- Stack tags on the case page and the /work rows render as brand marks
+  (simple-icons, CC0, monochrome in the text colour) with the name in a
+  tooltip on hover or focus and as aria-label; names without a mark (AWS,
+  Adobe are not in simple-icons) fall back to a text tag. Map of tag name to
+  icon key lives in src/components/site/stack-logos.tsx; add new stacks there.
+
 ## Work section (home)
 - Owner-supplied interactive hover links (2026-09-14, replacing the earlier
   showcase), rebuilt as src/components/site/home/project-showcase.tsx: each

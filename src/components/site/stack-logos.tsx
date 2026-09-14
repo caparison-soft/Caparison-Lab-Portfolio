@@ -1,0 +1,59 @@
+import * as si from "simple-icons";
+import { cx } from "@/lib/cx";
+
+/**
+ * Stack tags as brand marks (Simple Icons, CC0), monochrome in the current
+ * text colour, with the name in a tooltip on hover or focus and always for
+ * screen readers. Anything without a mark stays a text tag. Server component.
+ */
+
+type Icon = { path: string; title: string };
+
+/** Tag name (lowercased) to Simple Icons key. Only what the studio actually lists. */
+const KEYS: Record<string, keyof typeof si> = {
+  react: "siReact", "react native": "siReact", "react-native": "siReact",
+  "next.js": "siNextdotjs", nextjs: "siNextdotjs", "next-js": "siNextdotjs",
+  typescript: "siTypescript", javascript: "siJavascript",
+  node: "siNodedotjs", "node.js": "siNodedotjs", nodejs: "siNodedotjs",
+  python: "siPython", django: "siDjango", fastapi: "siFastapi",
+  postgres: "siPostgresql", postgresql: "siPostgresql", mysql: "siMysql", mongodb: "siMongodb", redis: "siRedis", "redis streams": "siRedis", "redis-streams": "siRedis",
+  supabase: "siSupabase", firebase: "siFirebase", prisma: "siPrisma",
+  stripe: "siStripe", cloudflare: "siCloudflare", vercel: "siVercel", docker: "siDocker",
+  storybook: "siStorybook", "tailwind css": "siTailwindcss", tailwind: "siTailwindcss", tailwindcss: "siTailwindcss",
+  flutter: "siFlutter", kotlin: "siKotlin", swift: "siSwift", android: "siAndroid", ios: "siApple", expo: "siExpo",
+  graphql: "siGraphql", figma: "siFigma", electron: "siElectron", redux: "siRedux",
+  wordpress: "siWordpress", shopify: "siShopify", laravel: "siLaravel", php: "siPhp", go: "siGo", rust: "siRust",
+};
+
+function iconFor(name: string): Icon | null {
+  const key = KEYS[name.trim().toLowerCase()];
+  if (!key) return null;
+  const icon = si[key] as { path: string; title: string } | undefined;
+  return icon ? { path: icon.path, title: icon.title } : null;
+}
+
+export function StackLogos({ items, className, size = 20 }: { items: string[]; className?: string; size?: number }) {
+  return (
+    <ul className={cx("list-none m-0 p-0 flex flex-wrap items-center gap-1", className)}>
+      {items.map((name) => {
+        const icon = iconFor(name);
+        return (
+          <li key={name} className="relative group">
+            {icon ? (
+              <span tabIndex={0} aria-label={name} className="stack-logo inline-flex items-center justify-center h-[36px] w-[36px] rounded-sm bg-paper border border-divider-light text-ink transition-colors dur-fast hover:border-ash focus-visible:border-ash">
+                <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg>
+              </span>
+            ) : (
+              <span className="stack-tag data inline-flex items-center h-[36px] px-2 rounded-sm bg-paper border border-divider-light text-ink">{name}</span>
+            )}
+            {icon ? (
+              <span role="tooltip" className="stack-tip pointer-events-none absolute left-1/2 -translate-x-1/2 top-full mt-1 whitespace-nowrap rounded-sm bg-ink text-bone text-small px-1 py-[2px] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity dur-fast z-20">
+                {name}
+              </span>
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}

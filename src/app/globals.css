@@ -599,3 +599,8 @@ html:has(.site-ground) body { background: color-mix(in srgb, #ECEEE8 5%, #000000
   filter: blur(36px);
 }
 .case-hero-wrap > .case-hero { position: relative; z-index: 1; }
+
+/* Stack marks: the icon tile shrinks a touch in the index rows. */
+.work-row .stack-logo { height: 28px; width: 28px; }
+.work-row .stack-tag { height: 28px; }
+.work-row .stack-logo + .stack-tip { margin-top: 2px; }
