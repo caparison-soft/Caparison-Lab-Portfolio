@@ -116,7 +116,7 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             {p.media.length > 0 ? (
               <section className="mt-5" aria-labelledby="gallery-heading">
                 <SectionMarker as="h2" id="gallery-heading" className="border-t border-divider-light pt-2 mb-3">{t(blocks, "case.galleryHeading")}</SectionMarker>
-                <GalleryCarousel items={p.media} labels={{ prev: t(blocks, "case.carouselPrev"), next: t(blocks, "case.carouselNext") }} />
+                <GalleryCarousel items={p.media} labels={{ slide: t(blocks, "case.carouselSlide") }} />
               </section>
             ) : null}
 
