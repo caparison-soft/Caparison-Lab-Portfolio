@@ -160,6 +160,12 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   glass logo; phones keep display-xl.
 
 ## Case study page (owner's brief, 2026-09-14)
+- Results render as a bento (owner-supplied stats-bento, 2026-09-14,
+  rebuilt): src/components/site/results-bento.tsx. The first metric is the
+  lead, a lime card two rows tall with a hatched corner and the label as a
+  pill; the rest are paper cards laid out by rule from the count (1: lead
+  alone; 2: lead + tall card; 3: lead + two stacked; 4: lead + wide + two
+  small; 5+: lead + wide + a row). Period and source show under each value.
 - The body reads in on scroll (owner-supplied "text gradient scroll",
   2026-09-14, rebuilt): src/components/site/scroll-reveal-text.tsx splits
   text nodes in paragraphs, headings and list items into word spans after

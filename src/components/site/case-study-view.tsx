@@ -6,12 +6,12 @@ import { CaseCover } from "@/components/site/case-cover";
 import { GalleryCarousel } from "@/components/site/gallery-carousel";
 import { VideoPlayer } from "@/components/site/video-player";
 import { ScrollRevealText } from "@/components/site/scroll-reveal-text";
+import { ResultsBento } from "@/components/site/results-bento";
 import type { Blocks } from "@/lib/queries/content";
 import { t } from "@/lib/queries/content";
 import type { CaseStudy, MediaItem } from "@/lib/queries/work";
 import { formatBudget, formatDuration } from "@/lib/format";
 import { posterSrc, videoSrc } from "@/lib/media";
-import { cx } from "@/lib/cx";
 
 function VideoItem({ m }: { m: MediaItem }) {
   return (
@@ -138,18 +138,8 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             {p.metrics.length > 0 ? (
               <section className="mt-5" aria-labelledby="metrics-heading">
                 <SectionMarker as="h2" id="metrics-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.metricsHeading")}</SectionMarker>
-                <div className={cx("sheet mt-3 grid-cols-1", p.metrics.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2")}>
-                  {p.metrics.map((m, i) => {
-                    const how = [m.period, m.source ? `${t(blocks, "case.metricMeasured")} ${m.source}` : null].filter(Boolean).join(", ");
-                    return (
-                      <div key={i} className="p-3 bg-bone">
-                        <p className="font-mono text-h3 text-ink max-w-none tabular-nums">{m.value}</p>
-                        <p className="text-body text-ink max-w-none mt-1">{m.label}</p>
-                        {m.note ? <p className="text-small text-ash max-w-none mt-[4px]">{m.note}</p> : null}
-                        {how ? <p className="data text-ash max-w-none mt-1">{how}</p> : null}
-                      </div>
-                    );
-                  })}
+                <div className="mt-3">
+                  <ResultsBento metrics={p.metrics} blocks={blocks} />
                 </div>
                 {p.afterNote ? (
                   <p className="mt-3 text-body text-ash max-w-[60ch]"><span className="text-small text-ash">{t(blocks, "case.afterLabel")}</span> <span className="text-ink">{p.afterNote}</span></p>
