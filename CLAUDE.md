@@ -38,11 +38,15 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   Store keyPrefix, derive URLs from NEXT_PUBLIC_CDN_URL at read time.
 - R2 has no image transforms and no video transcoding. sharp makes the variants
   at upload; videos need a poster frame, 15MB soft cap, 60MB hard cap. Videos
-  over 15MB are compressed in the admin's browser before upload (ffmpeg.wasm
-  single-thread core copied to public/ffmpeg on postinstall, gitignored;
-  src/lib/client/compress-video.ts: H.264 veryfast, max 1080p, bitrate sized
-  to land under 60MB, ceiling 6 Mbps; originals up to 500MB). Owner's call,
-  2026-09-14, over a server-side transcoder. Confirm reads only the first 16MB of a video (getObjectHead) to
+  over 15MB are compressed in the admin's browser before upload
+  (src/lib/client/compress-video.ts): first with WebCodecs through mediabunny
+  (the browser's own, usually hardware, H.264 encoder: Chrome, Edge, Safari;
+  a 174MB 1080p/60s clip took 13s including upload), falling back to
+  ffmpeg.wasm (single-thread core copied to public/ffmpeg on postinstall,
+  gitignored; minutes per clip) where WebCodecs H.264 is missing (Firefox).
+  Both: H.264 MP4, max 1920x1080, bitrate sized to land under 60MB with a
+  6 Mbps ceiling, AAC audio, faststart; originals up to 500MB. Owner's call,
+  2026-09-14, over a server-side transcoder (no cost). Confirm reads only the first 16MB of a video (getObjectHead) to
   sniff, probe and grab frame 0, and falls back to the whole file when the
   moov atom is at the end; the admin pages that host the upload actions set
   maxDuration 300.
