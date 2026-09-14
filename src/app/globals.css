@@ -393,6 +393,15 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 /* Case cover fallback: fade in only where View Transitions are unsupported. */
 @supports not (view-transition-name: none) {
   .cover-in { animation: rise var(--duration-base) var(--ease-out) both; }
+  /* Case hero: a soft, layered drop shadow that fades out in steps, so the
+     frame lifts off the matte ground instead of sitting flat on it. */
+  .case-hero {
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.06),
+      0 8px 16px rgb(0 0 0 / 0.35),
+      0 24px 48px rgb(0 0 0 / 0.35),
+      0 56px 96px rgb(0 0 0 / 0.30);
+  }
 }
 
 /* Visually hidden, available to assistive tech. */

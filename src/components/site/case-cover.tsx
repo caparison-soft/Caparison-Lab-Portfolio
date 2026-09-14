@@ -24,7 +24,7 @@ export function CaseCover({ slug, hero, videoUrl, videoProvider, title }: CaseCo
     const src = embedSrc(videoProvider, videoUrl);
     if (src) {
       return (
-        <MediaFrame ratio={16 / 9} style={vtStyle} className="cover-in">
+        <MediaFrame ratio={16 / 9} style={vtStyle} className="cover-in case-hero">
           <iframe src={src} title={title} loading="lazy" allow="fullscreen; picture-in-picture" className="absolute inset-0 w-full h-full border-0" />
         </MediaFrame>
       );
@@ -35,7 +35,7 @@ export function CaseCover({ slug, hero, videoUrl, videoProvider, title }: CaseCo
 
   if (hero.type === "VIDEO") {
     return (
-      <MediaFrame width={hero.width ?? 16} height={hero.height ?? 9} style={vtStyle} className="cover-in">
+      <MediaFrame width={hero.width ?? 16} height={hero.height ?? 9} style={vtStyle} className="cover-in case-hero">
         <video controls preload="metadata" playsInline poster={posterSrc(hero.posterKey, hero.keyPrefix)} width={hero.width ?? 16} height={hero.height ?? 9} aria-label={hero.alt ?? title}>
           <source src={videoSrc(hero.keyPrefix)} type="video/mp4" />
         </video>
@@ -44,7 +44,7 @@ export function CaseCover({ slug, hero, videoUrl, videoProvider, title }: CaseCo
   }
 
   return (
-    <MediaFrame width={hero.width ?? 16} height={hero.height ?? 10} blurDataUrl={hero.blurDataUrl ?? undefined} style={vtStyle} className="cover-in">
+    <MediaFrame width={hero.width ?? 16} height={hero.height ?? 10} blurDataUrl={hero.blurDataUrl ?? undefined} style={vtStyle} className="cover-in case-hero">
       <img {...imageSrcSet(hero.keyPrefix, hero.variants)} sizes="(min-width: 1024px) 1000px, 100vw" alt={hero.alt ?? ""} width={hero.width ?? 16} height={hero.height ?? 10} fetchPriority="high" decoding="async" />
     </MediaFrame>
   );
