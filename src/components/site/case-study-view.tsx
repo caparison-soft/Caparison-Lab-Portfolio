@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button, DataLine, MediaFrame, SectionMarker, TagList } from "@/components/ui";
+import { Button, MediaFrame, SectionMarker, TagList } from "@/components/ui";
 import { RichText } from "@/components/site/rich-text";
 import { CaseCover } from "@/components/site/case-cover";
 import { GalleryCarousel } from "@/components/site/gallery-carousel";
@@ -53,44 +53,44 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
           <p className="max-w-layout mx-auto text-small text-bone max-w-none">Draft preview. Only people with this link can see it. Status: {p.status.toLowerCase()}.</p>
         </div>
       ) : null}
-      <section className="px-3 md:px-[48px] pt-4 lg:pt-6 pb-6">
-        <div className="max-w-layout mx-auto grid grid-cols-1 lg:grid-cols-[180px_minmax(0,1fr)] gap-3 lg:gap-5">
-          {/* The spine becomes the metadata column. Sticky on desktop. */}
-          <aside className="lg:sticky lg:top-3 lg:self-start flex flex-col gap-3">
+      <section className="px-3 md:px-[48px] pt-[80px] lg:pt-6 pb-6">
+        <div className="max-w-layout mx-auto">
+          <article className="min-w-0">
             <Link href="/work" className="inline-flex items-center gap-1 text-body font-medium text-ash hover:text-ink no-underline">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M10 3L5 8l5 5" /></svg>
               {t(blocks, "case.backLabel")}
             </Link>
-            <DataLine direction="stack" items={meta} className="hidden lg:flex" />
-            {p.stack.length > 0 ? (
-              <div className="hidden lg:block">
-                <p className="text-small text-ash max-w-none mb-1">{t(blocks, "case.meta.stack")}</p>
-                <TagList items={p.stack} />
-              </div>
-            ) : null}
-            {p.liveUrl ? (
-              <a href={p.liveUrl} rel="noopener noreferrer" target="_blank" className="hidden lg:inline-flex text-small font-medium text-cobalt">
-                {t(blocks, "case.meta.liveLabel")}
-              </a>
-            ) : null}
-          </aside>
-
-          <article className="min-w-0">
-            <header>
+            <header className="mt-3">
               {p.category ? <SectionMarker>{p.category.name.toLowerCase()}</SectionMarker> : null}
               <h1 className="mt-2 text-display-l">{p.title}</h1>
               <p className="mt-2 text-body-l text-ash max-w-[52ch]">{p.summary}</p>
               {p.outcome ? <p className="mt-3 text-h3 font-bold text-ink max-w-[40ch] leading-tight">{p.outcome}</p> : null}
             </header>
 
-            {/* Mobile metadata: a two-column sheet between summary and cover. */}
-            <div className="lg:hidden mt-3 border-t border-divider-light pt-2">
-              <DataLine items={meta} />
-              {p.stack.length > 0 ? <TagList className="mt-2" items={p.stack} /> : null}
-              {p.liveUrl ? (
-                <a href={p.liveUrl} rel="noopener noreferrer" target="_blank" className="mt-2 inline-flex text-small font-medium text-cobalt">
-                  {t(blocks, "case.meta.liveLabel")}
-                </a>
+            {/* Facts strip: the project's numbers in a row under the summary (owner's call, 2026-09-14). */}
+            <div className="mt-4 border-t border-divider-light pt-3">
+              <dl className="m-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-x-4 gap-y-3">
+                {meta.map((item, i) => (
+                  <div key={i} className="min-w-0">
+                    <dt className="text-small text-ash">{item.label}</dt>
+                    <dd className="data m-0 text-ink mt-[2px]">{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+              {p.stack.length > 0 || p.liveUrl ? (
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {p.stack.length > 0 ? (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-small text-ash">{t(blocks, "case.meta.stack")}</span>
+                      <TagList items={p.stack} />
+                    </div>
+                  ) : null}
+                  {p.liveUrl ? (
+                    <a href={p.liveUrl} rel="noopener noreferrer" target="_blank" className="inline-flex text-small font-medium text-cobalt">
+                      {t(blocks, "case.meta.liveLabel")}
+                    </a>
+                  ) : null}
+                </div>
               ) : null}
             </div>
 

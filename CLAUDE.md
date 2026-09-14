@@ -156,6 +156,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   glass logo; phones keep display-xl.
 
 ## Case study page (owner's brief, 2026-09-14)
+- Layout (owner, 2026-09-14): no side rail; back link, header, then a
+  horizontal facts strip (client, our part, budget, duration, launched or
+  year, status, platform, team; stack tags and live link below it) above the
+  hero, single column.
 - Project story fields: outcome (bold line under the summary), role ("our
   part"), platforms[], stage (LIVE/BETA/RETIRED), launchedAt (replaces year in
   the sidebar when set), afterNote ("since launch", under the results);
