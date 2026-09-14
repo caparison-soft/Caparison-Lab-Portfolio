@@ -72,6 +72,8 @@ export const capabilitySchema = z.object({
   typicalTimeline: optionalString,
   deliverables: z.array(z.string().trim().min(1)).default([]),
   weight: z.preprocess((v) => Number(v), z.number().int().min(1).max(3)),
+  /** Media id of the home-page image; empty clears it. */
+  imageId: z.string().trim().max(64).optional().transform((v) => v || null),
   status: z.enum(["DRAFT", "PUBLISHED"]),
 });
 

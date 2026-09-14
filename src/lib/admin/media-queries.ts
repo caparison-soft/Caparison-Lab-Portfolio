@@ -44,13 +44,13 @@ export async function getMediaRows(): Promise<MediaRow[]> {
   const [rows, inline] = await Promise.all([
     prisma.media.findMany({
       orderBy: { createdAt: "desc" },
-      include: { project: { select: { id: true, title: true, slug: true } }, coverOf: { select: { id: true, title: true } }, heroOf: { select: { id: true, title: true } } },
+      include: { project: { select: { id: true, title: true, slug: true } }, coverOf: { select: { id: true, title: true } }, heroOf: { select: { id: true, title: true } }, capabilityOf: { select: { id: true, title: true } } },
     }),
     inlineUsage(),
   ]);
   return rows.map((m) => {
     const usedInlineBy = inline.get(m.keyPrefix) ?? [];
-    const usedAsCoverBy = [...(m.coverOf ? [m.coverOf] : []), ...(m.heroOf && m.heroOf.id !== m.coverOf?.id ? [m.heroOf] : [])];
+    const usedAsCoverBy = [...(m.coverOf ? [m.coverOf] : []), ...(m.heroOf && m.heroOf.id !== m.coverOf?.id ? [m.heroOf] : []), ...(m.capabilityOf ? [{ id: m.capabilityOf.id, title: `${m.capabilityOf.title} (capability)` }] : [])];
     return {
       id: m.id, type: m.type, keyPrefix: m.keyPrefix, posterKey: m.posterKey, alt: m.alt, caption: m.caption, width: m.width, height: m.height,
       durationSec: m.durationSec, sizeBytes: m.sizeBytes, mimeType: m.mimeType, blurDataUrl: m.blurDataUrl,

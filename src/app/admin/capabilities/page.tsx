@@ -6,21 +6,20 @@ export default function CapabilitiesAdmin() {
       entity="capability"
       marker="capabilities"
       heading="Capabilities"
-      intro="What we build. Weight sets the size of the cell on the homepage sheet."
+      intro="What we build. Each capability can carry an image for the home page hover slider."
       singular="capability"
       plural="capabilities"
-      blank={{ title: "", slug: "", blurb: "", startingPrice: "", typicalTimeline: "", deliverables: [], weight: "1", status: "DRAFT" }}
+      blank={{ title: "", slug: "", blurb: "", startingPrice: "", typicalTimeline: "", deliverables: [], weight: "1", imageId: "", imageIdPreview: "", status: "DRAFT" }}
       fields={[
         { name: "title", label: "Title", type: "text", required: true },
         { name: "slug", label: "Slug", type: "slug", slugFrom: "title" },
         { name: "blurb", label: "Blurb", type: "textarea", max: 400 },
         { name: "startingPrice", label: "Starting price", type: "text", help: "e.g. from $8k" },
         { name: "typicalTimeline", label: "Typical timeline", type: "text", help: "e.g. 6 – 10 weeks" },
-        { name: "weight", label: "Size on the homepage", type: "select", options: [{ value: "1", label: "Small" }, { value: "2", label: "Medium" }, { value: "3", label: "Large" }] },
         { name: "status", label: "Status", type: "select", options: [{ value: "DRAFT", label: "Draft" }, { value: "PUBLISHED", label: "Published" }] },
         { name: "deliverables", label: "Deliverables", type: "list" },
+        { name: "imageId", label: "Home page image", type: "image", help: "Shown on the home page when this capability is hovered. 16:10 works best; JPEG, PNG, WebP or AVIF up to 8 MB." },
       ]}
-      aside="weightPreview"
     />
   );
 }

@@ -287,10 +287,11 @@ export async function clearSlot(projectId: string, slot: "THUMBNAIL" | "HERO"): 
 export async function deleteMedia(id: string, opts?: { fromProjectId?: string }): Promise<Ok<object> | Fail> {
   try {
     const user = await assertAdmin();
-    const m = await prisma.media.findUnique({ where: { id }, include: { coverOf: { select: { id: true, title: true } }, heroOf: { select: { id: true, title: true } }, project: { select: { id: true, title: true } } } });
+    const m = await prisma.media.findUnique({ where: { id }, include: { coverOf: { select: { id: true, title: true } }, heroOf: { select: { id: true, title: true } }, capabilityOf: { select: { id: true, title: true } }, project: { select: { id: true, title: true } } } });
     if (!m) return { ok: false, error: "That media item no longer exists." };
 
     const blockers: string[] = [];
+    if (m.capabilityOf) blockers.push(`it is the image of the capability "${m.capabilityOf.title}" (remove it there first)`);
     if (m.coverOf) blockers.push(`it is the thumbnail of "${m.coverOf.title}" (use Remove on that slot)`);
     if (m.heroOf) blockers.push(`it is the hero of "${m.heroOf.title}" (use Remove on that slot)`);
     const inline = await prisma.$queryRaw<{ title: string }[]>`select title from "Project" where "deletedAt" is null and body::text like ${"%" + m.keyPrefix + "%"}`;

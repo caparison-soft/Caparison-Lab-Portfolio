@@ -96,15 +96,16 @@ export const getLiveProject = unstable_cache(
 export type CapabilityItem = {
   slug: string; title: string; blurb: string; startingPrice: string | null; typicalTimeline: string | null;
   deliverables: string[]; weight: number;
+  image: { keyPrefix: string; alt: string | null; width: number | null; height: number | null; blurDataUrl: string | null; variants: Record<string, string> | null } | null;
 };
 
 export const getCapabilities = unstable_cache(
   async (): Promise<CapabilityItem[]> =>
-    prisma.capability.findMany({
+    (await prisma.capability.findMany({
       where: { status: "PUBLISHED" },
       orderBy: { order: "asc" },
-      select: { slug: true, title: true, blurb: true, startingPrice: true, typicalTimeline: true, deliverables: true, weight: true },
-    }),
+      select: { slug: true, title: true, blurb: true, startingPrice: true, typicalTimeline: true, deliverables: true, weight: true, image: { select: { keyPrefix: true, alt: true, width: true, height: true, blurDataUrl: true, variants: true } } },
+    })).map((c) => ({ ...c, image: c.image ? { ...c.image, variants: (c.image.variants as Record<string, string> | null) ?? null } : null })),
   ["capabilities"],
   { tags: [CACHE_TAGS.capabilities] },
 );

@@ -281,6 +281,7 @@ model Media {
   project      Project? @relation("ProjectMedia", fields: [projectId], references: [id], onDelete: SetNull)
   coverOf      Project? @relation("ProjectCover")
   heroOf       Project? @relation("ProjectHero")
+  capabilityOf Capability? @relation("CapabilityImage")
 
   @@index([projectId, slot, order])
   @@index([type])
@@ -300,8 +301,12 @@ model Capability {
   deliverables    String[]      @default([])
   /// Drives the unequal sheet: 1 = small, 2 = medium, 3 = large.
   weight          Int           @default(1)
+  /// The image shown on the home page when this capability is hovered.
+  imageId         String?       @unique
   status          PublishStatus @default(DRAFT)
   order           Int           @default(0)
+
+  image Media? @relation("CapabilityImage", fields: [imageId], references: [id], onDelete: SetNull)
 
   @@index([status, order])
 }

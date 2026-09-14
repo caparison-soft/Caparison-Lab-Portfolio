@@ -5,12 +5,16 @@
 import { useState, useTransition } from "react";
 import { useFieldArray, useForm, type Path } from "react-hook-form";
 import { Button, Field, Input, Select, Textarea } from "@/components/ui";
+import { MediaUploader } from "@/components/admin/media-uploader";
 import { slugify } from "@/lib/admin/schemas";
+
+const cdn = (process.env.NEXT_PUBLIC_CDN_URL ?? "").replace(/\/$/, "");
 
 export type FieldDef = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "number" | "select" | "toggle" | "list" | "url" | "email" | "slug";
+  /** "image": one library image; the value is the Media id and `<name>Preview` carries its URL. */
+  type: "text" | "textarea" | "number" | "select" | "toggle" | "list" | "url" | "email" | "slug" | "image";
   options?: { value: string; label: string }[];
   help?: string;
   required?: boolean;
@@ -77,7 +81,27 @@ export function EntityForm({ fields, initial, onSubmit, submitLabel = "Save", on
       <form onSubmit={submit} className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {fields.map((f) => {
           const id = `${idPrefix}-${f.name}`;
-          const span = f.span === 2 || f.type === "textarea" || f.type === "list" ? "md:col-span-2" : "";
+          const span = f.span === 2 || f.type === "textarea" || f.type === "list" || f.type === "image" ? "md:col-span-2" : "";
+          if (f.type === "image") {
+            const preview = String(values[`${f.name}Preview`] ?? "");
+            return (
+              <div key={f.name} className={`flex flex-col gap-1 ${span}`}>
+                <p className="text-small text-ash max-w-none">{f.label}</p>
+                {f.help ? <p className="text-small text-ash max-w-none">{f.help}</p> : null}
+                <input type="hidden" {...register(f.name)} />
+                {preview ? (
+                  <div className="grid grid-cols-[192px_minmax(0,1fr)] gap-2 items-start">
+                    <div className="aspect-[16/10] rounded-sm bg-bone border border-divider-light overflow-hidden relative">
+                      <img src={preview} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    </div>
+                    <div><Button type="button" size="sm" variant="ghost" onClick={() => { setValue(f.name, "", { shouldDirty: true }); setValue(`${f.name}Preview`, ""); }}>Remove</Button></div>
+                  </div>
+                ) : null}
+                <MediaUploader projectId={null} slot="GALLERY" single compact prompt={preview ? "Drop a new image to replace it." : undefined} onUploaded={(m) => { if (m.type !== "IMAGE") return; setValue(f.name, m.id, { shouldDirty: true }); setValue(`${f.name}Preview`, `${cdn}/${m.keyPrefix}/w800.webp`); }} />
+                {err(f.name) ? <p role="alert" className="text-small text-status-error max-w-none">{err(f.name)}</p> : null}
+              </div>
+            );
+          }
           if (f.type === "toggle") {
             return (
               <label key={f.name} htmlFor={id} className={`flex items-center gap-2 text-small ${span}`}>

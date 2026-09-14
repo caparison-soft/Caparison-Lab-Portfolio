@@ -155,6 +155,18 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   (color-mix bone 5% into ink) and grain, no threads. The old rail thumbnails
   and their :has() CSS are gone; ProjectRows still serves /work.
 
+## Capabilities section (home)
+- Owner-supplied hover slider (2026-09-14), rebuilt as
+  src/components/site/home/capability-slider.tsx: titles on the left (letters
+  fan up per word on hover or focus; reduced motion just recolours), the
+  active capability's image on the right with a top-down clip reveal, blurb
+  and price/timeline under it, each title a link to /capabilities#slug.
+  Images: Capability.imageId -> Media (relation "CapabilityImage"), set from
+  the admin capability form's "Home page image" field (EntityForm type
+  "image": hidden id + `<name>Preview` URL + library MediaUploader). The old
+  weighted sheet and its admin preview are gone; `weight` stays in the schema
+  unused.
+
 ## Process section (home and about)
 - Owner-supplied "how it works" cards (2026-09-14), rebuilt as
   src/components/site/home/process-cards.tsx: pinned, tilted cards in a
