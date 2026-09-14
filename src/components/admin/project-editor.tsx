@@ -1,6 +1,7 @@
 "use client";
 // Client component: the project editor. One react-hook-form across seven
-// tabs, autosave every 20s while dirty, manual save, discard, typed delete.
+// tabs, autosave every 20s while a DRAFT is dirty (never a live page, never a
+// publish), explicit Publish with confirmation, manual save, discard, typed delete.
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -109,18 +110,33 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
     }
   }, [data.id, getValues, reset, setError, clearErrors, router, tab]);
 
-  // Autosave.
-  useEffect(() => {
-    const t = setInterval(() => { if (formState.isDirty) start(() => save()); }, AUTOSAVE_MS);
-    return () => clearInterval(t);
-  }, [formState.isDirty, save]);
+  // What is saved right now, versus what the form says.
+  const live = data.values.status === "PUBLISHED";
+  const willPublish = status === "PUBLISHED" && !live;
+  const [confirmPublish, setConfirmPublish] = useState(false);
 
-  // Cmd/Ctrl+S.
+  // Autosave: drafts only. A live page changes only when the owner presses
+  // the button, and a draft never autosaves itself into Published.
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); start(() => save()); } };
+    if (live) return;
+    const t = setInterval(() => {
+      if (formState.isDirty && getValues("status") === "DRAFT") start(() => save());
+    }, AUTOSAVE_MS);
+    return () => clearInterval(t);
+  }, [formState.isDirty, live, getValues, save]);
+
+  // Cmd/Ctrl+S. Publishing still asks first.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        if (willPublish) setConfirmPublish(true);
+        else start(() => save());
+      }
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [save]);
+  }, [save, willPublish]);
 
   // Warn before leaving with unsaved changes.
   useEffect(() => {
@@ -144,11 +160,29 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
         </div>
         <div className="flex flex-col items-end gap-1">
           <div className="flex items-center gap-2">
-            {dirty ? <Button size="sm" variant="ghost" onClick={() => { reset(); setSaveError(null); }}>Discard changes</Button> : null}
-            <Button size="sm" onClick={() => start(() => save())} pending={pending} disabled={!dirty && !saveError}>Save</Button>
+            {dirty && !confirmPublish ? <Button size="sm" variant="ghost" onClick={() => { reset(); setSaveError(null); }}>Discard changes</Button> : null}
+            {willPublish ? (
+              confirmPublish ? (
+                <>
+                  <span className="text-small text-ink">Put this page on the public site?</span>
+                  <Button size="sm" variant="ghost" onClick={() => setConfirmPublish(false)}>Cancel</Button>
+                  <Button size="sm" onClick={() => { setConfirmPublish(false); start(() => save()); }} pending={pending}>Publish now</Button>
+                </>
+              ) : (
+                <Button size="sm" onClick={() => setConfirmPublish(true)} pending={pending} disabled={!dirty && !saveError}>Publish</Button>
+              )
+            ) : (
+              <Button size="sm" onClick={() => start(() => save())} pending={pending} disabled={!dirty && !saveError}>{live ? "Update live page" : "Save draft"}</Button>
+            )}
           </div>
           <p role="status" aria-live="polite" suppressHydrationWarning className={cx("data max-w-none", saveError ? "text-status-error" : "text-ash")}>
-            {saveError ? saveError : savedAt ? `saved ${clock(savedAt)}` : dirty ? "unsaved changes" : `last saved ${clock(data.updatedAt)}`}
+            {saveError
+              ? saveError
+              : dirty
+                ? live ? "unsaved changes, not on the site yet" : willPublish ? "not published yet" : "unsaved draft changes, autosaves"
+                : savedAt
+                  ? `${live ? "live, " : "draft, "}saved ${clock(savedAt)}`
+                  : `${live ? "live, " : "draft, "}last saved ${clock(data.updatedAt)}`}
           </p>
         </div>
       </header>
@@ -285,10 +319,10 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
 
         <TabPanel id="publish" active={tab} idPrefix="pe">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field id="status" label="Status" help="Publishing revalidates the public site."><Select {...register("status")}><option value="DRAFT">Draft</option><option value="PUBLISHED">Published</option><option value="ARCHIVED">Archived</option></Select></Field>
+            <Field id="status" label="Status" help="Draft and archived never show on the site. Choose Published, then press Publish at the top; live pages change only when you press Update live page."><Select {...register("status")}><option value="DRAFT">Draft</option><option value="PUBLISHED">Published</option><option value="ARCHIVED">Archived</option></Select></Field>
             <Field id="publishedAt" label="Publish date" help="Set automatically on first publish if empty."><Input type="date" {...register("publishedAt")} /></Field>
             <label className="inline-flex items-center gap-1 text-small"><input type="checkbox" {...register("featured")} className="w-2 h-2 accent-[#D6F631]" />Featured on the homepage</label>
-            <label className="inline-flex items-center gap-1 text-small"><input type="checkbox" {...register("currentlyBuilding")} className="w-2 h-2 accent-[#D6F631]" />Currently building (shown in the hero strip)</label>
+            <label className="inline-flex items-center gap-1 text-small"><input type="checkbox" {...register("currentlyBuilding")} className="w-2 h-2 accent-[#D6F631]" />Currently building (internal note, not shown on the site)</label>
             {currentlyBuilding ? <Field id="buildNote" label="Progress note" help="e.g. wk 4 of 7"><Input {...register("buildNote")} className="font-mono text-mono" /></Field> : <div />}
             <div className="md:col-span-2 flex flex-wrap items-center gap-2 border-t border-divider-light pt-3">
               <Button variant="secondary" size="sm" href={`/preview/${data.slug}?token=${previewToken}`} target="_blank" rel="noopener">Preview as visitor</Button>
