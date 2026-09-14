@@ -160,6 +160,13 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   glass logo; phones keep display-xl.
 
 ## Case study page (owner's brief, 2026-09-14)
+- The body reads in on scroll (owner-supplied "text gradient scroll",
+  2026-09-14, rebuilt): src/components/site/scroll-reveal-text.tsx splits
+  text nodes in paragraphs, headings and list items into word spans after
+  hydration and each word brightens over its own slice of the block's view
+  timeline (CSS animation-timeline: view(), no JS per frame). Browsers
+  without scroll-driven animations and reduced motion show the text as is.
+  Body column is centred (max 720px, lg:mx-auto).
 - Uploaded videos (hero and the videos section) play in
   src/components/site/video-player.tsx (owner-supplied design, rebuilt:
   floating blurred control pill on hover/focus/touch with seek, volume,

@@ -604,3 +604,25 @@ html:has(.site-ground) body { background: color-mix(in srgb, #ECEEE8 5%, #000000
 .work-row .stack-logo { height: 28px; width: 28px; }
 .work-row .stack-tag { height: 28px; }
 .work-row .stack-logo + .stack-tip { margin-top: 2px; }
+
+/* ---- Case body scroll reveal: words brighten as their block crosses the
+   middle of the viewport. Scroll-driven animation (view timeline), so the
+   effect is native, smooth and off the main thread; browsers without it
+   and reduced motion keep the text fully visible. ---- */
+@supports (animation-timeline: view()) {
+  [data-reveal="on"] .reveal-block .reveal-word {
+    display: inline;
+    opacity: var(--reveal-dim, 0.18);
+    animation: reveal-word linear both;
+    /* The block's whole travel through the viewport is 0..100%: 0 = its top
+       enters at the bottom edge, 100 = its bottom leaves at the top edge. Each
+       word brightens over its own slice of the first half of that travel, so a
+       block reads in as it rises toward the middle of the screen. */
+    animation-timeline: view();
+    animation-range: var(--reveal-start, 15%) var(--reveal-end, 45%);
+  }
+  @keyframes reveal-word {
+    from { opacity: var(--reveal-dim, 0.18); }
+    to { opacity: 1; }
+  }
+}

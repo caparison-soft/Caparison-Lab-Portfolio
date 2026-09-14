@@ -5,6 +5,7 @@ import { RichText } from "@/components/site/rich-text";
 import { CaseCover } from "@/components/site/case-cover";
 import { GalleryCarousel } from "@/components/site/gallery-carousel";
 import { VideoPlayer } from "@/components/site/video-player";
+import { ScrollRevealText } from "@/components/site/scroll-reveal-text";
 import type { Blocks } from "@/lib/queries/content";
 import { t } from "@/lib/queries/content";
 import type { CaseStudy, MediaItem } from "@/lib/queries/work";
@@ -100,9 +101,9 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
               </div>
             ) : null}
 
-            <div className="mt-5 max-w-[720px]">
+            <ScrollRevealText className="mt-5 max-w-[720px] lg:mx-auto">
               <RichText content={p.body} />
-            </div>
+            </ScrollRevealText>
 
             {p.decisions.length > 0 ? (
               <section className="mt-5" aria-labelledby="decisions-heading">
