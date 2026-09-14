@@ -17,7 +17,7 @@ type SectionProps = {
 
 const tones = {
   bone: "bg-bone text-ink",
-  paper: "bg-paper text-ink",
+  paper: "bg-paper text-ink section-paper",
   dark: "section-dark on-dark",
 };
 

@@ -202,14 +202,15 @@
    what the weave shader paints) with the same grain. */
 .section-dark.ground-matte { background: color-mix(in srgb, var(--color-bone) 5%, var(--color-ink)); }
 
-/* Matte grain over the hero and matte grounds. SVG turbulence tiled at low opacity. */
-.hero::after,
-.ground-matte::after {
+/* Matte grain over the whole public site: one fixed layer above everything
+   (the glass canvas included), so the grain is uniform from the header to the
+   footer. The admin has none. SVG turbulence tiled at low opacity. */
+.site-ground::after {
   content: "";
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 20; /* above the glass canvas too, so the grain is uniform */
+  z-index: 60;
   opacity: 0.15;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 160px 160px;
@@ -516,3 +517,59 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
   .gallery-track::before, .gallery-track::after { flex-basis: 22%; }
   .gallery-track { scroll-padding-inline: 22%; }
 }
+
+/* ---- The public site on matte black (owner's call, 2026-09-14). The admin
+   keeps the light palette. Every colour utility resolves through these
+   variables, so remapping them on the wrapper turns light surfaces dark:
+   bone (page) and paper (raised) become two matte greys, ink and ash become
+   bone and sage, cobalt links become lime, hairlines go translucent white.
+   Components that were already designed for a dark surface (.section-dark,
+   .on-dark, olive or lime or ink fills) get the original values back inside
+   them so bone stays bone and ink stays ink where they mean it. ---- */
+.site-ground {
+  --matte: color-mix(in srgb, #ECEEE8 5%, #000000);
+  --matte-raised: color-mix(in srgb, #ECEEE8 9%, #000000);
+  --color-bone: var(--matte);
+  --color-paper: var(--matte-raised);
+  --color-ink: #ECEEE8;
+  --color-ash: #A8B09C;
+  --color-cobalt: #D6F631;
+  --color-divider-light: rgba(255, 255, 255, 0.10);
+  --divider-light: rgba(255, 255, 255, 0.10);
+  --color-olive-950: var(--matte);
+  --color-olive-800: var(--matte-raised);
+  --color-olive-600: rgba(255, 255, 255, 0.14);
+  --color-divider-dark: rgba(255, 255, 255, 0.14);
+  background: var(--matte);
+  color: var(--color-ink);
+  color-scheme: dark;
+  min-height: 100svh;
+}
+.site-ground .section-dark,
+.site-ground .on-dark,
+.site-ground .bg-olive-950,
+.site-ground .bg-olive-800,
+.site-ground .bg-lime,
+.site-ground .bg-ink {
+  --color-bone: #ECEEE8;
+  --color-paper: #FAFBF7;
+  --color-ink: #000000;
+  --color-ash: #5A6152;
+  --color-cobalt: #2033A6;
+  --color-divider-light: rgba(0, 0, 0, 0.08);
+  --divider-light: rgba(0, 0, 0, 0.08);
+}
+/* Hero keeps pure ink under its shader lift; every other dark section is the matte. */
+.site-ground .section-dark { background: var(--matte); }
+.site-ground .section-dark.ground-ink { background: #000000; }
+.site-ground .section-dark.ground-matte { background: var(--matte); }
+.site-ground .section-dark { border-color: var(--color-olive-600); }
+.site-ground :focus-visible { outline-color: #D6F631; }
+.site-ground ::selection { background: #D6F631; color: #000000; }
+/* Whole-section paper bands sit on the same matte as the page; only cards and controls are raised. */
+.site-ground .section-paper { background: var(--matte); }
+/* Lime cursor on hovered index rows reads on the matte too. */
+.site-ground .work-row-light:hover, .site-ground .work-row-light:focus-within { background: var(--matte-raised); }
+/* Page behind the wrapper (overscroll) matches. */
+html:has(.site-ground) { background: var(--matte, #1a1a1a); }
+html:has(.site-ground) body { background: color-mix(in srgb, #ECEEE8 5%, #000000); }

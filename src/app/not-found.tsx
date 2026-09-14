@@ -13,6 +13,7 @@ export default async function RootNotFound() {
     <ButtonStyleProvider value="metal">
       <a href="#main" className="skip-link">{t(blocks, "nav.skipToContent")}</a>
       <Nav blocks={blocks} siteName={settings.siteName} />
+      <div className="site-ground">
       <main id="main">
         <Section pad="tall" innerClassName="min-h-[60svh] flex flex-col items-center justify-center text-center">
           <p className="data text-ash">404</p>
@@ -24,6 +25,7 @@ export default async function RootNotFound() {
         </Section>
       </main>
       <Footer blocks={blocks} settings={settings} />
+      </div>
     </ButtonStyleProvider>
   );
 }

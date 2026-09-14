@@ -109,8 +109,13 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   CSV at /admin/inquiries/export; Resend webhook at /api/webhooks/resend.
 
 ## Navigation
-- The hero sits on ink (#000000) via .ground-ink, at the owner's request; the
-  rest of the dark sections stay olive-950.
+- The whole public site sits on matte black (owner's call, 2026-09-14):
+  .site-ground wraps main + footer in the (site) layout and root not-found and
+  remaps the colour tokens (bone/paper to two matte greys, ink/ash to
+  bone/sage, cobalt to lime, hairlines to white/10); .section-dark, .on-dark and
+  olive/lime/ink fills get the originals back inside them. One fixed grain
+  layer covers the viewport. The admin keeps the light palette. The hero
+  keeps pure ink under its shader lift.
 - No bar (owner's call, 2026-09-13): the header is fixed and transparent, laid
   over the page (sections start with at least 64px of padding; html has
   scroll-padding-top for anchors). NavScroll sets html[data-nav-compact] past 64px of scroll (header 64px

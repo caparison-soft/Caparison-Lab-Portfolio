@@ -22,7 +22,7 @@ export function NavScroll() {
       const header = document.querySelector<HTMLElement>(".site-nav");
       const y = (header?.getBoundingClientRect().bottom ?? 64) + 2;
       const hit = document.elementsFromPoint(24, y).find((el) => !el.closest("header"));
-      const nextGround = hit?.closest(".section-dark") ? "dark" : "light";
+      const nextGround = hit?.closest(".section-dark, .site-ground") ? "dark" : "light";
       if (nextGround !== ground) {
         ground = nextGround;
         root.setAttribute("data-nav-ground", nextGround);

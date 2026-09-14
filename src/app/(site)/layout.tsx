@@ -46,17 +46,20 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <JsonLd data={organization} />
       <a href="#main" className="skip-link">{t(blocks, "nav.skipToContent")}</a>
       <Nav blocks={blocks} siteName={settings.siteName} />
-      {settings.maintenanceMode ? (
-        <main id="main">
-          <Section pad="tall" innerClassName="min-h-[60svh] flex flex-col items-start justify-center">
-            <h1 className="text-display-l">{t(blocks, "maintenance.heading")}</h1>
-            <p className="mt-3 text-body-l text-ash">{t(blocks, "maintenance.body")}</p>
-          </Section>
-        </main>
-      ) : (
-        <ViewTransitions>{children}</ViewTransitions>
-      )}
-      <Footer blocks={blocks} settings={settings} />
+      {/* Everything under the header sits on the matte black ground (see .site-ground in globals.css). */}
+      <div className="site-ground">
+        {settings.maintenanceMode ? (
+          <main id="main">
+            <Section pad="tall" innerClassName="min-h-[60svh] flex flex-col items-start justify-center">
+              <h1 className="text-display-l">{t(blocks, "maintenance.heading")}</h1>
+              <p className="mt-3 text-body-l text-ash">{t(blocks, "maintenance.body")}</p>
+            </Section>
+          </main>
+        ) : (
+          <ViewTransitions>{children}</ViewTransitions>
+        )}
+        <Footer blocks={blocks} settings={settings} />
+      </div>
       {settings.analyticsEnabled && settings.gaId ? (
         <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(settings.gaId)}`} strategy="afterInteractive" />
