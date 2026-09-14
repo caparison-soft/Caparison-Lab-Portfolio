@@ -397,11 +397,24 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
      frame lifts off the matte ground instead of sitting flat on it. */
   .case-hero {
     box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.06),
-      0 8px 16px rgb(0 0 0 / 0.35),
-      0 24px 48px rgb(0 0 0 / 0.35),
-      0 56px 96px rgb(0 0 0 / 0.30);
+      0 1px 0 rgb(255 255 255 / 0.08),
+      0 12px 24px rgb(0 0 0 / 0.5),
+      0 32px 64px rgb(0 0 0 / 0.5),
+      0 72px 120px rgb(0 0 0 / 0.45);
   }
+  /* On the matte ground a black shadow alone barely reads, so a soft bone glow
+     sits behind and below the frame: the gradient the eye actually sees. */
+  .case-hero-wrap { position: relative; isolation: isolate; }
+  .case-hero-wrap::before {
+    content: "";
+    position: absolute;
+    inset: -6% -8% -22%;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 55% at 50% 62%, rgb(236 238 232 / 0.16), rgb(236 238 232 / 0.05) 45%, transparent 72%);
+    filter: blur(28px);
+  }
+  .case-hero-wrap > .case-hero { position: relative; z-index: 1; }
 }
 
 /* Visually hidden, available to assistive tech. */

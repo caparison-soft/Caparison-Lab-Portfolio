@@ -95,7 +95,7 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             </div>
 
             {p.hero || (p.videoUrl && p.videoProvider !== "R2") ? (
-              <div className="mt-4">
+              <div className="mt-4 case-hero-wrap">
                 <CaseCover slug={p.slug} hero={p.hero} videoUrl={p.videoUrl} videoProvider={p.videoProvider} title={p.title} />
               </div>
             ) : null}
