@@ -79,7 +79,17 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   :9000 storing under .dev-s3/. .env sets R2_ENDPOINT and NEXT_PUBLIC_CDN_URL
   to it. Production leaves R2_ENDPOINT unset. Upload flow: requestUpload
   (presign) -> browser PUT -> confirmUpload (sniff, caps, sharp variants,
-  ffmpeg poster via ffmpeg-static, Media row; on Vercel the ffmpeg binary
+  ffmpeg poster via ffmpeg-static, Media row). Media slots (owner's
+  structure, 2026-09-14): Media.slot is THUMBNAIL (one image per project,
+  Project.coverImageId: home hover card, index, OG; 16:9 recommended, the
+  confirm step warns otherwise), HERO (one image or video,
+  Project.heroMediaId: top of the case page; a YouTube/Vimeo videoUrl takes
+  precedence), GALLERY (images with title + caption-as-subtitle, the
+  case-page carousel, src/components/site/gallery-carousel.tsx) and VIDEO
+  (the videos section). Single slots replace on upload (claimSingleSlot
+  deletes the old row and objects) and empty via clearSlot; deleteMedia
+  refuses thumbnails and heroes. Admin: src/components/admin/project-media.tsx.
+  (Upload details continued: on Vercel the ffmpeg binary
   only reaches the function through outputFileTracingIncludes for /admin/**
   in next.config.ts, found live 2026-09-13). deleteMedia removes every
   object under the prefix and fails loudly. /api/cron/reconcile reports
