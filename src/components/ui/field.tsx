@@ -6,7 +6,7 @@ type FieldProps = {
   /** Required so the label is wired without client hooks. */
   id: string;
   label: string;
-  help?: string;
+  help?: React.ReactNode;
   error?: string;
   surface?: Surface;
   className?: string;

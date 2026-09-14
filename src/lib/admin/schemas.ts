@@ -124,6 +124,13 @@ export const teamMemberSchema = z.object({
   status: z.enum(["DRAFT", "PUBLISHED"]),
 });
 
+/** Project type (Category). No publish status; a type either exists or not. */
+export const categorySchema = z.object({
+  name: z.string().trim().min(1, "A name is required.").max(60),
+  slug: z.string().trim().min(1).max(60).regex(slugPattern, "Lowercase letters, numbers and hyphens only."),
+  description: optionalString,
+});
+
 export const statSchema = z.object({
   label: z.string().trim().min(1).max(120),
   value: z.string().trim().min(1).max(40),
@@ -156,9 +163,10 @@ export const contentEntrySchema = z.object({ key: z.string().min(1), value: z.st
 
 export const tagSchema = z.object({ name: z.string().trim().min(1).max(40), kind: z.enum(["STACK", "INDUSTRY", "SERVICE"]) });
 
-export type EntityName = "capability" | "testimonial" | "processStep" | "faq" | "teamMember" | "stat";
+export type EntityName = "capability" | "testimonial" | "processStep" | "faq" | "teamMember" | "stat" | "category";
 export const entitySchemas = {
   capability: capabilitySchema,
+  category: categorySchema,
   testimonial: testimonialSchema,
   processStep: processStepSchema,
   faq: faqSchema,

@@ -98,7 +98,7 @@ function plain(json: unknown): string {
   return (d?.content ?? []).filter((n) => n.type === "paragraph").map((n) => (n.content ?? []).map((t) => t.text ?? "").join("")).join("\n\n");
 }
 
-export async function getSimpleRows(entity: "capability" | "testimonial" | "processStep" | "faq" | "teamMember" | "stat"): Promise<SimpleRow[]> {
+export async function getSimpleRows(entity: "capability" | "testimonial" | "processStep" | "faq" | "teamMember" | "stat" | "category"): Promise<SimpleRow[]> {
   switch (entity) {
     case "capability":
       return (await prisma.capability.findMany({ orderBy: { order: "asc" }, include: { image: { select: { keyPrefix: true } } } })).map((r) => ({ id: r.id, order: r.order, status: r.status, title: r.title, sub: `${r.startingPrice ?? ""} ${r.typicalTimeline ?? ""}`.trim() || null, values: { title: r.title, slug: r.slug, blurb: r.blurb, startingPrice: r.startingPrice ?? "", typicalTimeline: r.typicalTimeline ?? "", deliverables: r.deliverables, weight: String(r.weight), imageId: r.imageId ?? "", imageIdPreview: r.image ? `${cdn}/${r.image.keyPrefix}/w800.webp` : "", status: r.status } }));
@@ -112,6 +112,8 @@ export async function getSimpleRows(entity: "capability" | "testimonial" | "proc
       return (await prisma.teamMember.findMany({ orderBy: { order: "asc" } })).map((r) => ({ id: r.id, order: r.order, status: r.status, title: r.name, sub: r.role, values: { name: r.name, role: r.role, bio: r.bio ?? "", avatarUrl: r.avatarUrl ?? "", status: r.status } }));
     case "stat":
       return (await prisma.stat.findMany({ orderBy: { order: "asc" } })).map((r) => ({ id: r.id, order: r.order, status: r.status, title: `${r.value} ${r.label}`, sub: r.note, values: { label: r.label, value: r.value, note: r.note ?? "", status: r.status } }));
+    case "category":
+      return (await prisma.category.findMany({ orderBy: { order: "asc" }, include: { _count: { select: { projects: { where: { deletedAt: null } } } } } })).map((r) => ({ id: r.id, order: r.order, status: "PUBLISHED" as const, title: r.name, sub: `${r._count.projects} ${r._count.projects === 1 ? "project" : "projects"}${r.description ? `, ${r.description}` : ""}`, values: { name: r.name, slug: r.slug, description: r.description ?? "" } }));
   }
 }
 

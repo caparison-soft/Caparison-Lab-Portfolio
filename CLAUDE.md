@@ -85,6 +85,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   handing it to the form: ProseMirror attrs are null-prototype objects and a
   server action rejects them ("Cannot access toStringTag", found live
   2026-09-14 the first time a heading was added).
+- Project types (Category) are editable at /admin/types (owner, 2026-09-14):
+  EntityPage with entity "category", noStatus (no draft state), slug
+  uniqueness, delete refused while any project uses the type; the project
+  editor's Type field links there.
 - @tanstack/react-table is pinned to v8; v9 has a different API.
 - Draft preview: /preview/[slug]?token=HMAC(slug) from src/lib/preview.ts.
 - Media locally: `npm run dev:s3` runs scripts/dev-s3.mjs, an S3 stand-in on

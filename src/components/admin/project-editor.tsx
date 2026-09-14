@@ -240,7 +240,7 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
             <Field id="clientName" label="Client name" error={err("clientName")}><Input {...register("clientName")} /></Field>
             <Field id="clientLogoUrl" label="Client logo URL" error={err("clientLogoUrl")} help="Upload the logo in Media, open it and press Copy URL, then paste here."><Input type="url" {...register("clientLogoUrl")} /></Field>
             <Field id="year" label="Year" error={err("year")}><Input type="number" min={2000} max={2100} {...register("year")} /></Field>
-            <Field id="categoryId" label="Type" error={err("categoryId")}>
+            <Field id="categoryId" label="Type" error={err("categoryId")} help={<>Add or rename types under <Link href="/admin/types" className="text-cobalt">Project types</Link>.</>}>
               <Select {...register("categoryId")}><option value="">None</option>{data.categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>
             </Field>
             <div className="md:col-span-2">

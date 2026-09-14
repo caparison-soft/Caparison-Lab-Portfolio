@@ -19,6 +19,7 @@ const meta: Record<EntityName, { tag: string; path: string; label: string }> = {
   faq: { tag: CACHE_TAGS.faqs, path: "/admin/faqs", label: "Faq" },
   teamMember: { tag: CACHE_TAGS.team, path: "/admin/team", label: "TeamMember" },
   stat: { tag: CACHE_TAGS.stats, path: "/admin/stats", label: "Stat" },
+  category: { tag: CACHE_TAGS.projects, path: "/admin/types", label: "Category" },
 };
 
 function bust(entity: EntityName) {
@@ -39,6 +40,7 @@ async function nextOrder(entity: EntityName): Promise<number> {
     : entity === "processStep" ? await prisma.processStep.aggregate({ _max: { order: true } })
     : entity === "faq" ? await prisma.faq.aggregate({ _max: { order: true } })
     : entity === "teamMember" ? await prisma.teamMember.aggregate({ _max: { order: true } })
+    : entity === "category" ? await prisma.category.aggregate({ _max: { order: true } })
     : await prisma.stat.aggregate({ _max: { order: true } });
   return (agg._max.order ?? 0) + 1;
 }
@@ -88,6 +90,13 @@ export async function saveEntity(entity: EntityName, id: string | null, values: 
         savedId = id ? (await prisma.stat.update({ where: { id }, data: v })).id : (await prisma.stat.create({ data: { ...v, order: order! } })).id;
         break;
       }
+      case "category": {
+        const v = parsed.data as z.output<typeof entitySchemas.category>;
+        const clash = await prisma.category.findFirst({ where: { slug: v.slug, ...(id ? { id: { not: id } } : {}) } });
+        if (clash) return { ok: false, error: "That slug is taken.", fields: { slug: "Another type uses this slug." } };
+        savedId = id ? (await prisma.category.update({ where: { id }, data: v })).id : (await prisma.category.create({ data: { ...v, order: order! } })).id;
+        break;
+      }
     }
 
     await logAudit({ userId: user.id, action: id ? `${entity}.save` : `${entity}.create`, entity: meta[entity].label, entityId: savedId });
@@ -109,6 +118,12 @@ export async function deleteEntity(entity: EntityName, id: string): Promise<Simp
       case "faq": await prisma.faq.delete({ where: { id } }); break;
       case "teamMember": await prisma.teamMember.delete({ where: { id } }); break;
       case "stat": await prisma.stat.delete({ where: { id } }); break;
+      case "category": {
+        const used = await prisma.project.count({ where: { categoryId: id, deletedAt: null } });
+        if (used > 0) return { ok: false, error: `Can't delete: ${used} ${used === 1 ? "project uses" : "projects use"} this type. Change their type first.` };
+        await prisma.category.delete({ where: { id } });
+        break;
+      }
     }
     await logAudit({ userId: user.id, action: `${entity}.delete`, entity: meta[entity].label, entityId: id });
     bust(entity);
@@ -130,6 +145,7 @@ export async function reorderEntity(entity: EntityName, ids: string[]): Promise<
         case "faq": return prisma.faq.update({ where: { id }, data });
         case "teamMember": return prisma.teamMember.update({ where: { id }, data });
         case "stat": return prisma.stat.update({ where: { id }, data });
+        case "category": return prisma.category.update({ where: { id }, data });
       }
     });
     await prisma.$transaction(ops);
@@ -157,6 +173,7 @@ export async function toggleEntity(entity: EntityName, id: string, field: "featu
         case "faq": await prisma.faq.update({ where: { id }, data: { status } }); break;
         case "teamMember": await prisma.teamMember.update({ where: { id }, data: { status } }); break;
         case "stat": await prisma.stat.update({ where: { id }, data: { status } }); break;
+        case "category": return { ok: false, error: "Types have no draft state." };
       }
     }
     await logAudit({ userId: user.id, action: `${entity}.${field}`, entity: meta[entity].label, entityId: id, diff: { [field]: value } });

@@ -22,11 +22,13 @@ type SimpleCrudProps = {
   emptyState: string;
   blank: Record<string, unknown>;
   featuredToggle?: boolean;
+  /** Hide the Published toggle for entities without a draft state (types). */
+  noStatus?: boolean;
   /** Named side panel, rendered beside the form. Serialisable so server pages can pass it. */
   aside?: "weightPreview";
 };
 
-export function SimpleCrud({ entity, rows: initialRows, fields, singular, plural, emptyState, blank, featuredToggle, aside }: SimpleCrudProps) {
+export function SimpleCrud({ entity, rows: initialRows, fields, singular, plural, emptyState, blank, featuredToggle, noStatus, aside }: SimpleCrudProps) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
   // router.refresh() delivers new props; keep local state in step with them.
@@ -99,7 +101,7 @@ export function SimpleCrud({ entity, rows: initialRows, fields, singular, plural
                   {featuredToggle ? (
                     <Toggle size="sm" checked={Boolean(row.featured)} label="Featured" onChange={async (v) => (await toggleEntity(entity, row.id, "featured", v)).ok} />
                   ) : null}
-                  <Toggle size="sm" checked={row.status === "PUBLISHED"} label="Published" onChange={async (v) => (await toggleEntity(entity, row.id, "status", v)).ok} />
+                  {noStatus ? null : <Toggle size="sm" checked={row.status === "PUBLISHED"} label="Published" onChange={async (v) => (await toggleEntity(entity, row.id, "status", v)).ok} />}
                   <Button size="sm" variant="ghost" onClick={() => { setEditing(editing === row.id ? null : row.id); setAdding(false); }}>{editing === row.id ? "Close" : "Edit"}</Button>
                   {confirmId === row.id ? (
                     <span className="inline-flex items-center gap-1 text-small">
