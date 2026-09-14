@@ -46,3 +46,6 @@ next-env.d.ts
 
 # local S3 stand-in storage
 /.dev-s3
+
+# ffmpeg.wasm core, copied from node_modules on postinstall
+/public/ffmpeg

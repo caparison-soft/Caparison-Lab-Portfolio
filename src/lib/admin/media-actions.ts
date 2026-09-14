@@ -61,7 +61,7 @@ export async function requestUpload(input: z.input<typeof requestSchema>): Promi
 
     if (v.kind === "video") {
       if (!VIDEO_MIMES.includes(mime)) return { ok: false, error: "Video must be MP4 (H.264) or WebM." };
-      if (v.size > VIDEO_HARD_BYTES) return { ok: false, error: "Video is over the 200 MB hard cap. Compress it or use a YouTube or Vimeo link." };
+      if (v.size > VIDEO_HARD_BYTES) return { ok: false, error: "Video is over the 60 MB hard cap. Compress it or use a YouTube or Vimeo link." };
       const id = nanoid();
       const keyPrefix = `video/${id}`;
       const key = `${keyPrefix}/source.${EXT[mime]}`;
@@ -178,7 +178,7 @@ export async function confirmUpload(input: z.input<typeof confirmSchema>): Promi
 
     // Video
     if (!mime || !VIDEO_MIMES.includes(mime)) return fail("That file isn't an MP4 or WebM video.");
-    if (size > VIDEO_HARD_BYTES) return fail("Video is over the 200 MB hard cap.");
+    if (size > VIDEO_HARD_BYTES) return fail("Video is over the 60 MB hard cap.");
     let probe;
     try {
       probe = await probeVideo(body, EXT[mime]);

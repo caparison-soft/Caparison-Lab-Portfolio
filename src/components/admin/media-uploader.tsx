@@ -1,17 +1,21 @@
 "use client";
 // Client component: drag-and-drop multi-upload. Browser PUTs straight to R2
 // via presigned URLs with a real progress bar; alt text is required before
-// an image can be sent; videos warn above 15 MB and take an optional poster.
+// an image can be sent. Videos over 15 MB are compressed in the browser
+// first (ffmpeg.wasm, see lib/client/compress-video) so what reaches R2 is
+// under 60 MB; an optional poster frame can be attached.
 
 import { useRef, useState } from "react";
 import { Button, Field, Input } from "@/components/ui";
 import { confirmUpload, requestUpload, type ConfirmedMedia, type MediaSlot } from "@/lib/admin/media-actions";
+import { compressVideo } from "@/lib/client/compress-video";
 import { cx } from "@/lib/cx";
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const VIDEO_TYPES = ["video/mp4", "video/webm"];
 const SOFT = 15 * 1024 * 1024;
-const HARD = 200 * 1024 * 1024;
+/** Originals above this are refused before compression (the browser has to hold them in memory). */
+const INPUT_MAX = 500 * 1024 * 1024;
 const IMAGE_MAX = 8 * 1024 * 1024;
 
 type Item = {
@@ -24,7 +28,9 @@ type Item = {
   caption: string;
   poster: File | null;
   progress: number;
-  state: "queued" | "uploading" | "processing" | "done" | "error";
+  state: "queued" | "compressing" | "uploading" | "processing" | "done" | "error";
+  /** Set once the browser has re-encoded the video. */
+  compressed?: { from: number; to: number };
   error?: string;
   warning?: string;
 };
@@ -82,10 +88,10 @@ export function MediaUploader({ projectId, onUploaded, compact = false, slot, si
       if (!kind) { next.push({ ...base, error: "Not a supported type. Images: JPEG, PNG, WebP, AVIF. Video: MP4, WebM." }); continue; }
       if (!accept.includes(file.type)) { next.push({ ...base, kind, error: acceptsVideo && !acceptsImage ? "This section takes video only (MP4 or WebM)." : "This slot takes an image (JPEG, PNG, WebP, AVIF)." }); continue; }
       if (kind === "image" && file.size > IMAGE_MAX) { next.push({ ...base, kind, error: `Over 8 MB (${mb(file.size)}). Export it smaller.` }); continue; }
-      if (kind === "video" && file.size > HARD) { next.push({ ...base, kind, error: `Over the 200 MB hard cap (${mb(file.size)}). Compress it, or use a YouTube or Vimeo link.` }); continue; }
+      if (kind === "video" && file.size > INPUT_MAX) { next.push({ ...base, kind, error: `Over 500 MB (${mb(file.size)}). Trim it or export it smaller first, or use a YouTube or Vimeo link.` }); continue; }
       next.push({
         ...base, kind, previewUrl: URL.createObjectURL(file), state: "queued",
-        warning: kind === "video" && file.size > SOFT ? `${mb(file.size)}. Over 15 MB is slow to start on mobile data in Bangladesh; a shorter or more compressed export is better.` : undefined,
+        warning: kind === "video" && file.size > SOFT ? `${mb(file.size)}. Will be compressed in this browser before upload (1080p H.264, under 60 MB). This takes a few minutes; keep the tab open.` : undefined,
       });
     }
     setItems((s) => (single ? next : [...s, ...next]));
@@ -99,10 +105,17 @@ export function MediaUploader({ projectId, onUploaded, compact = false, slot, si
     setBusy(true);
     for (const item of ready) {
       try {
+        let file = item.file;
+        if (item.kind === "video" && file.size > SOFT) {
+          patch(item.id, { state: "compressing", progress: 0, warning: undefined });
+          const r = await compressVideo(file, (ratio) => patch(item.id, { progress: Math.round(ratio * 100) }));
+          file = r.file;
+          if (!r.skipped) patch(item.id, { compressed: { from: r.originalBytes, to: file.size } });
+        }
         patch(item.id, { state: "uploading", progress: 0 });
-        const t = await requestUpload({ filename: item.file.name, mimeType: item.file.type, size: item.file.size, kind: item.kind, projectId, slot });
+        const t = await requestUpload({ filename: file.name, mimeType: file.type, size: file.size, kind: item.kind, projectId, slot });
         if (!t.ok) throw new Error(t.error);
-        await putWithProgress(t.uploadUrl, item.file, (pct) => patch(item.id, { progress: pct }));
+        await putWithProgress(t.uploadUrl, file, (pct) => patch(item.id, { progress: pct }));
         let posterExt: string | undefined;
         if (item.kind === "video" && item.poster) {
           const pt = await requestUpload({ filename: item.poster.name, mimeType: item.poster.type, size: item.poster.size, kind: "poster", videoKeyPrefix: t.keyPrefix });
@@ -137,7 +150,7 @@ export function MediaUploader({ projectId, onUploaded, compact = false, slot, si
       >
         <p className="text-body text-ink max-w-none">{prompt ?? (acceptsImage && acceptsVideo ? "Drop images or videos here, or choose files." : acceptsImage ? (single ? "Drop an image here, or choose a file." : "Drop images here, or choose files.") : (single ? "Drop a video here, or choose a file." : "Drop videos here, or choose files."))}</p>
         <p className="text-small text-ash max-w-none mt-[4px]">
-          {acceptsImage ? "JPEG, PNG, WebP, AVIF up to 8 MB." : null}{acceptsImage && acceptsVideo ? " " : null}{acceptsVideo ? "MP4 or WebM up to 200 MB, 1080p, 15 MB recommended." : null}
+          {acceptsImage ? "JPEG, PNG, WebP, AVIF up to 8 MB." : null}{acceptsImage && acceptsVideo ? " " : null}{acceptsVideo ? "MP4 or WebM; over 15 MB is compressed here to under 60 MB, 1080p." : null}
         </p>
         <input ref={inputRef} type="file" multiple={!single} accept={accept.join(",")} className="sr-only" onChange={(e) => { if (e.target.files) add(e.target.files); e.target.value = ""; }} />
       </div>
@@ -181,15 +194,15 @@ export function MediaUploader({ projectId, onUploaded, compact = false, slot, si
                     ) : null}
                   </div>
                 ) : null}
-                {it.state === "uploading" || it.state === "processing" ? (
+                {it.state === "compressing" || it.state === "uploading" || it.state === "processing" ? (
                   <div>
                     <div className="h-[6px] bg-bone border border-divider-light rounded-full overflow-hidden" role="progressbar" aria-valuenow={it.progress} aria-valuemin={0} aria-valuemax={100}>
                       <div className="h-full bg-lime transition-[width] dur-fast" style={{ width: `${it.progress}%` }} />
                     </div>
-                    <p className="data text-ash max-w-none mt-[4px]">{it.state === "processing" ? "processing" : `${it.progress}%`}</p>
+                    <p className="data text-ash max-w-none mt-[4px]">{it.state === "processing" ? "processing" : it.state === "compressing" ? `compressing ${it.progress}%` : `uploading ${it.progress}%`}</p>
                   </div>
                 ) : null}
-                {it.state === "done" ? <p className="text-small text-ink max-w-none">Uploaded.</p> : null}
+                {it.state === "done" ? <p className="text-small text-ink max-w-none">Uploaded.{it.compressed ? ` Compressed ${mb(it.compressed.from)} to ${mb(it.compressed.to)}.` : ""}</p> : null}
                 {it.warning ? <p className="text-small text-status-warn max-w-none">{it.warning}</p> : null}
                 {it.error ? <p role="alert" className="text-small text-status-error max-w-none">{it.error}</p> : null}
                 {it.state === "queued" || it.state === "error" || it.state === "done" ? (

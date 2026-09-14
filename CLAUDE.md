@@ -37,8 +37,12 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   -> presigned PUT, never proxied through a Vercel function (4.5MB body limit).
   Store keyPrefix, derive URLs from NEXT_PUBLIC_CDN_URL at read time.
 - R2 has no image transforms and no video transcoding. sharp makes the variants
-  at upload; videos need a poster frame, 15MB soft cap, 200MB hard cap (owner,
-  2026-09-14). Confirm reads only the first 16MB of a video (getObjectHead) to
+  at upload; videos need a poster frame, 15MB soft cap, 60MB hard cap. Videos
+  over 15MB are compressed in the admin's browser before upload (ffmpeg.wasm
+  single-thread core copied to public/ffmpeg on postinstall, gitignored;
+  src/lib/client/compress-video.ts: H.264 veryfast, max 1080p, bitrate sized
+  to land under 60MB, ceiling 6 Mbps; originals up to 500MB). Owner's call,
+  2026-09-14, over a server-side transcoder. Confirm reads only the first 16MB of a video (getObjectHead) to
   sniff, probe and grab frame 0, and falls back to the whole file when the
   moov atom is at the end; the admin pages that host the upload actions set
   maxDuration 300.
