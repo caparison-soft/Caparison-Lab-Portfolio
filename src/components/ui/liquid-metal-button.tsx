@@ -93,14 +93,21 @@ export function LiquidMetalButton(props: LiquidMetalButtonProps) {
           shaderRef.current,
           liquidMetalFragmentShader,
           {
-            u_repetition: 4,
+            // Density of the chrome stripes. Raised with u_scale so the pattern
+            // keeps its grain while the shape covers the whole pill.
+            u_repetition: 8,
             u_softness: 0.5,
             u_shiftRed: 0.3,
             u_shiftBlue: 0.3,
             u_distortion: 0,
             u_contour: 0,
             u_angle: 45,
-            u_scale: 8,
+            // u_shape 1 is a circle, and the shader leaves everything outside it
+            // transparent. At the old scale of 8 that circle stopped about 60%
+            // across a wide button, so the right end of the ring had no chrome
+            // (owner, 2026-09-15). Zooming further in puts the whole pill,
+            // however wide, inside the shape.
+            u_scale: 40,
             u_shape: 1,
             u_offsetX: 0.1,
             u_offsetY: -0.1,

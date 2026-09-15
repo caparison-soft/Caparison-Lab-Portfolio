@@ -343,7 +343,13 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   #666 for contrast, visible focus ring. Shader mounts only near the viewport and
   is destroyed when the button leaves (WebGL context budget shared with the hero
   weave and glass). Reduced motion: speed 0 and no ripple. No WebGL2: a static
-  conic-gradient ring. Styles live in globals.css under "Liquid metal button".
+  conic-gradient ring. u_shape 1 is a circle and the shader leaves everything
+  outside it transparent, so u_scale has to be large enough to put the whole
+  pill inside the shape: at the pasted value of 8 the chrome stopped about 60%
+  across a wide button and the right end of the outline was bare (owner,
+  2026-09-15). u_scale 40 with u_repetition 8 covers every width the site uses;
+  raise the two together, since scale also stretches the stripes.
+  Styles live in globals.css under "Liquid metal button".
 
 ## Audits
 - Never run `next dev` and `next start` at the same time: both use .next and
