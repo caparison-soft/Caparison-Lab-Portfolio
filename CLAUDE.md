@@ -196,8 +196,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   outlined button with an outward arrow. Right: a raised facts card (client
   logo + name, budget, duration, launched, status with a lime dot when live,
   team) that slides in and whose numbers count up on first view (motion
-  animate; dates tick by month; display overrides skip the count). Reduced
-  motion renders in place. The stack marquee and hero follow below.
+  animate; dates tick by month; display overrides skip the count). The card
+  tilts toward the pointer (up to 8 degrees, springs back) with a sheen that
+  follows and the content 24px forward in depth; mouse only. Reduced motion
+  renders in place with no tilt. The stack marquee and hero follow below.
 - Project story fields: outcome (bold line under the summary), role ("our
   part"), platforms[], stage (LIVE/BETA/RETIRED), launchedAt (replaces year in
   the sidebar when set), afterNote ("since launch", under the results);

@@ -7,7 +7,7 @@
 // motion renders everything in place.
 
 import { useEffect, useRef, useState } from "react";
-import { animate, motion, useInView, useReducedMotion } from "motion/react";
+import { animate, motion, useInView, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { cx } from "@/lib/cx";
 
 export type Fact =
@@ -74,6 +74,26 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
   const cardRef = useRef<HTMLDivElement>(null);
   const inView = useInView(cardRef, { once: true, amount: 0.4 });
   const run = !reduced && inView;
+
+  // 3D tilt: the card leans toward the pointer (up to 8 degrees), a sheen
+  // follows it, and the inner content sits forward in depth. Springs back
+  // on leave. No tilt under reduced motion.
+  const px = useMotionValue(0.5);
+  const py = useMotionValue(0.5);
+  const sx = useSpring(px, { stiffness: 180, damping: 22 });
+  const sy = useSpring(py, { stiffness: 180, damping: 22 });
+  const rotateY = useTransform(sx, [0, 1], [-8, 8]);
+  const rotateX = useTransform(sy, [0, 1], [8, -8]);
+  const sheenX = useTransform(sx, [0, 1], [0, 100]);
+  const sheenY = useTransform(sy, [0, 1], [0, 100]);
+  const sheen = useMotionTemplate`radial-gradient(60% 50% at ${sheenX}% ${sheenY}%, rgb(236 238 232 / 0.10), transparent 70%)`;
+  const onMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (reduced || e.pointerType === "touch") return;
+    const r = e.currentTarget.getBoundingClientRect();
+    px.set((e.clientX - r.left) / r.width);
+    py.set((e.clientY - r.top) / r.height);
+  };
+  const onLeave = () => { px.set(0.5); py.set(0.5); };
   const t = (delay: number) => (reduced ? { duration: 0 } : { duration: 0.5, ease: EASE, delay });
   const words = title.split(" ");
   let n = 0;
@@ -115,14 +135,19 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
         ) : null}
       </div>
 
+      <motion.div initial={reduced ? false : { opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={t(0.5)} style={{ perspective: 1000 }}>
       <motion.aside
         ref={cardRef}
-        initial={reduced ? false : { opacity: 0, x: 24 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={t(0.5)}
-        className="rounded-[24px] bg-paper border border-divider-light p-3 md:p-4 shadow-[0_24px_48px_rgb(0_0_0/0.35)]"
+        style={reduced ? undefined : { rotateX, rotateY, transformStyle: "preserve-3d" }}
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
+        className="relative rounded-[24px] bg-paper border border-divider-light p-3 md:p-4 shadow-[0_24px_48px_rgb(0_0_0/0.35)]"
         aria-label={labels.client}
       >
+        {/* Sheen that follows the pointer, and a faint inner edge for the top face. */}
+        {!reduced ? <motion.span aria-hidden="true" className="pointer-events-none inset-0 rounded-[24px]" style={{ position: "absolute", background: sheen }} /> : null}
+        <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[24px] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]" />
+        <div style={reduced ? undefined : { transform: "translateZ(24px)" }}>
         {client.name || client.logoUrl ? (
           <div className="flex items-center gap-2 pb-3 mb-3 border-b border-divider-light">
             {client.logoUrl ? <img src={client.logoUrl} alt="" className="h-[28px] w-auto max-w-[140px] object-contain" loading="eager" decoding="async" /> : null}
@@ -140,7 +165,9 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
             </div>
           ))}
         </dl>
+        </div>
       </motion.aside>
+      </motion.div>
     </header>
   );
 }
