@@ -76,7 +76,12 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - Login is rate-limited from AuditLog (5 failures per 15 minutes per email or IP).
 - Admin CRUD: src/lib/admin/schemas.ts (Zod, shared), project-actions.ts and
   entity-actions.ts (server actions: assertAdmin, validate, mutate, logAudit,
-  revalidateTag). Simple entities share EntityForm + SimpleCrud. Never nest a
+  revalidateTag). Every save also calls revalidatePath("/", "layout"): the
+  public pages are statically rendered on a one-hour window and a tag alone
+  does not drop that HTML, so before 2026-09-15 an admin edit could take an
+  hour to appear. The site is a handful of routes, so sweeping the whole tree
+  is cheap. Content written straight to the database (a seed, a script) still
+  needs a save in the admin, or a redeploy, to show. Simple entities share EntityForm + SimpleCrud. Never nest a
   <form> inside the project editor form (the delete dialog is a <div>).
   Editor saving (owner's call, 2026-09-14): autosave runs for drafts only and
   never flips a draft to Published; a live page changes only via "Update live

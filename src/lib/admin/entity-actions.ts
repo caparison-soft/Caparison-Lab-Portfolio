@@ -22,10 +22,17 @@ const meta: Record<EntityName, { tag: string; path: string; label: string }> = {
   category: { tag: CACHE_TAGS.projects, path: "/admin/types", label: "Category" },
 };
 
+// Every public page is statically rendered on a one-hour window, and a tag
+// alone does not drop that HTML: without this, an admin edit did not reach the
+// live site until the window passed (found 2026-09-15). The site is a handful
+// of routes, so revalidating the whole tree on a save is the honest trade.
+const bustPublic = () => revalidatePath("/", "layout");
+
 function bust(entity: EntityName) {
   revalidateTag(meta[entity].tag);
   revalidatePath(meta[entity].path);
   revalidatePath("/admin");
+  bustPublic();
 }
 
 const doc = (text: string): Prisma.InputJsonObject => ({
@@ -195,6 +202,7 @@ export async function saveContentGroup(group: string, entries: { key: string; va
     await logAudit({ userId: user.id, action: "content.save", entity: "ContentBlock", entityId: group, diff: { keys: parsed.data.map((e) => e.key) } });
     revalidateTag(CACHE_TAGS.content);
     revalidatePath("/admin/content");
+    bustPublic();
     return { ok: true };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Could not save." };
@@ -217,6 +225,7 @@ export async function saveSettings(values: Record<string, unknown>): Promise<Ent
     await logAudit({ userId: user.id, action: "settings.save", entity: "SiteSettings", entityId: "default" });
     revalidateTag(CACHE_TAGS.settings);
     revalidatePath("/admin/settings");
+    bustPublic();
     return { ok: true, id: "default" };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Could not save." };
