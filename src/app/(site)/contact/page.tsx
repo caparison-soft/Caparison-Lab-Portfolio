@@ -39,8 +39,12 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
               <div className="mt-5 border-t border-divider-light pt-3">
                 <p className="text-small text-ash max-w-none">{t(blocks, "contact.directLabel")}</p>
                 <a href={`mailto:${settings.email}`} className="mt-1 inline-block text-body-l text-ink no-underline hover:underline">{settings.email}</a>
-                {/* The number is not published; WhatsApp is the second way in (owner, 2026-09-15). */}
-                <WhatsAppLink value={settings.whatsapp} label={t(blocks, "home.contact.whatsappLabel")} className="mt-1 text-ash hover:text-ink" />
+                {/* The number is not published; WhatsApp is the second way in (owner,
+                    2026-09-15). The wrapper starts a new line: the email above it is
+                    an inline-block anchor, so the link would otherwise sit beside it. */}
+                <div className="mt-1">
+                  <WhatsAppLink value={settings.whatsapp} label={t(blocks, "home.contact.whatsappLabel")} className="text-ash hover:text-ink" />
+                </div>
                 {settings.location ? <p className="text-body text-ash max-w-none mt-1">{settings.location}</p> : null}
               </div>
             </div>
