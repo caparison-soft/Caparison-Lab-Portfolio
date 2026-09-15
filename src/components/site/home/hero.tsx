@@ -18,6 +18,8 @@ export function Hero({ blocks }: HeroProps) {
   return (
     <section className="hero section-dark ground-ink on-dark relative overflow-x-clip px-3 md:px-[48px] min-h-[100svh] flex flex-col justify-center pt-[96px] pb-5">
       {/* The ground: a woven thread field that answers the pointer, with grain on top. */}
+      {/* The glass logo's mesh and still, fetched before the client asks so the swap is quick. */}
+      <link rel="preload" href="/caparison_logo.glb" as="fetch" crossOrigin="anonymous" />
       <HeroWeave />
       {/* Phones: the still in the top-right corner. Desktops get the live glass over the headline. */}
       <HeroStill desktopFallback={false} />

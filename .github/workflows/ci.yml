@@ -20,6 +20,10 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
+      # postinstall runs `prisma generate`, whose config reads DIRECT_URL
+      # strictly. Generate never connects, so a placeholder is enough.
       - run: npm ci
+        env:
+          DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
       - run: npm run lint
       - run: npm run typecheck

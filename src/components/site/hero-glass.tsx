@@ -162,11 +162,11 @@ export function HeroGlass() {
         backdrop: { color: getComputedStyle(host.closest("section") ?? document.body).backgroundColor, size: [texW, texH], draw, z: -0.8, live: true },
       });
     };
+    // Mount as soon as the page has loaded (the still covers the gap). A short
+    // idle wait keeps the first paint clean without leaving the spot empty.
     const afterLoad = () => {
-      timers.push(window.setTimeout(() => {
-        if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(() => { start().catch(() => setUseGl(false)); }, { timeout: 4000 });
-        else start().catch(() => setUseGl(false));
-      }, 3000));
+      if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(() => { start().catch(() => setUseGl(false)); }, { timeout: 800 });
+      else timers.push(window.setTimeout(() => { start().catch(() => setUseGl(false)); }, 200));
     };
     if (document.readyState === "complete") afterLoad();
     else window.addEventListener("load", afterLoad, { once: true });
@@ -194,8 +194,27 @@ export function HeroGlass() {
   return (
     <>
       {/* Over the headline block, extended upwards into the hero's top padding and 240px to the right so the logo has room. */}
-      <div ref={hostRef} aria-hidden="true" className={cx("pointer-events-none absolute left-0 -right-[240px] -top-[88px] -bottom-[24px] z-10", useGl ? "block" : "hidden")}>
-        {useGl ? <canvas ref={canvasRef} className={cx("absolute inset-0 w-full h-full transition-opacity dur-base", ready ? "opacity-100" : "opacity-0")} /> : null}
+      {/* The host is always in the DOM so the still (server-rendered) is on screen from
+          the first paint, exactly where the glass will render; the canvas joins once
+          WebGL is confirmed and the still fades out when the glass is live. When WebGL
+          is unavailable the still simply stays. */}
+      <div ref={hostRef} aria-hidden="true" className="pointer-events-none absolute left-0 -right-[240px] -top-[88px] -bottom-[24px] z-10 hidden lg:block [container-type:size]">
+        <img
+          src="/brand/logo-3d-1280.webp"
+          srcSet="/brand/logo-3d-640.webp 640w, /brand/logo-3d-1280.webp 1280w"
+          sizes="360px"
+          alt=""
+          width={1280}
+          height={1302}
+          fetchPriority="high"
+          decoding="sync"
+          // Same geometry as the glass mount: the logo spans FIT (1.9) of the 2.507 world
+          // units the camera shows across the host height, so its width is 75.8% of the
+          // host height and its right edge sits 8px inside the block's right edge (the
+          // host runs 240px past it). Container units make that hold at any width.
+          className={cx("absolute right-[248px] top-1/2 -translate-y-1/2 w-[75.8cqh] h-auto transition-opacity dur-slow", ready ? "opacity-0" : "opacity-100")}
+        />
+        {useGl ? <canvas ref={canvasRef} className={cx("absolute inset-0 w-full h-full transition-opacity dur-slow", ready ? "opacity-100" : "opacity-0")} /> : null}
       </div>
     </>
   );

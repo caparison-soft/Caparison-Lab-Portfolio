@@ -27,6 +27,8 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // The ffmpeg.wasm core copied on postinstall (gitignored, minified).
+      "public/ffmpeg/**",
     ],
   },
 ];
