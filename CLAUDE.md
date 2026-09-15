@@ -190,10 +190,14 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   play, mute, speed, fullscreen; keyboard space/k/arrows/m/f; inline SVG;
   motion; native controls until hydration). YouTube/Vimeo stay iframes.
   The hero frame is capped at 880px on lg+.
-- Layout (owner, 2026-09-14): no side rail; back link, header, then a
-  horizontal facts strip (client, our part, budget, duration, launched or
-  year, status, platform, team; stack tags and live link below it) above the
-  hero, single column.
+- Header (owner's brief, 2026-09-15): src/components/site/case-header.tsx,
+  two columns at lg. Left: category pill, title whose letters rise in per
+  word (motion stagger), summary, outcome, role and platform pills, live-site
+  outlined button with an outward arrow. Right: a raised facts card (client
+  logo + name, budget, duration, launched, status with a lime dot when live,
+  team) that slides in and whose numbers count up on first view (motion
+  animate; dates tick by month; display overrides skip the count). Reduced
+  motion renders in place. The stack marquee and hero follow below.
 - Project story fields: outcome (bold line under the summary), role ("our
   part"), platforms[], stage (LIVE/BETA/RETIRED), launchedAt (replaces year in
   the sidebar when set), afterNote ("since launch", under the results);

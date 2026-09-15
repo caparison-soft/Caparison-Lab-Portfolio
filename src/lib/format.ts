@@ -1,6 +1,6 @@
 /** Formatting for genuine data: budgets, durations, lists. Pure, shared by server and client. */
 
-function currencySymbol(currency: string): string {
+export function currencySymbol(currency: string): string {
   try {
     const parts = new Intl.NumberFormat("en", { style: "currency", currency, currencyDisplay: "narrowSymbol" }).formatToParts(0);
     return parts.find((p) => p.type === "currency")?.value ?? currency;
@@ -9,7 +9,7 @@ function currencySymbol(currency: string): string {
   }
 }
 
-function k(n: number): string {
+export function k(n: number): string {
   if (n >= 1000) {
     const v = n / 1000;
     return `${Number.isInteger(v) ? v : v.toFixed(1)}k`;

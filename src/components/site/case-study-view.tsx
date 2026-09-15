@@ -11,7 +11,8 @@ import { ResultsBento } from "@/components/site/results-bento";
 import type { Blocks } from "@/lib/queries/content";
 import { t } from "@/lib/queries/content";
 import type { CaseStudy, MediaItem } from "@/lib/queries/work";
-import { formatBudget, formatDuration } from "@/lib/format";
+import { currencySymbol, formatBudget, formatDuration } from "@/lib/format";
+import { CaseHeader, type Fact } from "@/components/site/case-header";
 import { posterSrc, videoSrc } from "@/lib/media";
 
 function VideoItem({ m }: { m: MediaItem }) {
@@ -33,17 +34,18 @@ function VideoItem({ m }: { m: MediaItem }) {
 export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; blocks: Blocks; preview?: boolean }) {
   const budget = formatBudget(p);
   const duration = formatDuration(p, "long");
-  const launched = p.launchedAt ? new Date(p.launchedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : null;
   const stageLabel = p.stage ? t(blocks, `case.stage.${p.stage.toLowerCase()}`) : null;
-  const meta = [
-    ...(p.clientName ? [{ label: t(blocks, "case.meta.client"), value: p.clientName }] : []),
-    ...(p.role ? [{ label: t(blocks, "case.meta.role"), value: p.role }] : []),
-    ...(budget ? [{ label: t(blocks, "case.meta.budget"), value: budget }] : []),
-    ...(duration ? [{ label: t(blocks, "case.meta.duration"), value: duration }] : []),
-    ...(launched ? [{ label: t(blocks, "case.meta.launched"), value: launched }] : p.year ? [{ label: t(blocks, "case.meta.year"), value: String(p.year) }] : []),
-    ...(stageLabel ? [{ label: t(blocks, "case.meta.stage"), value: stageLabel }] : []),
-    ...(p.platforms.length > 0 ? [{ label: t(blocks, "case.meta.platform"), value: p.platforms.join(", ") }] : []),
-    ...(p.teamSize ? [{ label: t(blocks, "case.meta.team"), value: String(p.teamSize) }] : []),
+  const unitLong = { DAYS: "days", WEEKS: "weeks", MONTHS: "months" } as const;
+  const facts: Fact[] = [
+    ...(budget ? [p.budgetDisplay || p.budgetMin == null
+      ? { kind: "money" as const, label: t(blocks, "case.meta.budget"), symbol: "", min: 0, max: null, display: budget }
+      : { kind: "money" as const, label: t(blocks, "case.meta.budget"), symbol: currencySymbol(p.budgetCurrency), min: p.budgetMin, max: p.budgetMax }] : []),
+    ...(duration ? [p.durationDisplay || p.durationValue == null
+      ? { kind: "count" as const, label: t(blocks, "case.meta.duration"), value: 0, display: duration }
+      : { kind: "count" as const, label: t(blocks, "case.meta.duration"), value: p.durationValue, unit: p.durationValue === 1 ? unitLong[p.durationUnit].slice(0, -1) : unitLong[p.durationUnit] }] : []),
+    ...(p.launchedAt ? [{ kind: "date" as const, label: t(blocks, "case.meta.launched"), iso: p.launchedAt }] : p.year ? [{ kind: "count" as const, label: t(blocks, "case.meta.year"), value: p.year, display: String(p.year) }] : []),
+    ...(stageLabel ? [{ kind: "text" as const, label: t(blocks, "case.meta.stage"), value: stageLabel, dot: p.stage === "LIVE" }] : []),
+    ...(p.teamSize ? [{ kind: "count" as const, label: t(blocks, "case.meta.team"), value: p.teamSize }] : []),
   ];
 
   const ctaLabel = p.ctaLabel ?? t(blocks, "case.ctaDefaultLabel");
@@ -62,28 +64,18 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M10 3L5 8l5 5" /></svg>
               {t(blocks, "case.backLabel")}
             </Link>
-            <header className="mt-3">
-              {p.category ? <SectionMarker>{p.category.name.toLowerCase()}</SectionMarker> : null}
-              <h1 className="mt-2 text-display-l">{p.title}</h1>
-              <p className="mt-2 text-body-l text-ash max-w-[52ch]">{p.summary}</p>
-              {p.outcome ? <p className="mt-3 text-h3 font-bold text-ink max-w-[40ch] leading-tight">{p.outcome}</p> : null}
-            </header>
-
-            {/* Facts strip: the project's numbers in a row under the summary (owner's call, 2026-09-14). */}
-            <div className="mt-4 border-t border-divider-light pt-3">
-              <dl className="m-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-x-4 gap-y-3">
-                {meta.map((item, i) => (
-                  <div key={i} className="min-w-0">
-                    <dt className="text-small text-ash">{item.label}</dt>
-                    <dd className="data m-0 text-ink mt-[2px]">{item.value}</dd>
-                  </div>
-                ))}
-              </dl>
-              {p.liveUrl ? (
-                <a href={p.liveUrl} rel="noopener noreferrer" target="_blank" className="mt-3 inline-flex text-small font-medium text-cobalt">
-                  {t(blocks, "case.meta.liveLabel")}
-                </a>
-              ) : null}
+            <div className="mt-3">
+              <CaseHeader
+                category={p.category ? p.category.name.toLowerCase() : null}
+                title={p.title}
+                summary={p.summary}
+                outcome={p.outcome}
+                client={{ name: p.clientName, logoUrl: p.clientLogoUrl }}
+                pills={[...(p.role ? p.role.split(",").map((r) => r.trim()).filter(Boolean) : []), ...p.platforms]}
+                facts={facts}
+                live={p.liveUrl ? { href: p.liveUrl, label: t(blocks, "case.meta.liveLabel") } : null}
+                labels={{ client: t(blocks, "case.meta.client") }}
+              />
             </div>
 
             {p.stack.length > 0 ? (
