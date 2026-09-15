@@ -1,7 +1,8 @@
 "use client";
 // Client component: the case-page gallery as a Swiper coverflow carousel
 // (owner-supplied Skiper 47 / Carousel_001 settings, 2026-09-14): centred
-// active slide, neighbours pushed back in depth, 2.43 slides in view, loop,
+// active slide, neighbours pushed back in depth and scaled down, 2.1 slides
+// in view, loop,
 // grab-to-drag, clickable pagination. Chrome is ours: pagination dots in
 // our tokens, arrow buttons, and the active slide's title and subtitle
 // above. Reduced motion shortens the slide transition to nothing.
@@ -57,14 +58,17 @@ export function GalleryCarousel({ items, labels }: Props) {
         onSlideChange={(s) => setIndex(s.realIndex % n)}
         modules={[EffectCoverflow, Keyboard]}
         effect="coverflow"
-        coverflowEffect={{ rotate: 0, stretch: 0, depth: 100, modifier: 2.5, slideShadows: false }}
+        // scale shrinks the neighbours on top of the perspective, so the active
+        // slide is plainly the big one (owner, 2026-09-15): 569px against 341px
+        // at 1440, where depth alone gave 487 against 397.
+        coverflowEffect={{ rotate: 0, stretch: 0, depth: 100, modifier: 2.5, scale: 0.9, slideShadows: false }}
         grabCursor
         centeredSlides
         loop={n > 1}
         loopAddBlankSlides={false}
-        slidesPerView={1.6}
-        breakpoints={{ 768: { slidesPerView: 2.43 } }}
-        spaceBetween={40}
+        slidesPerView={1.25}
+        breakpoints={{ 768: { slidesPerView: 2.1, spaceBetween: 40 } }}
+        spaceBetween={20}
         speed={reduced ? 0 : 600}
         keyboard={{ enabled: true, onlyInViewport: true }}
         a11y={{ slideLabelMessage: `${labels.slide} {{index}} / {{slidesLength}}` }}

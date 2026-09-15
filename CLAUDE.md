@@ -217,6 +217,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   tilts toward the pointer (up to 8 degrees, springs back) with a sheen that
   follows and the content 24px forward in depth; mouse only. Reduced motion
   renders in place with no tilt. The stack marquee and hero follow below.
+  Section order down the page: header, stack, hero, body, gallery, key
+  decisions, how it went, results, testimonial, videos, team, CTA. The gallery
+  sits with the body because it is part of the story, not an appendix under
+  the results (owner, 2026-09-15).
   Lime on the header (owner, 2026-09-15: page felt colourless): the category
   pill is a lime fill with ink text, the live-site link is lime outline and
   label (lime fill + ink on hover, via .case-live restoring --color-ink), the

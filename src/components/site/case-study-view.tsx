@@ -99,6 +99,13 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
               <RichText content={p.body} />
             </ScrollRevealText>
 
+            {p.media.length > 0 ? (
+              <section className="mt-5" aria-labelledby="gallery-heading">
+                <SectionMarker as="h2" id="gallery-heading" className="border-t border-divider-light pt-2 mb-3">{t(blocks, "case.galleryHeading")}</SectionMarker>
+                <GalleryCarousel items={p.media} labels={{ slide: t(blocks, "case.carouselSlide") }} />
+              </section>
+            ) : null}
+
             {p.decisions.length > 0 ? (
               <section className="mt-5" aria-labelledby="decisions-heading">
                 <SectionMarker as="h2" id="decisions-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.decisionsHeading")}</SectionMarker>
@@ -152,13 +159,6 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
                     </figcaption>
                   </figure>
                 ))}
-              </section>
-            ) : null}
-
-            {p.media.length > 0 ? (
-              <section className="mt-5" aria-labelledby="gallery-heading">
-                <SectionMarker as="h2" id="gallery-heading" className="border-t border-divider-light pt-2 mb-3">{t(blocks, "case.galleryHeading")}</SectionMarker>
-                <GalleryCarousel items={p.media} labels={{ slide: t(blocks, "case.carouselSlide") }} />
               </section>
             ) : null}
 
