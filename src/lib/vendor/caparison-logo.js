@@ -257,8 +257,8 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
     }
   }
 
-  let raf;
-  (function frame() {
+  let raf, paused = false;
+  function frame() {
     raf = requestAnimationFrame(frame);
     if (!visible) return;
     resize();
@@ -269,10 +269,14 @@ export function mountCaparisonLogo(canvas, userOpts = {}) {
     curX += (targetX + scrollTilt - curX) * 0.07;
     group.rotation.set(curX, curY, 0);
     renderer.render(scene, camera);
-  })();
+  }
+  frame();
 
   return {
     setAutoRotate(v) { autoRotate = v; },
+    /** Stop the frame loop (the canvas may leave the document); resume() restarts it. */
+    pause() { paused = true; cancelAnimationFrame(raf); },
+    resume() { if (disposed || !paused) return; paused = false; frame(); },
     /** Re-run the backdrop draw callback (after a resize, for example). */
     repaintBackdrop() { if (backdrop) backdrop.material.map.userData.repaint(); },
     material,

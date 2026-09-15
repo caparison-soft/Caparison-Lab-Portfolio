@@ -5,7 +5,7 @@
 // transparent while the glass is on. Phones, reduced motion and no-WebGL keep
 // the still in the corner.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CaparisonLogoHandle } from "@/lib/vendor/caparison-logo";
 import { getSharedWeave } from "@/lib/hero-weave";
 import { setGlassState } from "@/lib/glass-state";
@@ -79,24 +79,46 @@ function collectLines(block: HTMLElement, origin: DOMRect): Line[] {
   return lines;
 }
 
-export function HeroGlass() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const hostRef = useRef<HTMLDivElement>(null);
-  const [useGl, setUseGl] = useState<boolean | null>(null);
-  const [ready, setReady] = useState(false);
+type Live = {
+  canvas: HTMLCanvasElement;
+  handle: CaparisonLogoHandle;
+  /** Host and block size the scene was fitted to; a different size means a fresh mount. */
+  key: string;
+  /** The current mount's backdrop painter (it closes over that mount's DOM). */
+  draw: (ctx: CanvasRenderingContext2D, w: number) => void;
+  ready: boolean;
+};
 
-  useEffect(() => { setUseGl(canRunWebGL()); }, []);
+/**
+ * The mounted glass outlives the page: leaving the home page pauses it and
+ * keeps the canvas, coming back (the wordmark, any link to /) reattaches it
+ * before the first paint, so the still never shows again in a session
+ * (owner, 2026-09-15). Module state; one WebGL context stays alive.
+ */
+let live: Live | null = null;
+
+const geometryKey = (host: HTMLElement, block: HTMLElement) => {
+  const h = host.getBoundingClientRect();
+  const b = block.getBoundingClientRect();
+  return `${Math.round(h.width)}x${Math.round(h.height)}:${Math.round(b.width)}`;
+};
+
+export function HeroGlass() {
+  const hostRef = useRef<HTMLDivElement>(null);
+  // Hydration (full load) starts from null/false like the server; a client-side
+  // return to the page with a live glass starts ready so nothing else paints.
+  const [useGl, setUseGl] = useState<boolean | null>(() => (live ? true : null));
+  const [ready, setReady] = useState(() => Boolean(live?.ready));
+
+  useEffect(() => { if (useGl === null) setUseGl(canRunWebGL()); }, [useGl]);
   // Tell the load screen whether to wait for the glass.
   useEffect(() => { if (useGl === false) setGlassState("off"); }, [useGl]);
 
-  useEffect(() => {
-    if (!useGl || !canvasRef.current || !hostRef.current) return;
-    const canvas = canvasRef.current;
+  useLayoutEffect(() => {
+    if (!useGl || !hostRef.current) return;
     const host = hostRef.current;
     const block = host.parentElement as HTMLElement;
-    let handle: CaparisonLogoHandle | null = null;
     let cancelled = false;
-    const timers: number[] = [];
 
     // Text lines are measured once (and on resize), not every frame: after the
     // glass is ready the DOM copy is transparent, so its colour must be cached.
@@ -126,12 +148,31 @@ export function HeroGlass() {
       }
     };
 
+    const key = geometryKey(host, block);
+    const reuse = live !== null && live.key === key;
+    if (live && !reuse) { live.handle.dispose(); live = null; }
+    const canvas = reuse && live ? live.canvas : document.createElement("canvas");
+    canvas.className = cx("absolute inset-0 w-full h-full transition-opacity dur-slow", reuse && live?.ready ? "opacity-100" : "opacity-0");
+    host.appendChild(canvas);
+
     const onReady = () => {
+      if (live) live.ready = true;
+      canvas.classList.replace("opacity-0", "opacity-100");
       setReady(true);
       block.setAttribute("data-glass-ready", "true");
       setGlassState("ready");
     };
     canvas.addEventListener("logo:ready", onReady);
+
+    if (reuse && live) {
+      live.draw = draw;
+      collect();
+      live.handle.resume();
+      live.handle.repaintBackdrop();
+      if (live.ready) onReady(); else setReady(false);
+    } else {
+      setReady(false);
+    }
 
     const start = async () => {
       if (cancelled) return;
@@ -151,7 +192,8 @@ export function HeroGlass() {
       const blockW = block.getBoundingClientRect().width;
       const centrePx = blockW - FIT / 2 / unitsPerPx - 8;
       const offsetX = Math.max(0.55, (centrePx - rect.width / 2) * unitsPerPx);
-      handle = mountCaparisonLogo(canvas, {
+      const slot: Live = { canvas, key, draw, ready: false, handle: null as unknown as CaparisonLogoHandle };
+      slot.handle = mountCaparisonLogo(canvas, {
         src: GLB, transparent: true, autoRotate: true, drag: false, pointerParallax: true, scrollTilt: true, fit: FIT, offset: [offsetX, 0], depthScale: 0.65, swing: 0.55, envPreset: "strips",
         // The environment's base is the matte ground tone (ink + lift + grain, measured
         // #1f1f1f), so the glass reflects the page instead of black between the strips.
@@ -163,32 +205,44 @@ export function HeroGlass() {
         glass: { thickness: 0.12, ior: 1.5, dispersion: 6, roughness: 0, clearcoat: 0.6, clearcoatRoughness: 0, transmission: 1, envMapIntensity: 3.2, specularIntensity: 1 },
         // Opaque ground in the section colour, repainted every frame with the
         // live lines and the text, so the glass refracts what the page shows.
-        backdrop: { color: getComputedStyle(host.closest("section") ?? document.body).backgroundColor, size: [texW, texH], draw, z: -0.8, live: true },
+        // The painter goes through the slot so a later mount can swap in its own.
+        backdrop: { color: getComputedStyle(host.closest("section") ?? document.body).backgroundColor, size: [texW, texH], draw: (ctx, w) => slot.draw(ctx, w), z: -0.8, live: true },
       });
+      live = slot;
     };
     // Mount as soon as the page has loaded: the load screen covers the page
     // until the glass is drawing, so there is nothing to keep clean first.
-    const afterLoad = () => { start().catch(() => setUseGl(false)); };
-    if (document.readyState === "complete") afterLoad();
-    else window.addEventListener("load", afterLoad, { once: true });
+    const afterLoad = () => { start().catch(() => { live = null; setUseGl(false); }); };
+    if (!reuse) {
+      if (document.readyState === "complete") afterLoad();
+      else window.addEventListener("load", afterLoad, { once: true });
+    }
 
-    // Text reflows on resize: repaint the backdrop to match.
+    // Text reflows on resize: repaint the backdrop to match. The hero reveal
+    // (rise) also moves the lines while it plays, so on a reattach the lines
+    // measured before the first paint are re-measured when it ends.
     let resizeTimer = 0;
-    const onResize = () => {
+    const remeasure = (delay: number) => {
       window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => { collect(); handle?.repaintBackdrop(); }, 150);
+      resizeTimer = window.setTimeout(() => { collect(); live?.handle.repaintBackdrop(); }, delay);
     };
+    const onResize = () => remeasure(150);
+    const onAnimationEnd = () => remeasure(50);
     window.addEventListener("resize", onResize);
+    block.addEventListener("animationend", onAnimationEnd);
+    if (reuse) remeasure(1000);
 
     return () => {
       cancelled = true;
-      timers.forEach((t) => window.clearTimeout(t));
       window.clearTimeout(resizeTimer);
       window.removeEventListener("load", afterLoad);
       window.removeEventListener("resize", onResize);
+      block.removeEventListener("animationend", onAnimationEnd);
       canvas.removeEventListener("logo:ready", onReady);
       block.removeAttribute("data-glass-ready");
-      handle?.dispose();
+      // Keep the scene for the next visit; just stop drawing while away.
+      live?.handle.pause();
+      canvas.remove();
     };
   }, [useGl]);
 
@@ -196,9 +250,9 @@ export function HeroGlass() {
     <>
       {/* Over the headline block, extended upwards into the hero's top padding and 240px to the right so the logo has room. */}
       {/* The host is always in the DOM so the still (server-rendered) is on screen from
-          the first paint, exactly where the glass will render; the canvas joins once
-          WebGL is confirmed and the still fades out when the glass is live. When WebGL
-          is unavailable the still simply stays. */}
+          the first paint, exactly where the glass will render; the canvas is appended
+          by the effect (so it can outlive the page) and the still fades out when the
+          glass is live. When WebGL is unavailable the still simply stays. */}
       <div ref={hostRef} aria-hidden="true" data-glass-host className="pointer-events-none absolute left-0 -right-[240px] -top-[88px] -bottom-[24px] z-10 hidden lg:block [container-type:size]">
         <img
           src="/brand/logo-3d-1280.webp"
@@ -215,7 +269,6 @@ export function HeroGlass() {
           // host runs 240px past it). Container units make that hold at any width.
           className={cx("absolute right-[248px] top-1/2 -translate-y-1/2 w-[75.8cqh] h-auto transition-opacity dur-slow", ready ? "opacity-0" : "opacity-100")}
         />
-        {useGl ? <canvas ref={canvasRef} className={cx("absolute inset-0 w-full h-full transition-opacity dur-slow", ready ? "opacity-100" : "opacity-0")} /> : null}
       </div>
     </>
   );

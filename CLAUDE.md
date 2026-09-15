@@ -284,7 +284,14 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   server-rendered inside the glass host at the glass's exact geometry
   (w 75.8cqh, right 248px) and cross-fades out when the glass fires
   logo:ready; it simply stays when WebGL is off. Phones get HeroStill in the
-  top-right corner.
+  top-right corner. The mounted glass outlives the page (owner, 2026-09-15:
+  the still showed for a moment on every return to /): the canvas is
+  appended by the effect, not rendered by React; leaving pauses the frame
+  loop (vendored pause/resume) and keeps canvas + handle in module state;
+  coming back with the same host/block geometry reattaches it in a layout
+  effect with ready state from the start, so nothing but the glass paints.
+  The backdrop painter goes through a slot so each mount's DOM is what gets
+  drawn, and the lines are re-measured when the rise reveal ends.
 - Load screen (owner's call, 2026-09-15: no visible still-to-glass swap):
   src/components/site/preloader.tsx in the (site) layout covers a full page
   load with the matte ground, the hex mark and a hairline bar until the glass

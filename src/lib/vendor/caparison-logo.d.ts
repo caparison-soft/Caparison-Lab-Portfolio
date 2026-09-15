@@ -29,6 +29,9 @@ export type CaparisonLogoOptions = {
 export type CaparisonLogoHandle = {
   setAutoRotate(v: boolean): void;
   repaintBackdrop(): void;
+  /** Stop the frame loop without disposing; resume() restarts it. */
+  pause(): void;
+  resume(): void;
   material: MeshPhysicalMaterial;
   dispose(): void;
 };
