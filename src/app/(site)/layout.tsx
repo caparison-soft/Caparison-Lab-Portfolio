@@ -37,7 +37,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     url: SITE,
     logo: `${SITE}/brand/icon.png`,
     email: settings.email,
-    ...(settings.phone ? { telephone: settings.phone } : {}),
+    // No telephone: the number is not published anywhere on the site (owner, 2026-09-15).
     ...(settings.location ? { address: { "@type": "PostalAddress", addressLocality: settings.location } } : {}),
     sameAs: Object.values(settings.socials),
   };

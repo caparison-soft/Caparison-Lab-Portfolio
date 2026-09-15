@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Section, SectionMarker, Spine, StatusDot } from "@/components/ui";
 import { EnquiryForm } from "@/components/site/enquiry-form";
+import { WhatsAppLink } from "@/components/site/whatsapp-link";
 import { getBlocks, getSettings, lines, t } from "@/lib/queries/content";
 import { getProjectBySlugForForm } from "@/lib/queries/home";
 
@@ -38,7 +39,8 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
               <div className="mt-5 border-t border-divider-light pt-3">
                 <p className="text-small text-ash max-w-none">{t(blocks, "contact.directLabel")}</p>
                 <a href={`mailto:${settings.email}`} className="mt-1 inline-block text-body-l text-ink no-underline hover:underline">{settings.email}</a>
-                {settings.phone ? <p className="data text-ash mt-1 max-w-none"><a href={`tel:${settings.phone.replace(/\s+/g, "")}`} className="text-ash no-underline hover:text-ink">{settings.phone}</a></p> : null}
+                {/* The number is not published; WhatsApp is the second way in (owner, 2026-09-15). */}
+                <WhatsAppLink value={settings.whatsapp} label={t(blocks, "home.contact.whatsappLabel")} className="mt-1 text-ash hover:text-ink" />
                 {settings.location ? <p className="text-body text-ash max-w-none mt-1">{settings.location}</p> : null}
               </div>
             </div>
