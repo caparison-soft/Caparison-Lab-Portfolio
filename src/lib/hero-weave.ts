@@ -161,7 +161,10 @@ export function createWeave(canvas: HTMLCanvasElement, opts: { threads?: number;
     },
     dispose() {
       if (shared === weave) shared = null;
-      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      // Release the context only once the canvas has left the document. React's
+      // development double-mount disposes and re-creates on the same canvas, and
+      // a context lost here would come back lost (blank hero in dev only).
+      if (!canvas.isConnected) gl.getExtension("WEBGL_lose_context")?.loseContext();
     },
   };
   shared = weave;

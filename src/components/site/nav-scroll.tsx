@@ -4,8 +4,12 @@
 // header can invert its wordmark and toggle. No re-render, two attributes.
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export function NavScroll() {
+  const pathname = usePathname();
+  // Re-run on every route: the layout persists, so the ground under the header
+  // would otherwise stay whatever the first page had.
   useEffect(() => {
     const root = document.documentElement;
     let compact: boolean | null = null;
@@ -21,7 +25,9 @@ export function NavScroll() {
       // The section just under the header's left edge decides the wordmark colour.
       const header = document.querySelector<HTMLElement>(".site-nav");
       const y = (header?.getBoundingClientRect().bottom ?? 64) + 2;
-      const hit = document.elementsFromPoint(24, y).find((el) => !el.closest("header"));
+      // Skip the header itself and the load screen (it covers the page while
+      // this first runs and is not part of the ground).
+      const hit = document.elementsFromPoint(24, y).find((el) => !el.closest("header, .preloader"));
       const nextGround = hit?.closest(".section-dark, .site-ground") ? "dark" : "light";
       if (nextGround !== ground) {
         ground = nextGround;
@@ -30,15 +36,18 @@ export function NavScroll() {
     };
     const schedule = () => { if (!raf) raf = window.requestAnimationFrame(update); };
     update();
+    // The route's content lands a frame after the pathname changes.
+    const settle = window.setTimeout(update, 0);
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     return () => {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       if (raf) window.cancelAnimationFrame(raf);
+      window.clearTimeout(settle);
       root.removeAttribute("data-nav-compact");
       root.removeAttribute("data-nav-ground");
     };
-  }, []);
+  }, [pathname]);
   return null;
 }
