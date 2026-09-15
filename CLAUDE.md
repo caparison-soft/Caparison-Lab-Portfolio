@@ -103,8 +103,11 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   precedence), GALLERY (images with title + caption-as-subtitle, the
   case-page coverflow carousel, src/components/site/gallery-carousel.tsx:
   Swiper (MIT) with the owner's Skiper 47 settings (effect coverflow, rotate
-  0, depth 100, modifier 2.5, 2.43 slides per view on md+, 1.6 below, gap 40,
-  centred, loop, grab cursor, keyboard), our pagination dots, arrow buttons
+  0, depth 100, modifier 2.5, scale 0.9, 1.65 slides per view and gap 40 on
+  md+, 1.25 and gap 20 below, centred, loop, grab cursor, keyboard; the scale
+  and the narrow view are the owner's 2026-09-15 call for a plainly bigger
+  active slide, 736px against 444px at 1440, with the neighbours cut by the
+  container on purpose), our pagination dots, arrow buttons
   with a counter, own dots (role=tab) and title and subtitle above
   crossfading. Short galleries are repeated to at least eight slides because
   Swiper disables loop when fewer than ~2.5 fit plus spares; counter, dots

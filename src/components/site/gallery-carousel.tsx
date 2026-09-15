@@ -59,15 +59,16 @@ export function GalleryCarousel({ items, labels }: Props) {
         modules={[EffectCoverflow, Keyboard]}
         effect="coverflow"
         // scale shrinks the neighbours on top of the perspective, so the active
-        // slide is plainly the big one (owner, 2026-09-15): 569px against 341px
-        // at 1440, where depth alone gave 487 against 397.
+        // slide is plainly the big one (owner, 2026-09-15): with 1.65 slides in
+        // view it runs 736px against 444px at 1440, where depth alone gave 487
+        // against 397. The neighbours are cut by the container on purpose.
         coverflowEffect={{ rotate: 0, stretch: 0, depth: 100, modifier: 2.5, scale: 0.9, slideShadows: false }}
         grabCursor
         centeredSlides
         loop={n > 1}
         loopAddBlankSlides={false}
         slidesPerView={1.25}
-        breakpoints={{ 768: { slidesPerView: 2.1, spaceBetween: 40 } }}
+        breakpoints={{ 768: { slidesPerView: 1.65, spaceBetween: 40 } }}
         spaceBetween={20}
         speed={reduced ? 0 : 600}
         keyboard={{ enabled: true, onlyInViewport: true }}
