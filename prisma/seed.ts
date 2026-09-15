@@ -66,6 +66,7 @@ const blocks: Block[] = [
   { key: "home.contact.heading", group: "Homepage", label: "Contact heading", value: "Tell us what you're building." },
   { key: "home.contact.sub", group: "Homepage", label: "Contact sub", value: "We reply within one working day." },
   { key: "home.contact.submitLabel", group: "Homepage", label: "Contact submit button", value: "Send enquiry" },
+  { key: "home.contact.whatsappLabel", group: "Homepage", label: "WhatsApp link label", value: "WhatsApp", helpText: "Next to the WhatsApp mark in the contact block. The link itself is in Settings." },
   { key: "home.contact.successMessage", group: "Homepage", label: "Contact success message", value: "Sent. You'll hear from us within one working day." },
 
   // Contact form

@@ -14,7 +14,7 @@ export function SettingsForm({ initial }: { initial: Record<string, unknown> }) 
         { name: "siteName", label: "Site name", type: "text" },
         { name: "email", label: "Email", type: "email" },
         { name: "phone", label: "Phone", type: "text" },
-        { name: "whatsapp", label: "WhatsApp number", type: "text" },
+        { name: "whatsapp", label: "WhatsApp link", type: "text", help: "Shown as the WhatsApp mark in the contact block. Paste the link from WhatsApp (wa.me/...), or a number. Empty hides it." },
         { name: "location", label: "Location", type: "text" },
         { name: "availabilityStatus", label: "Availability", type: "select", options: [{ value: "AVAILABLE", label: "Available" }, { value: "LIMITED", label: "Limited" }, { value: "BOOKED", label: "Booked" }], help: "Drives the dot in the hero and the contact block." },
         { name: "availabilityNote", label: "Availability note", type: "text", help: "e.g. available for Q1, 2 slots open" },
