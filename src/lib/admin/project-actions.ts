@@ -15,6 +15,12 @@ export type SimpleResult = { ok: true } | { ok: false; error: string };
 function bust() {
   revalidateTag(CACHE_TAGS.projects);
   revalidatePath("/admin/projects");
+  // The tag clears the data cache, but the home page and the sitemap are fully
+  // static with revalidate 3600, so without this a newly published project did
+  // not reach the home showcase for up to an hour (found 2026-09-15). /work
+  // reads searchParams, so it re-renders on its own.
+  revalidatePath("/");
+  revalidatePath("/sitemap.xml");
 }
 
 async function uniqueSlug(base: string, excludeId?: string): Promise<string> {
