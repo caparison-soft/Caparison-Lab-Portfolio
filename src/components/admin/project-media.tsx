@@ -157,7 +157,7 @@ export function ProjectMedia({ projectId, items: initial, coverImageId, heroMedi
       {error ? <p role="alert" className="text-small text-status-error max-w-none">{error}</p> : null}
 
       <section className="flex flex-col gap-2" aria-labelledby="slot-thumb">
-        <SlotHeading title="Thumbnail" help="One image. Shows on the home page when someone hovers this project, and in the work index. 16:9, 1600x900 recommended; other shapes are cropped to fit." />
+        <SlotHeading title="Thumbnail" help="One image. Shows on the home page when someone hovers this project, and in the work index." />
         <SingleSlot projectId={projectId} slot="THUMBNAIL" item={thumbState} onChange={(m) => { setThumb(m); setError(null); }} onError={setError} />
       </section>
 

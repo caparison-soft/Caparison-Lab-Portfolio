@@ -21,7 +21,7 @@ export default function CapabilitiesAdmin() {
         { name: "typicalTimeline", label: "Typical timeline", type: "text", help: "e.g. 6 – 10 weeks" },
         { name: "status", label: "Status", type: "select", options: [{ value: "DRAFT", label: "Draft" }, { value: "PUBLISHED", label: "Published" }] },
         { name: "deliverables", label: "Deliverables", type: "list" },
-        { name: "imageId", label: "Home page image", type: "image", help: "Shown on the home page when this capability is hovered. 16:10 works best; JPEG, PNG, WebP or AVIF up to 8 MB." },
+        { name: "imageId", label: "Home page image", type: "image", help: "Shown on the home page when this capability is hovered." },
       ]}
     />
   );

@@ -69,6 +69,16 @@ const ACCEPT: Record<MediaSlot, string[]> = {
   THUMBNAIL: IMAGE_TYPES, HERO: [...IMAGE_TYPES, ...VIDEO_TYPES], GALLERY: IMAGE_TYPES, VIDEO: VIDEO_TYPES,
 };
 
+// What each slot renders at on the site, so the upload is sharp without being
+// wasteful. Widest variant is 1920 (IMAGE_WIDTHS); the thumbnail and the gallery
+// crop to a fixed shape, the hero and the videos keep the shape they arrive in.
+const RECOMMENDED: Record<MediaSlot, string> = {
+  THUMBNAIL: "Best at 16:9, 1920x1080. Other shapes are cropped to fit.",
+  HERO: "Best at 16:9, 1920x1080. The shape you upload is kept.",
+  GALLERY: "Best at 16:10, 1600x1000. Other shapes are cropped to fit.",
+  VIDEO: "Best at 16:9, 1920x1080. The shape you upload is kept.",
+};
+
 export function MediaUploader({ projectId, onUploaded, compact = false, slot, single = false, titled = false, prompt }: UploaderProps) {
   const [items, setItems] = useState<Item[]>([]);
   const accept = slot ? ACCEPT[slot] : [...IMAGE_TYPES, ...VIDEO_TYPES];
@@ -149,6 +159,7 @@ export function MediaUploader({ projectId, onUploaded, compact = false, slot, si
         className={cx("rounded-lg border border-dashed transition-colors dur-fast cursor-pointer text-center", compact ? "p-2" : "p-4", dragging ? "border-ink bg-paper" : "border-ash bg-bone hover:bg-paper")}
       >
         <p className="text-body text-ink max-w-none">{prompt ?? (acceptsImage && acceptsVideo ? "Drop images or videos here, or choose files." : acceptsImage ? (single ? "Drop an image here, or choose a file." : "Drop images here, or choose files.") : (single ? "Drop a video here, or choose a file." : "Drop videos here, or choose files."))}</p>
+        {slot ? <p className="text-small text-ink max-w-none mt-[4px]">{RECOMMENDED[slot]}</p> : null}
         <p className="text-small text-ash max-w-none mt-[4px]">
           {acceptsImage ? "JPEG, PNG, WebP, AVIF up to 8 MB." : null}{acceptsImage && acceptsVideo ? " " : null}{acceptsVideo ? "MP4 or WebM; over 15 MB is compressed here to under 60 MB, 1080p." : null}
         </p>

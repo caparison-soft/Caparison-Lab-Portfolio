@@ -113,6 +113,12 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   (the videos section). Single slots replace on upload (claimSingleSlot
   deletes the old row and objects) and empty via clearSlot; deleteMedia
   refuses thumbnails and heroes. Admin: src/components/admin/project-media.tsx.
+  Every drop zone states the slot's recommended size (RECOMMENDED in
+  media-uploader.tsx, owner 2026-09-15): thumbnail and hero 16:9 1920x1080,
+  gallery 16:10 1600x1000, videos 16:9 1920x1080, saying whether the shape is
+  cropped (thumbnail, gallery) or kept (hero, videos). The widest variant is
+  1920 (IMAGE_WIDTHS), so nothing above that helps. The capability image field
+  uses the GALLERY slot and inherits its 16:10 line.
   (Upload details continued: on Vercel the ffmpeg binary
   only reaches the function through outputFileTracingIncludes for /admin/**
   in next.config.ts, found live 2026-09-13). deleteMedia removes every
