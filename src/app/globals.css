@@ -542,6 +542,10 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
   --color-divider-light: rgba(0, 0, 0, 0.08);
   --divider-light: rgba(0, 0, 0, 0.08);
 }
+/* The case page's live-site link fills lime on hover: ink must be ink there, not the
+   remapped bone (the .bg-lime exception above only matches the plain class). */
+.site-ground .case-live:hover,
+.site-ground .case-live:focus-visible { --color-ink: #000000; }
 /* Hero keeps pure ink under its shader lift; every other dark section is the matte. */
 .site-ground .section-dark { background: var(--matte); }
 .site-ground .section-dark.ground-ink { background: #000000; }

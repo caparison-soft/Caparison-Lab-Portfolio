@@ -65,7 +65,7 @@ function FactValue({ f, run }: { f: Fact; run: boolean }) {
       return <Counter to={target} run={run} render={(n) => { const m = Math.round(n); return new Date(Math.floor(m / 12), m % 12, 1).toLocaleDateString("en-GB", { month: "short", year: "numeric" }); }} />;
     }
     case "text":
-      return <>{f.dot ? <span aria-hidden="true" className="inline-block w-[8px] h-[8px] rounded-full bg-lime mr-1 align-middle" /> : null}{f.value}</>;
+      return <>{f.dot ? <span aria-hidden="true" className="inline-block w-[8px] h-[8px] rounded-full bg-lime mr-1 align-middle" /> : null}<span className={f.dot ? "text-lime" : undefined}>{f.value}</span></>;
   }
 }
 
@@ -102,7 +102,7 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
     <header className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(280px,2fr)] gap-4 lg:gap-6 items-start">
       <div className="min-w-0">
         {category ? (
-          <motion.span initial={reduced ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={t(0)} className="inline-flex items-center h-[28px] px-2 rounded-full border border-divider-light text-small text-ash">
+          <motion.span initial={reduced ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={t(0)} className="inline-flex items-center h-[28px] px-2 rounded-full bg-lime text-small font-medium text-ink">
             {category}
           </motion.span>
         ) : null}
@@ -126,7 +126,7 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
           <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.55)} className="mt-4 flex flex-wrap items-center gap-1">
             {pills.map((p) => <span key={p} className="data inline-flex items-center h-[28px] px-2 rounded-full bg-paper border border-divider-light text-ink">{p}</span>)}
             {live ? (
-              <a href={live.href} rel="noopener noreferrer" target="_blank" className="inline-flex items-center gap-1 h-[28px] px-2 rounded-full border border-ink text-small font-medium text-ink no-underline hover:bg-ink hover:text-bone transition-colors dur-fast">
+              <a href={live.href} rel="noopener noreferrer" target="_blank" className="case-live inline-flex items-center gap-1 h-[28px] px-2 rounded-full border border-lime/60 text-small font-medium text-lime no-underline hover:bg-lime hover:border-lime hover:text-ink transition-colors dur-fast">
                 {live.label}
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 9l6-6M4.5 3H9v4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </a>
@@ -147,6 +147,7 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
         {/* Sheen that follows the pointer, and a faint inner edge for the top face. */}
         {!reduced ? <motion.span aria-hidden="true" className="pointer-events-none inset-0 rounded-[24px]" style={{ position: "absolute", background: sheen }} /> : null}
         <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[24px] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]" />
+        <span aria-hidden="true" className="pointer-events-none absolute top-0 left-[32px] right-[32px] h-[1px] bg-gradient-to-r from-transparent via-lime/70 to-transparent" />
         <div style={reduced ? undefined : { transform: "translateZ(24px)" }}>
         {client.name || client.logoUrl ? (
           <div className="flex items-center gap-2 pb-3 mb-3 border-b border-divider-light">
