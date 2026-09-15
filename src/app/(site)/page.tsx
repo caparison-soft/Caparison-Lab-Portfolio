@@ -29,16 +29,20 @@ export default async function HomePage() {
       <WorkIndex blocks={blocks} projects={projects} total={total} />
       <CapabilitySheet blocks={blocks} items={capabilities} />
       <ProcessStrip blocks={blocks} steps={steps} />
-      <Section id="clients" pad="tall">
-        <Spine sticky={false} rail={<SectionMarker as="h2">{t(blocks, "home.testimonials.marker")}</SectionMarker>}>
-          <Testimonials items={testimonials.featured} labels={{ previous: t(blocks, "home.testimonials.prevLabel"), next: t(blocks, "home.testimonials.nextLabel"), of: t(blocks, "home.testimonials.ofLabel") }} />
-          {testimonials.companies.length > 0 ? (
-            <p className="mt-5 text-body text-ash max-w-none">
-              {t(blocks, "home.testimonials.rosterPrefix")} {formatList(testimonials.companies)}.
-            </p>
-          ) : null}
-        </Spine>
-      </Section>
+      {/* Nothing to quote yet means no band at all: the marker on its own read as
+          a broken section (owner, 2026-09-15). */}
+      {testimonials.featured.length > 0 ? (
+        <Section id="clients" pad="tall">
+          <Spine sticky={false} rail={<SectionMarker as="h2">{t(blocks, "home.testimonials.marker")}</SectionMarker>}>
+            <Testimonials items={testimonials.featured} labels={{ previous: t(blocks, "home.testimonials.prevLabel"), next: t(blocks, "home.testimonials.nextLabel"), of: t(blocks, "home.testimonials.ofLabel") }} />
+            {testimonials.companies.length > 0 ? (
+              <p className="mt-5 text-body text-ash max-w-none">
+                {t(blocks, "home.testimonials.rosterPrefix")} {formatList(testimonials.companies)}.
+              </p>
+            ) : null}
+          </Spine>
+        </Section>
+      ) : null}
       <ContactBlock blocks={blocks} settings={settings} sourcePath="/" />
     </main>
   );
