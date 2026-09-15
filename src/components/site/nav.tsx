@@ -53,7 +53,7 @@ export async function Nav({ blocks, siteName }: NavProps) {
           <Link href="/" className="flex items-center no-underline flex-none" aria-label={siteName}>
             <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-bone w-[92px] h-[24px] object-contain" />
             <img src="/brand/wordmark-ink.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-ink w-[92px] h-[24px] object-contain" />
-            <HexMark className="nav-icon w-[24px] h-[24px]" />
+            <HexMark variant="simple" className="nav-icon w-[24px] h-[24px]" />
           </Link>
 
           <NavNotch {...menu} />

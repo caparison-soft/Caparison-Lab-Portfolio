@@ -341,6 +341,11 @@ html[data-nav-ground="light"] .nav-wordmark-bone { display: none; }
 html[data-nav-ground="light"] .nav-wordmark-ink { display: block; }
 .site-sheet-toggle { color: var(--color-bone); }
 html[data-nav-ground="light"] .site-sheet-toggle { color: var(--color-ink); }
+/* The compact mark is the single-colour hex, so it inverts with the ground the
+   way the wordmark it replaces does. The header sits outside .site-ground, so
+   these are the original token values. */
+.nav-icon { color: var(--color-bone); }
+html[data-nav-ground="light"] .nav-icon { color: var(--color-ink); }
 html[data-nav-compact="true"] .site-nav { height: 48px; }
 html[data-nav-compact="true"] .nav-wordmark { display: none; }
 html[data-nav-compact="true"] .nav-icon { display: block; }
