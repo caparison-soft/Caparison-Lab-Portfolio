@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CaparisonLogoHandle } from "@/lib/vendor/caparison-logo";
 import { getSharedWeave } from "@/lib/hero-weave";
+import { setGlassState } from "@/lib/glass-state";
 import { cx } from "@/lib/cx";
 
 const GLB = "/caparison_logo.glb";
@@ -85,6 +86,8 @@ export function HeroGlass() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => { setUseGl(canRunWebGL()); }, []);
+  // Tell the load screen whether to wait for the glass.
+  useEffect(() => { if (useGl === false) setGlassState("off"); }, [useGl]);
 
   useEffect(() => {
     if (!useGl || !canvasRef.current || !hostRef.current) return;
@@ -126,6 +129,7 @@ export function HeroGlass() {
     const onReady = () => {
       setReady(true);
       block.setAttribute("data-glass-ready", "true");
+      setGlassState("ready");
     };
     canvas.addEventListener("logo:ready", onReady);
 
@@ -162,12 +166,9 @@ export function HeroGlass() {
         backdrop: { color: getComputedStyle(host.closest("section") ?? document.body).backgroundColor, size: [texW, texH], draw, z: -0.8, live: true },
       });
     };
-    // Mount as soon as the page has loaded (the still covers the gap). A short
-    // idle wait keeps the first paint clean without leaving the spot empty.
-    const afterLoad = () => {
-      if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(() => { start().catch(() => setUseGl(false)); }, { timeout: 800 });
-      else timers.push(window.setTimeout(() => { start().catch(() => setUseGl(false)); }, 200));
-    };
+    // Mount as soon as the page has loaded: the load screen covers the page
+    // until the glass is drawing, so there is nothing to keep clean first.
+    const afterLoad = () => { start().catch(() => setUseGl(false)); };
     if (document.readyState === "complete") afterLoad();
     else window.addEventListener("load", afterLoad, { once: true });
 
@@ -198,7 +199,7 @@ export function HeroGlass() {
           the first paint, exactly where the glass will render; the canvas joins once
           WebGL is confirmed and the still fades out when the glass is live. When WebGL
           is unavailable the still simply stays. */}
-      <div ref={hostRef} aria-hidden="true" className="pointer-events-none absolute left-0 -right-[240px] -top-[88px] -bottom-[24px] z-10 hidden lg:block [container-type:size]">
+      <div ref={hostRef} aria-hidden="true" data-glass-host className="pointer-events-none absolute left-0 -right-[240px] -top-[88px] -bottom-[24px] z-10 hidden lg:block [container-type:size]">
         <img
           src="/brand/logo-3d-1280.webp"
           srcSet="/brand/logo-3d-640.webp 640w, /brand/logo-3d-1280.webp 1280w"

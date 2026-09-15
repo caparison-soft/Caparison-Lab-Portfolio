@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${satoshi.variable} ${jetbrains.variable}`}>
+    <html suppressHydrationWarning lang="en" className={`${satoshi.variable} ${jetbrains.variable}`}>
       <body>{children}</body>
     </html>
   );

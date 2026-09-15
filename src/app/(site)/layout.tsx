@@ -4,6 +4,7 @@ import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
 import { ViewTransitions } from "@/components/site/view-transitions";
 import { JsonLd } from "@/components/site/json-ld";
+import { Preloader } from "@/components/site/preloader";
 import { ButtonStyleProvider, Section } from "@/components/ui";
 import { getBlocks, getSettings, t } from "@/lib/queries/content";
 
@@ -44,6 +45,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     <ButtonStyleProvider value="metal">
       <JsonLd data={organization} />
+      {/* Load screen: hold the hero's reveals before the first paint (only when
+          JS runs, so no-JS visitors see the page as is), and lift everything
+          after 8s no matter what, should hydration never arrive. */}
+      <script dangerouslySetInnerHTML={{ __html: 'document.documentElement.setAttribute("data-preload","on");setTimeout(function(){document.documentElement.removeAttribute("data-preload");var p=document.querySelector(".preloader");if(p)p.setAttribute("data-phase","off")},8000)' }} />
+      <Preloader />
       <a href="#main" className="skip-link">{t(blocks, "nav.skipToContent")}</a>
       <Nav blocks={blocks} siteName={settings.siteName} />
       {/* Everything under the header sits on the matte black ground (see .site-ground in globals.css). */}

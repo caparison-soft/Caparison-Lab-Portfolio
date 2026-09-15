@@ -614,3 +614,48 @@ html:has(.site-ground) body { background: color-mix(in srgb, #ECEEE8 5%, #000000
 .gallery-swiper { overflow: hidden; }
 .gallery-swiper .swiper-slide { transition-property: transform, opacity; }
 .gallery-swiper .swiper-slide:not(.swiper-slide-active) { opacity: 0.6; }
+
+/* ---- Load screen (owner's call, 2026-09-15). The (site) layout sets
+   html[data-preload] by inline script before the page paints; the Preloader
+   removes it when the hero glass is drawing (or at once where there is no
+   glass). While it is set the hero's reveals hold at their first frame so they
+   play once the screen lifts. Sits above the header (z 50) and under the
+   grain (z 60) so the noise is uniform over it. ---- */
+html[data-preload] .reveal,
+html[data-preload] .reveal-quick,
+html[data-preload] .reveal-mark { animation-play-state: paused; }
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: color-mix(in srgb, #ECEEE8 5%, #000000);
+  transition: opacity var(--duration-slow) var(--ease-out);
+}
+.preloader[data-phase="off"] { opacity: 0; pointer-events: none; }
+.preloader-mark { width: 40px; height: 40px; }
+.preloader-bar {
+  display: block;
+  width: 96px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.preloader-bar > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: #ECEEE8;
+  transition: width 2400ms var(--ease-out);
+}
+.preloader[data-phase="on"] .preloader-bar > i { width: 72%; }
+.preloader[data-phase="done"] .preloader-bar > i,
+.preloader[data-phase="off"] .preloader-bar > i { width: 100%; transition-duration: 200ms; }
+@media (prefers-reduced-motion: reduce) {
+  .preloader { transition: none; }
+  .preloader-bar > i { transition: none; }
+}

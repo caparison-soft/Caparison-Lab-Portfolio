@@ -279,12 +279,22 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 ## 3D logo (hero)
 - public/caparison_logo.glb + src/lib/vendor/caparison-logo.js (from
   Assets/caparison-logo-3d.zip, vanilla build). src/components/site/hero-glass.tsx
-  mounts it at lg+ with WebGL and no reduced-motion preference, on the first
-  idle slot after load (800ms cap). The trimmed WebP still
-  (public/brand/logo-3d-*.webp) is server-rendered inside the glass host at the
-  glass's exact geometry (w 75.8cqh, right 248px) so the slot is never empty on
-  first paint; it cross-fades out when the glass fires logo:ready, and simply
-  stays when WebGL is off. Phones get HeroStill in the top-right corner.
+  mounts it at lg+ with WebGL and no reduced-motion preference, right after
+  the load event. The trimmed WebP still (public/brand/logo-3d-*.webp) is
+  server-rendered inside the glass host at the glass's exact geometry
+  (w 75.8cqh, right 248px) and cross-fades out when the glass fires
+  logo:ready; it simply stays when WebGL is off. Phones get HeroStill in the
+  top-right corner.
+- Load screen (owner's call, 2026-09-15: no visible still-to-glass swap):
+  src/components/site/preloader.tsx in the (site) layout covers a full page
+  load with the matte ground, the hex mark and a hairline bar until the glass
+  reports ready through src/lib/glass-state.ts (or "off": phones, reduced
+  motion, no WebGL, pages without a glass host), capped at 6s. An inline
+  script in the layout sets html[data-preload] before the first paint, which
+  holds .reveal/.reveal-quick/.reveal-mark paused so the hero reveal plays
+  when the screen lifts, and clears everything after 8s should hydration
+  never arrive; the root <html> carries suppressHydrationWarning for that
+  attribute. Client-side navigation never shows it (the layout persists).
 - Real refraction over the headline: three.js can only refract what it draws, so
   hero-glass.tsx paints the headline lines and the sub (elements marked
   data-glass-text) into the backdrop plane at their exact DOM positions, and the
