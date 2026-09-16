@@ -141,7 +141,9 @@ export function CaseStory({ brief, whatWeBuilt, image, side, labels }: Props) {
               type="button"
               onClick={open}
               aria-haspopup="dialog"
-              className="mt-4 inline-flex items-center gap-1 text-h4 font-medium text-lime hover:text-bone transition-colors dur-fast underline-offset-4 hover:underline"
+              // Stays lime on hover: bone is remapped to the matte grey inside
+              // .site-ground, so hovering made it vanish (owner, 2026-09-16).
+              className="story-open mt-4 inline-flex items-center gap-1 text-h4 font-medium text-lime underline-offset-4 hover:underline"
             >
               <span>{labels.whatWeBuilt}</span>
               <Chevron />
@@ -154,15 +156,15 @@ export function CaseStory({ brief, whatWeBuilt, image, side, labels }: Props) {
               aria-labelledby={`${panelId}-title`}
               onClose={onClose}
               onClick={(e) => { if (e.target === ref.current) ref.current?.close(); }}
-              className="story-modal m-auto w-[min(92vw,720px)] max-h-[82svh] rounded-lg border border-divider-light bg-paper text-ink p-0 overflow-hidden"
+              className="story-modal m-auto w-[min(92vw,720px)] max-h-[82svh] rounded-lg text-ink p-0 overflow-hidden"
             >
-              <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-divider-light">
+              <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-white/10">
                 <h3 id={`${panelId}-title`} className="text-h4 font-medium text-ink m-0">{labels.whatWeBuilt}</h3>
                 <button
                   type="button"
                   onClick={() => ref.current?.close()}
                   aria-label={labels.close}
-                  className="inline-flex items-center justify-center h-[32px] w-[32px] rounded-full text-ash hover:text-ink hover:bg-bone transition-colors dur-fast"
+                  className="inline-flex items-center justify-center h-[32px] w-[32px] rounded-full text-ash hover:text-ink hover:bg-white/10 transition-colors dur-fast"
                 >
                   <Close />
                 </button>

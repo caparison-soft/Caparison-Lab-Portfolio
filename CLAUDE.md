@@ -207,8 +207,13 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   other, and "What we built" as plain lime text (no shape, owner 2026-09-16)
   that opens a native <dialog>: the top layer clears the grain and the header,
   Escape and focus trapping come free, the body scrolls inside a
-  max-h-[82svh] box and the page behind is locked while it is open. Lime as
-  text is only allowed here because the panel sits on the matte ground. The two
+  max-h-[82svh] box and the page behind is locked while it is open. The window
+  is glass (bone mixed into a translucent black, blur 24px) and rises 28px as
+  it fades in, through @starting-style with allow-discrete on display and
+  overlay; reduced motion drops the rise. Lime as text is only allowed here
+  because the panel sits on the matte ground, and the trigger stays lime on
+  hover with only the underline moving: bone is remapped to the matte grey
+  inside .site-ground, so a hover colour change made it disappear. The two
   fields are Project.brief and Project.whatWeBuilt (rich text, Story tab), the
   picture is the STORY media slot (Project.storyImageId) and the side is
   Project.storySide, set in the admin rather than toggled by the visitor. With
