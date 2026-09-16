@@ -8,7 +8,7 @@
 // blue and emerald in the original.
 
 import { useId, useState } from "react";
-import { AnimatePresence, motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { RichText } from "@/components/site/rich-text";
 import type { MediaItem } from "@/lib/queries/work";
 import { imageSrcSet } from "@/lib/media";
@@ -41,45 +41,19 @@ function Chevron({ open }: { open: boolean }) {
 
 /**
  * The picture, lifted off the page: a neutral bloom behind it (the lime tinted
- * whatever was uploaded, owner 2026-09-16), a slow dashed ring, a constant
- * float, and a tilt toward the pointer so it reads as an object rather than a
- * flat cut-out. A transparent PNG reads best; anything else still sits on the
- * page rather than in a frame.
+ * whatever was uploaded, owner 2026-09-16), a slow dashed ring and a constant
+ * float. It does not answer the pointer: the tilt was tried and dropped
+ * (owner, 2026-09-16). A transparent PNG reads best; anything else still sits
+ * on the page rather than in a frame.
  */
 function StoryImage({ image, reduced }: { image: MediaItem | null; reduced: boolean }) {
-  // 0..1 across the box; 0.5/0.5 is flat, and the pointer leaving springs back.
-  const px = useMotionValue(0.5);
-  const py = useMotionValue(0.5);
-  const sx = useSpring(px, { stiffness: 150, damping: 20 });
-  const sy = useSpring(py, { stiffness: 150, damping: 20 });
-  const rotateY = useTransform(sx, [0, 1], [-14, 14]);
-  const rotateX = useTransform(sy, [0, 1], [12, -12]);
-  // The bloom drifts with the tilt, so the light looks like it has a source.
-  const bloomX = useTransform(sx, [0, 1], ["58%", "42%"]);
-  const bloomY = useTransform(sy, [0, 1], ["58%", "42%"]);
-  const bloom = useMotionTemplate`radial-gradient(circle at ${bloomX} ${bloomY}, rgb(236 238 232 / 0.16), transparent 62%)`;
-
-  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (reduced || e.pointerType !== "mouse") return;
-    const r = e.currentTarget.getBoundingClientRect();
-    px.set((e.clientX - r.left) / r.width);
-    py.set((e.clientY - r.top) / r.height);
-  };
-  const onLeave = () => { px.set(0.5); py.set(0.5); };
-
   return (
-    <div className="relative mx-auto w-full max-w-[420px] aspect-square" style={{ perspective: 1000 }}>
-      <motion.div
-        className="absolute inset-0"
-        style={reduced ? undefined : { rotateX, rotateY, transformStyle: "preserve-3d" }}
-        onPointerMove={onMove}
-        onPointerLeave={onLeave}
-      >
+    <div className="relative mx-auto w-full max-w-[420px] aspect-square">
       {/* The bloom is plain light, not a colour: it has to sit under any logo. */}
-      <motion.div
+      <div
         aria-hidden="true"
         className="absolute inset-[4%] rounded-full blur-[56px]"
-        style={reduced ? { background: "radial-gradient(circle at 50% 50%, rgb(236 238 232 / 0.14), transparent 62%)" } : { background: bloom }}
+        style={{ background: "radial-gradient(circle at 50% 50%, rgb(236 238 232 / 0.14), transparent 62%)" }}
       />
       <motion.div
         aria-hidden="true"
@@ -89,7 +63,6 @@ function StoryImage({ image, reduced }: { image: MediaItem | null; reduced: bool
       />
       <motion.div
         className="absolute inset-[6%] flex items-center justify-center"
-        style={reduced ? undefined : { transform: "translateZ(48px)" }}
         animate={reduced ? undefined : { y: [-10, 10, -10] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       >
@@ -120,7 +93,6 @@ function StoryImage({ image, reduced }: { image: MediaItem | null; reduced: bool
             className="w-[70%] h-[70%] object-contain opacity-70 drop-shadow-[0_30px_60px_rgb(0_0_0/0.55)]"
           />
         )}
-      </motion.div>
       </motion.div>
     </div>
   );
