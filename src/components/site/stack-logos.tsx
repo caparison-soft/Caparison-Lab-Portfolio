@@ -23,6 +23,7 @@ const KEYS: Record<string, keyof typeof si> = {
   flutter: "siFlutter", kotlin: "siKotlin", swift: "siSwift", android: "siAndroid", ios: "siApple", expo: "siExpo",
   graphql: "siGraphql", figma: "siFigma", electron: "siElectron", redux: "siRedux",
   wordpress: "siWordpress", shopify: "siShopify", laravel: "siLaravel", php: "siPhp", go: "siGo", rust: "siRust",
+  anthropic: "siAnthropic", "anthropic api": "siAnthropic", claude: "siClaude",
 };
 
 function iconFor(name: string): Icon | null {
