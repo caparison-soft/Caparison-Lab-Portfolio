@@ -31,10 +31,15 @@ function StaggerTitle({ text, active, reduced }: { text: string; active: boolean
           {word.split("").map((ch) => {
             const i = n++;
             return (
-              <span key={i} className="relative inline-block overflow-hidden align-bottom">
+              // The mask ended at the baseline, so it shaved the tail off every
+              // g, y and p (owner, 2026-09-16). The padding grows the clip box
+              // past the descender and the negative margin keeps the layout;
+              // the resting copies move to 140% so the taller box does not let
+              // the waiting letter peek in underneath.
+              <span key={i} className="relative inline-block overflow-hidden align-bottom pb-[0.22em] -mb-[0.22em]">
                 <MotionConfig transition={{ delay: i * 0.02, duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}>
-                  <motion.span className="inline-block" initial={{ y: "0%" }} animate={active ? { y: "-110%" } : { y: "0%" }}>{ch}</motion.span>
-                  <motion.span className="absolute left-0 top-0 inline-block" initial={{ y: "110%" }} animate={active ? { y: "0%" } : { y: "110%" }}>{ch}</motion.span>
+                  <motion.span className="inline-block" initial={{ y: "0%" }} animate={active ? { y: "-140%" } : { y: "0%" }}>{ch}</motion.span>
+                  <motion.span className="absolute left-0 top-0 inline-block" initial={{ y: "140%" }} animate={active ? { y: "0%" } : { y: "140%" }}>{ch}</motion.span>
                 </MotionConfig>
               </span>
             );

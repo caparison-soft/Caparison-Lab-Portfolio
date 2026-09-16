@@ -112,7 +112,13 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
               {w.split("").map((ch) => {
                 const i = n++;
                 return (
-                  <span key={i} className="inline-block overflow-hidden align-bottom">
+                  // display-l has line-height 1, so the mask box ends at the
+                  // baseline and overflow-hidden cut the tail off every y and g
+                  // (owner, 2026-09-16). The padding grows the clip box down
+                  // past the descender and the negative margin puts the bottom
+                  // margin edge back where align-bottom expects it, so the
+                  // layout is unchanged.
+                  <span key={i} className="inline-block overflow-hidden align-bottom pb-[0.22em] -mb-[0.22em]">
                     <motion.span className="inline-block" initial={{ y: "110%" }} animate={{ y: 0 }} transition={{ duration: 0.6, ease: EASE, delay: 0.05 + i * 0.025 }}>{ch}</motion.span>
                   </span>
                 );

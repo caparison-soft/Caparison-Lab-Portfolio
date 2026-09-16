@@ -224,7 +224,11 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   animate; dates tick by month; display overrides skip the count). The card
   tilts toward the pointer (up to 8 degrees, springs back) with a sheen that
   follows and the content 24px forward in depth; mouse only. Reduced motion
-  renders in place with no tilt. The stack marquee and hero follow below.
+  renders in place with no tilt. Any per-letter mask needs pb-[0.22em]
+  -mb-[0.22em] on the overflow-hidden span: display sizes are line-height 1, so
+  the clip box stops at the baseline and shaves the tail off every g, y and p
+  (owner, 2026-09-16). Where the mask also hides a waiting copy, as in the
+  capability slider, push that copy past the taller box (140%, not 110%). The stack marquee and hero follow below.
   Section order down the page: header, stack, hero, body, gallery, key
   decisions, how it went, results, testimonial, videos, team, CTA. The gallery
   sits with the body because it is part of the story, not an appendix under
