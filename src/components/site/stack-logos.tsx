@@ -24,6 +24,7 @@ const KEYS: Record<string, keyof typeof si> = {
   graphql: "siGraphql", figma: "siFigma", electron: "siElectron", redux: "siRedux",
   wordpress: "siWordpress", shopify: "siShopify", laravel: "siLaravel", php: "siPhp", go: "siGo", rust: "siRust",
   anthropic: "siAnthropic", "anthropic api": "siAnthropic", claude: "siClaude",
+  chrome: "siGooglechrome", "chrome extension": "siGooglechrome", "chrome web store": "siChromewebstore",
 };
 
 function iconFor(name: string): Icon | null {
