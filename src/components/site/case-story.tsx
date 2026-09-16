@@ -41,11 +41,11 @@ function Close() {
 }
 
 /**
- * The picture, lifted off the page: a neutral bloom behind it (the lime tinted
- * whatever was uploaded, owner 2026-09-16), a slow dashed ring and a constant
- * float. It does not answer the pointer: the tilt was tried and dropped
- * (owner, 2026-09-16). A transparent PNG reads best; anything else still sits
- * on the page rather than in a frame.
+ * The picture, lifted off the page: a neutral bloom behind it and a constant
+ * float, and nothing else. The lime bloom, the pointer tilt and the dashed
+ * ring around it were each tried and dropped (owner, 2026-09-16). A
+ * transparent PNG reads best; anything else still sits on the page rather
+ * than in a frame.
  */
 function StoryImage({ image, reduced }: { image: MediaItem | null; reduced: boolean }) {
   return (
@@ -55,12 +55,6 @@ function StoryImage({ image, reduced }: { image: MediaItem | null; reduced: bool
         aria-hidden="true"
         className="absolute inset-[4%] rounded-full blur-[56px]"
         style={{ background: "radial-gradient(circle at 50% 50%, rgb(236 238 232 / 0.14), transparent 62%)" }}
-      />
-      <motion.div
-        aria-hidden="true"
-        className="absolute inset-0 rounded-full border border-dashed border-divider-light"
-        animate={reduced ? undefined : { rotate: 360 }}
-        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
       />
       <motion.div
         className="absolute inset-[6%] flex items-center justify-center"

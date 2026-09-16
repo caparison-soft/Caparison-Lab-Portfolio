@@ -218,10 +218,9 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   picture is the STORY media slot (Project.storyImageId) and the side is
   Project.storySide, set in the admin rather than toggled by the visitor. With
   no picture uploaded the brand's 3D mark stands in, so the panel always has
-  its two columns. The picture floats inside a slow dashed ring over a bloom of
-  plain bone light (lime tinted whatever was uploaded, owner 2026-09-16). It
-  does not answer the pointer: a hover tilt was tried the same day and dropped.
-  Reduced motion stops the float and the ring. Headings come from case.briefHeading
+  its two columns. The picture floats over a bloom of plain bone light and
+  nothing else: a lime bloom, a hover tilt and a dashed ring around it were
+  each tried on 2026-09-16 and dropped. Reduced motion stops the float. Headings come from case.briefHeading
   and case.builtHeading. Project.body is retired: every project was split
   into the new fields on 2026-09-16, so the editor's Body tab, the schema entry
   and the case-page fallback are all gone. The column keeps the original text
