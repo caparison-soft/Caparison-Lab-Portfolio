@@ -2,11 +2,9 @@ import Link from "next/link";
 import { Button, MediaFrame, SectionMarker } from "@/components/ui";
 import { StackMark } from "@/components/site/stack-logos";
 import { InfiniteSlider } from "@/components/site/infinite-slider";
-import { RichText } from "@/components/site/rich-text";
 import { CaseCover } from "@/components/site/case-cover";
 import { GalleryCarousel } from "@/components/site/gallery-carousel";
 import { VideoPlayer } from "@/components/site/video-player";
-import { ScrollRevealText } from "@/components/site/scroll-reveal-text";
 import { CaseStory } from "@/components/site/case-story";
 import { ResultsBento } from "@/components/site/results-bento";
 import type { Blocks } from "@/lib/queries/content";
@@ -97,7 +95,7 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             ) : null}
 
             {/* The story panel replaced the single body block (owner, 2026-09-16).
-                Anything not yet moved across still renders its old body. */}
+                Nothing written yet means no section, not an empty heading. */}
             {p.brief || p.whatWeBuilt ? (
               <CaseStory
                 brief={p.brief}
@@ -106,11 +104,7 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
                 side={p.storySide}
                 labels={{ brief: t(blocks, "case.briefHeading"), whatWeBuilt: t(blocks, "case.builtHeading"), close: t(blocks, "case.closeLabel") }}
               />
-            ) : (
-              <ScrollRevealText className="mt-5 max-w-[720px] lg:mx-auto">
-                <RichText content={p.body} />
-              </ScrollRevealText>
-            )}
+            ) : null}
 
             {p.media.length > 0 ? (
               <section className="mt-5" aria-labelledby="gallery-heading">

@@ -222,10 +222,13 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   plain bone light (lime tinted whatever was uploaded, owner 2026-09-16). It
   does not answer the pointer: a hover tilt was tried the same day and dropped.
   Reduced motion stops the float and the ring. Headings come from case.briefHeading
-  and case.builtHeading. Project.body is the fallback for anything not yet
-  moved across and renders the old scroll-reveal block; every real project was
-  split into the new fields on 2026-09-16.
-- The old body reads in on scroll (owner-supplied "text gradient scroll",
+  and case.builtHeading. Project.body is retired: every project was split
+  into the new fields on 2026-09-16, so the editor's Body tab, the schema entry
+  and the case-page fallback are all gone. The column keeps the original text
+  as a safety net and can be dropped later. ScrollRevealText is unused as a
+  result; it still works if the effect is wanted somewhere.
+- Unused since 2026-09-16, kept in case the effect is wanted again: the
+  scroll-in body (owner-supplied "text gradient scroll",
   2026-09-14, rebuilt): src/components/site/scroll-reveal-text.tsx splits
   text nodes in paragraphs, headings and list items into word spans after
   hydration and each word brightens over its own slice of the block's view

@@ -61,7 +61,7 @@ export async function getProjectForEditor(id: string): Promise<EditorData | null
     teamMembers,
     media: p.media,
     values: {
-      title: p.title, slug: p.slug, summary: p.summary, body: p.body ?? undefined,
+      title: p.title, slug: p.slug, summary: p.summary,
       brief: p.brief ?? undefined, whatWeBuilt: p.whatWeBuilt ?? undefined, storySide: (p.storySide === "RIGHT" ? "RIGHT" : "LEFT") as "LEFT" | "RIGHT",
       categoryId: p.categoryId ?? "", tagIds: p.tags.map((t) => t.tagId),
       clientName: s(p.clientName), clientLogoUrl: s(p.clientLogoUrl), year: s(p.year), teamSize: s(p.teamSize), liveUrl: s(p.liveUrl), repoUrl: s(p.repoUrl),

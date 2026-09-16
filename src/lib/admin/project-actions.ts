@@ -71,7 +71,7 @@ export async function saveProject(id: string, values: ProjectInput): Promise<Sav
       await tx.project.update({
         where: { id },
         data: {
-          title: v.title, slug: v.slug, summary: v.summary, body: (v.body ?? undefined) as Prisma.InputJsonValue | undefined,
+          title: v.title, slug: v.slug, summary: v.summary,
           brief: (v.brief ?? undefined) as Prisma.InputJsonValue | undefined,
           whatWeBuilt: (v.whatWeBuilt ?? undefined) as Prisma.InputJsonValue | undefined,
           storySide: v.storySide,

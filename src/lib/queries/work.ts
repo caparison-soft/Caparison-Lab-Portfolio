@@ -101,7 +101,6 @@ export type CaseStudy = {
   slug: string;
   title: string;
   summary: string;
-  body: unknown;
   /** The story panel: two fields beside a picture, side chosen in the admin. */
   brief: unknown;
   whatWeBuilt: unknown;
@@ -167,7 +166,7 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
     const p = await prisma.project.findFirst({
       where: { slug, deletedAt: null, ...(publishedOnly ? { status: "PUBLISHED" } : {}) },
       select: {
-        id: true, status: true, slug: true, title: true, summary: true, body: true, clientName: true, clientLogoUrl: true, year: true,
+        id: true, status: true, slug: true, title: true, summary: true, clientName: true, clientLogoUrl: true, year: true,
         brief: true, whatWeBuilt: true, storySide: true,
         budgetMin: true, budgetMax: true, budgetCurrency: true, budgetDisplay: true,
         durationValue: true, durationUnit: true, durationDisplay: true, teamSize: true,

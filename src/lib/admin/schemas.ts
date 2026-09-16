@@ -15,7 +15,6 @@ export const projectSchema = z.object({
   title: z.string().trim().min(1, "Give the project a title.").max(120),
   slug: z.string().trim().min(1, "A slug is required.").max(120).regex(slugPattern, "Lowercase letters, numbers and hyphens only."),
   summary: z.string().trim().max(160, "Keep the summary to 160 characters."),
-  body: z.unknown().optional(),
   brief: z.unknown().optional(),
   whatWeBuilt: z.unknown().optional(),
   storySide: z.enum(["LEFT", "RIGHT"]),
@@ -64,7 +63,7 @@ export const projectSchema = z.object({
 });
 /** Form values: strings for every scalar so inputs stay controlled; the schema coerces. */
 export type ProjectInput = {
-  title: string; slug: string; summary: string; body?: unknown; categoryId: string; tagIds: string[];
+  title: string; slug: string; summary: string; categoryId: string; tagIds: string[];
   brief?: unknown; whatWeBuilt?: unknown; storySide: "LEFT" | "RIGHT";
   clientName: string; clientLogoUrl: string; year: string; teamSize: string; liveUrl: string; repoUrl: string;
   budgetMin: string; budgetMax: string; budgetCurrency: string; budgetDisplay: string;

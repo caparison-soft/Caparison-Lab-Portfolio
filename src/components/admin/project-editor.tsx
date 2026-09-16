@@ -32,7 +32,7 @@ const TABS: TabDef[] = [
 ];
 
 const tabOfField: Record<string, string> = {
-  title: "content", slug: "content", summary: "content", body: "content",
+  title: "content", slug: "content", summary: "content",
   categoryId: "details", tagIds: "details", clientName: "details", clientLogoUrl: "details", year: "details", teamSize: "details", liveUrl: "details", repoUrl: "details",
   role: "details", platforms: "details", stage: "details", launchedAt: "details", teamMemberIds: "details",
   outcome: "story", decisions: "story", phases: "story", afterNote: "story", brief: "story", whatWeBuilt: "story", storySide: "story",
@@ -211,11 +211,6 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
             <Field id="summary" label={`Summary (${(summary ?? "").length}/160)`} error={err("summary")} className="md:col-span-2" help="One sentence. Shown in the index and as the case-page sub.">
               <Textarea {...register("summary")} rows={2} maxLength={160} />
             </Field>
-            <div className="md:col-span-2">
-              <p className="text-small text-ash mb-1 max-w-none">Body</p>
-              <Controller control={control} name="body" render={({ field }) => <RichTextEditor value={field.value} onChange={(json) => field.onChange(json)} id="body" label="Body" />} />
-              <p className="text-small text-ash mt-1 max-w-none">Older projects only. The case page reads &ldquo;The brief&rdquo; and &ldquo;What we built&rdquo; from the Story tab now, and falls back to this when both of those are empty.</p>
-            </div>
           </div>
         </TabPanel>
 
