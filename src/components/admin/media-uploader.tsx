@@ -66,7 +66,7 @@ type UploaderProps = {
 };
 
 const ACCEPT: Record<MediaSlot, string[]> = {
-  THUMBNAIL: IMAGE_TYPES, HERO: [...IMAGE_TYPES, ...VIDEO_TYPES], GALLERY: IMAGE_TYPES, VIDEO: VIDEO_TYPES,
+  THUMBNAIL: IMAGE_TYPES, HERO: [...IMAGE_TYPES, ...VIDEO_TYPES], GALLERY: IMAGE_TYPES, VIDEO: VIDEO_TYPES, STORY: IMAGE_TYPES,
 };
 
 // What each slot renders at on the site, so the upload is sharp without being
@@ -77,6 +77,7 @@ const RECOMMENDED: Record<MediaSlot, string> = {
   HERO: "Best at 16:9, 1920x1080. The shape you upload is kept.",
   GALLERY: "Best at 16:10, 1600x1000. Other shapes are cropped to fit.",
   VIDEO: "Best at 16:9, 1920x1080. The shape you upload is kept.",
+  STORY: "Best a transparent PNG, about 1400x1400. The shape you upload is kept.",
 };
 
 export function MediaUploader({ projectId, onUploaded, compact = false, slot, single = false, titled = false, prompt }: UploaderProps) {

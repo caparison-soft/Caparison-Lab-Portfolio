@@ -8,7 +8,7 @@ import { useState, useTransition } from "react";
 import { Button, Input } from "@/components/ui";
 import { MediaUploader } from "@/components/admin/media-uploader";
 import { SortableList } from "@/components/admin/sortable-list";
-import { clearSlot, deleteMedia, reorderMedia, updateMedia, type ConfirmedMedia } from "@/lib/admin/media-actions";
+import { clearSlot, deleteMedia, reorderMedia, updateMedia, type ConfirmedMedia, type SingleSlot } from "@/lib/admin/media-actions";
 import type { ProjectMediaItem, ProjectMediaState } from "@/lib/admin/media-queries";
 import { cx } from "@/lib/cx";
 
@@ -32,7 +32,7 @@ function SlotHeading({ title, help }: { title: string; help: string }) {
 }
 
 /** Thumbnail and hero: one item, replace by uploading, or remove. */
-function SingleSlot({ projectId, slot, item, onChange, onError }: { projectId: string; slot: "THUMBNAIL" | "HERO"; item: ProjectMediaItem | null; onChange: (m: ProjectMediaItem | null) => void; onError: (e: string | null) => void }) {
+function SingleSlot({ projectId, slot, item, ratio, onChange, onError }: { projectId: string; slot: SingleSlot; item: ProjectMediaItem | null; ratio: string; onChange: (m: ProjectMediaItem | null) => void; onError: (e: string | null) => void }) {
   const [, start] = useTransition();
   const remove = () => start(async () => {
     const r = await clearSlot(projectId, slot);
@@ -42,7 +42,7 @@ function SingleSlot({ projectId, slot, item, onChange, onError }: { projectId: s
     <div className="flex flex-col gap-2">
       {item ? (
         <div className="grid grid-cols-[192px_minmax(0,1fr)] gap-2 items-start">
-          <div className={cx("rounded-sm bg-bone border border-divider-light overflow-hidden relative", slot === "THUMBNAIL" ? "aspect-[16/9]" : "aspect-[16/10]")}>
+          <div className={cx("rounded-sm bg-bone border border-divider-light overflow-hidden relative", ratio)}>
             <img src={thumb(item)} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
             {item.type === "VIDEO" ? <span className="absolute bottom-[4px] right-[4px] data text-mono-s bg-olive-950 text-bone px-[4px] rounded-sm">video {item.durationSec ?? 0}s</span> : null}
           </div>
@@ -136,14 +136,16 @@ function ListSlot({ projectId, slot, items, setItems, onError }: { projectId: st
   );
 }
 
-export function ProjectMedia({ projectId, items: initial, coverImageId, heroMediaId }: Props) {
+export function ProjectMedia({ projectId, items: initial, coverImageId, heroMediaId, storyImageId }: Props) {
   const [items, setItems] = useState(initial);
   const [error, setError] = useState<string | null>(null);
 
   const thumbnail = items.find((i) => i.id === coverImageId) ?? items.find((i) => i.slot === "THUMBNAIL") ?? null;
   const hero = items.find((i) => i.id === heroMediaId) ?? items.find((i) => i.slot === "HERO") ?? null;
+  const story = items.find((i) => i.id === storyImageId) ?? items.find((i) => i.slot === "STORY") ?? null;
   const [thumbState, setThumb] = useState<ProjectMediaItem | null>(thumbnail);
   const [heroState, setHero] = useState<ProjectMediaItem | null>(hero);
+  const [storyState, setStory] = useState<ProjectMediaItem | null>(story);
   const gallery = items.filter((i) => i.slot === "GALLERY");
   const videos = items.filter((i) => i.slot === "VIDEO");
   const setSlot = (slot: "GALLERY" | "VIDEO") => (f: (s: ProjectMediaItem[]) => ProjectMediaItem[]) =>
@@ -158,12 +160,17 @@ export function ProjectMedia({ projectId, items: initial, coverImageId, heroMedi
 
       <section className="flex flex-col gap-2" aria-labelledby="slot-thumb">
         <SlotHeading title="Thumbnail" help="One image. Shows on the home page when someone hovers this project, and in the work index." />
-        <SingleSlot projectId={projectId} slot="THUMBNAIL" item={thumbState} onChange={(m) => { setThumb(m); setError(null); }} onError={setError} />
+        <SingleSlot projectId={projectId} slot="THUMBNAIL" ratio="aspect-[16/9]" item={thumbState} onChange={(m) => { setThumb(m); setError(null); }} onError={setError} />
       </section>
 
       <section className="flex flex-col gap-2 border-t border-divider-light pt-4" aria-labelledby="slot-hero">
         <SlotHeading title="Hero" help="One image or video. Sits under the summary at the top of the case page. A video plays with controls. For YouTube or Vimeo instead, use the link fields below." />
-        <SingleSlot projectId={projectId} slot="HERO" item={heroState} onChange={(m) => { setHero(m); setError(null); }} onError={setError} />
+        <SingleSlot projectId={projectId} slot="HERO" ratio="aspect-[16/10]" item={heroState} onChange={(m) => { setHero(m); setError(null); }} onError={setError} />
+      </section>
+
+      <section className="flex flex-col gap-2 border-t border-divider-light pt-4" aria-labelledby="slot-story">
+        <SlotHeading title="Story picture" help="One image, beside the brief on the case page. A transparent PNG works best: it sits on the page with a glow behind it rather than in a frame. Which side it sits on is set in the Story tab." />
+        <SingleSlot projectId={projectId} slot="STORY" ratio="aspect-square" item={storyState} onChange={(m) => { setStory(m); setError(null); }} onError={setError} />
       </section>
 
       <section className="flex flex-col gap-2 border-t border-divider-light pt-4" aria-labelledby="slot-gallery">

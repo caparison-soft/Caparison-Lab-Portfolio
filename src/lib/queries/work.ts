@@ -82,7 +82,7 @@ export const getWorkFilters = unstable_cache(
 export type MediaItem = {
   id: string;
   type: "IMAGE" | "VIDEO";
-  slot: "THUMBNAIL" | "HERO" | "GALLERY" | "VIDEO";
+  slot: "THUMBNAIL" | "HERO" | "GALLERY" | "VIDEO" | "STORY";
   title: string | null;
   keyPrefix: string;
   posterKey: string | null;
@@ -102,6 +102,11 @@ export type CaseStudy = {
   title: string;
   summary: string;
   body: unknown;
+  /** The story panel: two fields beside a picture, side chosen in the admin. */
+  brief: unknown;
+  whatWeBuilt: unknown;
+  storyImage: MediaItem | null;
+  storySide: "LEFT" | "RIGHT";
   clientName: string | null;
   clientLogoUrl: string | null;
   year: number | null;
@@ -150,7 +155,7 @@ export type CaseStudy = {
 };
 
 function toMedia(m: {
-  id: string; type: "IMAGE" | "VIDEO"; slot: "THUMBNAIL" | "HERO" | "GALLERY" | "VIDEO"; title: string | null; keyPrefix: string; posterKey: string | null; alt: string | null; caption: string | null;
+  id: string; type: "IMAGE" | "VIDEO"; slot: "THUMBNAIL" | "HERO" | "GALLERY" | "VIDEO" | "STORY"; title: string | null; keyPrefix: string; posterKey: string | null; alt: string | null; caption: string | null;
   width: number | null; height: number | null; blurDataUrl: string | null; variants: unknown; order: number;
 }): MediaItem {
   return { ...m, variants: (m.variants as Record<string, string> | null) ?? null };
@@ -163,6 +168,7 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
       where: { slug, deletedAt: null, ...(publishedOnly ? { status: "PUBLISHED" } : {}) },
       select: {
         id: true, status: true, slug: true, title: true, summary: true, body: true, clientName: true, clientLogoUrl: true, year: true,
+        brief: true, whatWeBuilt: true, storySide: true,
         budgetMin: true, budgetMax: true, budgetCurrency: true, budgetDisplay: true,
         durationValue: true, durationUnit: true, durationDisplay: true, teamSize: true,
         liveUrl: true, videoUrl: true, videoProvider: true,
@@ -176,6 +182,7 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
         category: { select: { name: true, slug: true } },
         cover: { select: mediaSelect },
         hero: { select: mediaSelect },
+        storyImage: { select: mediaSelect },
         media: { select: mediaSelect, orderBy: { order: "asc" } },
         metrics: { select: { label: true, value: true, note: true, period: true, source: true }, orderBy: { order: "asc" } },
         tags: { select: { tag: { select: { name: true, kind: true, order: true } } } },
@@ -196,7 +203,7 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
         select: { slug: true, title: true },
       }));
 
-    const { tags, cover, hero, media, publishedAt, updatedAt, launchedAt, ...rest } = p;
+    const { tags, cover, hero, storyImage, media, publishedAt, updatedAt, launchedAt, ...rest } = p;
     return {
       ...rest,
       publishedAt: publishedAt ? publishedAt.toISOString() : null,
@@ -205,6 +212,8 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
       stack: tags.filter((x) => x.tag.kind === "STACK").sort((a, b) => a.tag.order - b.tag.order).map((x) => x.tag.name),
       cover: cover ? toMedia(cover) : null,
       hero: hero ? toMedia(hero) : null,
+      storyImage: storyImage ? toMedia(storyImage) : null,
+      storySide: (rest.storySide === "RIGHT" ? "RIGHT" : "LEFT") as "LEFT" | "RIGHT",
       media: media.filter((m) => m.slot === "GALLERY" && m.type === "IMAGE").map(toMedia),
       videos: media.filter((m) => m.slot === "VIDEO" && m.type === "VIDEO").map(toMedia),
       next,

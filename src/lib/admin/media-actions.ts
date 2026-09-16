@@ -25,16 +25,23 @@ function bust(projectId?: string | null) {
 
 // ---- 1. Presign --------------------------------------------------------
 
-const slotSchema = z.enum(["THUMBNAIL", "HERO", "GALLERY", "VIDEO"]);
+const slotSchema = z.enum(["THUMBNAIL", "HERO", "GALLERY", "VIDEO", "STORY"]);
 export type MediaSlot = z.infer<typeof slotSchema>;
 
-/** What each slot accepts. Thumbnail: one image. Hero: one image or video. Gallery: images. Video: videos. */
+/** What each slot accepts. Thumbnail, gallery and story: images. Hero: image or video. Video: videos. */
 function slotAccepts(slot: MediaSlot, kind: "image" | "video"): boolean {
-  if (slot === "THUMBNAIL") return kind === "image";
-  if (slot === "GALLERY") return kind === "image";
+  if (slot === "THUMBNAIL" || slot === "GALLERY" || slot === "STORY") return kind === "image";
   if (slot === "VIDEO") return kind === "video";
   return true;
 }
+
+/** The slots that hold exactly one item, and the Project column each one owns. */
+const SINGLE_SLOTS = { THUMBNAIL: "coverImageId", HERO: "heroMediaId", STORY: "storyImageId" } as const;
+export type SingleSlot = keyof typeof SINGLE_SLOTS;
+const singleFields = { coverImageId: true, heroMediaId: true, storyImageId: true } as const;
+/** Enough of a Media row to tell whether another single slot still points at it. */
+const claimSelect = { keyPrefix: true, coverOf: { select: { id: true } }, heroOf: { select: { id: true } }, storyImageOf: { select: { id: true } } } as const;
+const stillClaimed = (m: { coverOf: unknown; heroOf: unknown; storyImageOf: unknown } | null) => Boolean(m && (m.coverOf || m.heroOf || m.storyImageOf));
 
 const requestSchema = z.object({
   filename: z.string().min(1).max(200),
@@ -107,15 +114,15 @@ export type ConfirmedMedia = { id: string; type: "IMAGE" | "VIDEO"; slot: MediaS
  * one and remove what was there. Returns the previous item's prefix so its
  * objects can go too. Runs inside the caller's transaction.
  */
-async function claimSingleSlot(tx: Prisma.TransactionClient, projectId: string, slot: "THUMBNAIL" | "HERO", mediaId: string): Promise<string | null> {
-  const field = slot === "THUMBNAIL" ? "coverImageId" : "heroMediaId";
-  const p = await tx.project.findUnique({ where: { id: projectId }, select: { coverImageId: true, heroMediaId: true } });
+async function claimSingleSlot(tx: Prisma.TransactionClient, projectId: string, slot: SingleSlot, mediaId: string): Promise<string | null> {
+  const field = SINGLE_SLOTS[slot];
+  const p = await tx.project.findUnique({ where: { id: projectId }, select: singleFields });
   const previous = p?.[field] ?? null;
   await tx.project.update({ where: { id: projectId }, data: { [field]: mediaId, ...(slot === "HERO" ? { videoUrl: null, videoProvider: "R2" } : {}) } });
   if (previous && previous !== mediaId) {
-    const old = await tx.media.findUnique({ where: { id: previous }, select: { keyPrefix: true, coverOf: { select: { id: true } }, heroOf: { select: { id: true } } } });
-    // Still used by the other slot (an old cover that was also the hero)? Keep the row, just re-slot it.
-    if (old && (old.coverOf || old.heroOf)) return null;
+    const old = await tx.media.findUnique({ where: { id: previous }, select: claimSelect });
+    // Another single slot still points at it (an old cover that is also the hero)? Keep the row, just re-slot it.
+    if (stillClaimed(old)) return null;
     await tx.media.delete({ where: { id: previous } });
     return old?.keyPrefix ?? null;
   }
@@ -149,7 +156,7 @@ export async function confirmUpload(input: z.input<typeof confirmSchema>): Promi
     if (!slotAccepts(slot, v.kind)) return fail(slot === "VIDEO" ? "The videos section takes video only." : "This slot takes an image.");
     const last = await prisma.media.aggregate({ _max: { order: true }, where: { projectId: v.projectId ?? null, slot } });
     const order = (last._max.order ?? 0) + 1;
-    const single = v.projectId && (slot === "THUMBNAIL" || slot === "HERO") ? slot : null;
+    const single = v.projectId && slot in SINGLE_SLOTS ? (slot as SingleSlot) : null;
 
     if (v.kind === "image") {
       if (!mime || !IMAGE_MIMES.includes(mime)) return fail("That file isn't a JPEG, PNG, WebP or AVIF image.");
@@ -269,17 +276,17 @@ export async function setCover(projectId: string, mediaId: string | null): Promi
 }
 
 /** Empty a single slot: the project forgets the item and the item goes (row and objects). */
-export async function clearSlot(projectId: string, slot: "THUMBNAIL" | "HERO"): Promise<Ok<object> | Fail> {
+export async function clearSlot(projectId: string, slot: SingleSlot): Promise<Ok<object> | Fail> {
   try {
     const user = await assertAdmin();
-    const field = slot === "THUMBNAIL" ? "coverImageId" : "heroMediaId";
-    const p = await prisma.project.findUnique({ where: { id: projectId }, select: { coverImageId: true, heroMediaId: true } });
+    const field = SINGLE_SLOTS[slot];
+    const p = await prisma.project.findUnique({ where: { id: projectId }, select: singleFields });
     const id = p?.[field];
     if (!id) return { ok: true };
-    const m = await prisma.media.findUnique({ where: { id }, select: { keyPrefix: true, coverOf: { select: { id: true } }, heroOf: { select: { id: true } } } });
     await prisma.project.update({ where: { id: projectId }, data: { [field]: null } });
-    const stillUsed = slot === "THUMBNAIL" ? Boolean(m?.heroOf) : Boolean(m?.coverOf);
-    if (m && !stillUsed) {
+    // Read after the update so only the other slots can still claim it.
+    const m = await prisma.media.findUnique({ where: { id }, select: claimSelect });
+    if (m && !stillClaimed(m)) {
       await deletePrefix(m.keyPrefix);
       await prisma.media.delete({ where: { id } });
     }

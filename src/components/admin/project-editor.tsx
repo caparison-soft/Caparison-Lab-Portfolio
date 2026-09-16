@@ -35,7 +35,7 @@ const tabOfField: Record<string, string> = {
   title: "content", slug: "content", summary: "content", body: "content",
   categoryId: "details", tagIds: "details", clientName: "details", clientLogoUrl: "details", year: "details", teamSize: "details", liveUrl: "details", repoUrl: "details",
   role: "details", platforms: "details", stage: "details", launchedAt: "details", teamMemberIds: "details",
-  outcome: "story", decisions: "story", phases: "story", afterNote: "story",
+  outcome: "story", decisions: "story", phases: "story", afterNote: "story", brief: "story", whatWeBuilt: "story", storySide: "story",
   budgetMin: "commercials", budgetMax: "commercials", budgetCurrency: "commercials", budgetDisplay: "commercials", durationValue: "commercials", durationUnit: "commercials", durationDisplay: "commercials", metrics: "commercials",
   videoUrl: "media", videoProvider: "media",
   ctaMode: "cta", ctaLabel: "cta", ctaHref: "cta", ctaNote: "cta",
@@ -214,14 +214,14 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
             <div className="md:col-span-2">
               <p className="text-small text-ash mb-1 max-w-none">Body</p>
               <Controller control={control} name="body" render={({ field }) => <RichTextEditor value={field.value} onChange={(json) => field.onChange(json)} id="body" label="Body" />} />
-              <p className="text-small text-ash mt-1 max-w-none">Use Section for the case headings (the brief, what we built). They render as markers on the page.</p>
+              <p className="text-small text-ash mt-1 max-w-none">Older projects only. The case page reads &ldquo;The brief&rdquo; and &ldquo;What we built&rdquo; from the Story tab now, and falls back to this when both of those are empty.</p>
             </div>
           </div>
         </TabPanel>
 
         <TabPanel id="media" active={tab} idPrefix="pe">
           <div className="flex flex-col gap-4">
-            <ProjectMedia projectId={data.id} items={media.items} coverImageId={media.coverImageId} heroMediaId={media.heroMediaId} />
+            <ProjectMedia projectId={data.id} items={media.items} coverImageId={media.coverImageId} heroMediaId={media.heroMediaId} storyImageId={media.storyImageId} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border-t border-divider-light pt-3">
               <Field id="videoProvider" label="Hero from a link" help="Uploaded hero is the default. Choose YouTube or Vimeo to embed a link at the top instead; it takes precedence over an uploaded hero. Saved with the page.">
                 <Select {...register("videoProvider")}><option value="R2">Uploaded hero (above)</option><option value="YOUTUBE">YouTube</option><option value="VIMEO">Vimeo</option></Select>
@@ -300,6 +300,23 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
             <Field id="outcome" label={`Outcome line (${(outcome ?? "").length}/200)`} error={err("outcome")} help="One bold line under the summary: the result, with a number where you have one. e.g. 700+ assets in one Premiere panel, 4,000 editors in the first quarter.">
               <Input {...register("outcome")} maxLength={200} />
             </Field>
+
+            {/* The story panel: two fields beside the story picture (owner, 2026-09-16). */}
+            <div className="border-t border-divider-light pt-3">
+              <p className="text-small text-ash max-w-none mb-2">The story panel on the case page. &ldquo;The brief&rdquo; reads straight away; &ldquo;What we built&rdquo; opens when a visitor asks for it. The picture sits in the Media tab.</p>
+              <Controller control={control} name="brief" render={({ field }) => <RichTextEditor value={field.value} onChange={(json) => field.onChange(json)} id="brief" label="The brief" />} />
+              <div className="mt-3">
+                <Controller control={control} name="whatWeBuilt" render={({ field }) => <RichTextEditor value={field.value} onChange={(json) => field.onChange(json)} id="whatWeBuilt" label="What we built" />} />
+              </div>
+              <div className="mt-3 max-w-[280px]">
+                <Field id="storySide" label="Picture side" error={err("storySide")} help="Which side of the story panel the picture sits on.">
+                  <Select {...register("storySide")}>
+                    <option value="LEFT">Left</option>
+                    <option value="RIGHT">Right</option>
+                  </Select>
+                </Field>
+              </div>
+            </div>
             <div>
               <div className="flex items-baseline justify-between mb-1">
                 <p className="text-small text-ash max-w-none">Key decisions. Two or three: what you chose and why. Drag to reorder.</p>

@@ -62,19 +62,19 @@ export async function getMediaRows(): Promise<MediaRow[]> {
 }
 
 export type ProjectMediaItem = {
-  id: string; type: "IMAGE" | "VIDEO"; slot: "THUMBNAIL" | "HERO" | "GALLERY" | "VIDEO"; keyPrefix: string; posterKey: string | null;
+  id: string; type: "IMAGE" | "VIDEO"; slot: "THUMBNAIL" | "HERO" | "GALLERY" | "VIDEO" | "STORY"; keyPrefix: string; posterKey: string | null;
   title: string | null; alt: string | null; caption: string | null;
   width: number | null; height: number | null; durationSec: number | null; sizeBytes: number | null; order: number;
 };
 
-export type ProjectMediaState = { items: ProjectMediaItem[]; coverImageId: string | null; heroMediaId: string | null };
+export type ProjectMediaState = { items: ProjectMediaItem[]; coverImageId: string | null; heroMediaId: string | null; storyImageId: string | null };
 
 export async function getProjectMedia(projectId: string): Promise<ProjectMediaState> {
   const [items, p] = await Promise.all([
     prisma.media.findMany({ where: { projectId }, orderBy: [{ slot: "asc" }, { order: "asc" }], select: { id: true, type: true, slot: true, keyPrefix: true, posterKey: true, title: true, alt: true, caption: true, width: true, height: true, durationSec: true, sizeBytes: true, order: true } }),
-    prisma.project.findUnique({ where: { id: projectId }, select: { coverImageId: true, heroMediaId: true } }),
+    prisma.project.findUnique({ where: { id: projectId }, select: { coverImageId: true, heroMediaId: true, storyImageId: true } }),
   ]);
-  return { items, coverImageId: p?.coverImageId ?? null, heroMediaId: p?.heroMediaId ?? null };
+  return { items, coverImageId: p?.coverImageId ?? null, heroMediaId: p?.heroMediaId ?? null, storyImageId: p?.storyImageId ?? null };
 }
 
 export type ReconcileReport = { at: string; orphanPrefixes: { prefix: string; objects: number; bytes: number }[]; missingObjects: { mediaId: string; keyPrefix: string }[]; totalObjects: number; totalBytes: number };

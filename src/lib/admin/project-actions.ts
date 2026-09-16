@@ -72,6 +72,9 @@ export async function saveProject(id: string, values: ProjectInput): Promise<Sav
         where: { id },
         data: {
           title: v.title, slug: v.slug, summary: v.summary, body: (v.body ?? undefined) as Prisma.InputJsonValue | undefined,
+          brief: (v.brief ?? undefined) as Prisma.InputJsonValue | undefined,
+          whatWeBuilt: (v.whatWeBuilt ?? undefined) as Prisma.InputJsonValue | undefined,
+          storySide: v.storySide,
           categoryId: v.categoryId, clientName: v.clientName, clientLogoUrl: v.clientLogoUrl, year: v.year, teamSize: v.teamSize,
           liveUrl: v.liveUrl, repoUrl: v.repoUrl, budgetMin: v.budgetMin, budgetMax: v.budgetMax, budgetCurrency: v.budgetCurrency,
           budgetDisplay: v.budgetDisplay, durationValue: v.durationValue, durationUnit: v.durationUnit, durationDisplay: v.durationDisplay,

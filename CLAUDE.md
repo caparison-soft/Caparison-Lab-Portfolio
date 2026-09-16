@@ -202,7 +202,19 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   pill; the rest are paper cards laid out by rule from the count (1: lead
   alone; 2: lead + tall card; 3: lead + two stacked; 4: lead + wide + two
   small; 5+: lead + wide + a row). Period and source show under each value.
-- The body reads in on scroll (owner-supplied "text gradient scroll",
+- The story panel (owner-supplied spatial showcase, 2026-09-16, rebuilt):
+  src/components/site/case-story.tsx. A picture on one side, the brief on the
+  other, and "What we built" folded into a row that opens on click. The two
+  fields are Project.brief and Project.whatWeBuilt (rich text, Story tab), the
+  picture is the STORY media slot (Project.storyImageId) and the side is
+  Project.storySide, set in the admin rather than toggled by the visitor. With
+  no picture uploaded the brand's 3D mark stands in, so the panel always has
+  its two columns. The picture floats over a lime bloom inside a slow dashed
+  ring; reduced motion drops all three. Headings come from case.briefHeading
+  and case.builtHeading. Project.body is the fallback for anything not yet
+  moved across and renders the old scroll-reveal block; every real project was
+  split into the new fields on 2026-09-16.
+- The old body reads in on scroll (owner-supplied "text gradient scroll",
   2026-09-14, rebuilt): src/components/site/scroll-reveal-text.tsx splits
   text nodes in paragraphs, headings and list items into word spans after
   hydration and each word brightens over its own slice of the block's view

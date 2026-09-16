@@ -33,6 +33,7 @@ export type EditorData = {
   tags: { id: string; name: string; kind: "STACK" | "INDUSTRY" | "SERVICE" }[];
   media: { id: string; type: "IMAGE" | "VIDEO"; keyPrefix: string; alt: string | null; width: number | null; height: number | null }[];
   coverImageId: string | null;
+  storyImageId: string | null;
   /** Published and draft team members, for the "who worked on it" picker. */
   teamMembers: { id: string; name: string; role: string }[];
 };
@@ -54,12 +55,14 @@ export async function getProjectForEditor(id: string): Promise<EditorData | null
     slug: p.slug,
     updatedAt: p.updatedAt.toISOString(),
     coverImageId: p.coverImageId,
+    storyImageId: p.storyImageId,
     categories,
     tags,
     teamMembers,
     media: p.media,
     values: {
       title: p.title, slug: p.slug, summary: p.summary, body: p.body ?? undefined,
+      brief: p.brief ?? undefined, whatWeBuilt: p.whatWeBuilt ?? undefined, storySide: (p.storySide === "RIGHT" ? "RIGHT" : "LEFT") as "LEFT" | "RIGHT",
       categoryId: p.categoryId ?? "", tagIds: p.tags.map((t) => t.tagId),
       clientName: s(p.clientName), clientLogoUrl: s(p.clientLogoUrl), year: s(p.year), teamSize: s(p.teamSize), liveUrl: s(p.liveUrl), repoUrl: s(p.repoUrl),
       budgetMin: s(p.budgetMin), budgetMax: s(p.budgetMax), budgetCurrency: p.budgetCurrency, budgetDisplay: s(p.budgetDisplay),

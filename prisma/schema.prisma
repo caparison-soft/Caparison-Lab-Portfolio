@@ -83,6 +83,7 @@ enum MediaSlot {
   HERO
   GALLERY
   VIDEO
+  STORY
 }
 
 enum TagKind {
@@ -197,8 +198,14 @@ model Project {
   /// One line on what happened after launch, e.g. "retainer since month two".
   afterNote       String?
   body            Json?
+  /// The case page's two story fields, shown beside the story picture.
+  brief           Json?
+  whatWeBuilt     Json?
+  /// Which side the story picture sits on: LEFT or RIGHT.
+  storySide       String        @default("LEFT")
   coverImageId    String?       @unique
   heroMediaId     String?       @unique
+  storyImageId    String?       @unique
   videoUrl        String?
   videoProvider   VideoProvider @default(R2)
   categoryId      String?
@@ -237,6 +244,7 @@ model Project {
   category     Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   cover        Media?          @relation("ProjectCover", fields: [coverImageId], references: [id], onDelete: SetNull)
   hero         Media?          @relation("ProjectHero", fields: [heroMediaId], references: [id], onDelete: SetNull)
+  storyImage   Media?          @relation("ProjectStoryImage", fields: [storyImageId], references: [id], onDelete: SetNull)
   media        Media[]         @relation("ProjectMedia")
   tags         ProjectTag[]
   metrics      ProjectMetric[]
@@ -330,6 +338,7 @@ model Media {
   project      Project? @relation("ProjectMedia", fields: [projectId], references: [id], onDelete: SetNull)
   coverOf      Project? @relation("ProjectCover")
   heroOf       Project? @relation("ProjectHero")
+  storyImageOf Project? @relation("ProjectStoryImage")
   capabilityOf Capability? @relation("CapabilityImage")
 
   @@index([projectId, slot, order])
