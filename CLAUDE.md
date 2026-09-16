@@ -209,8 +209,11 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   picture is the STORY media slot (Project.storyImageId) and the side is
   Project.storySide, set in the admin rather than toggled by the visitor. With
   no picture uploaded the brand's 3D mark stands in, so the panel always has
-  its two columns. The picture floats over a lime bloom inside a slow dashed
-  ring; reduced motion drops all three. Headings come from case.briefHeading
+  its two columns. The picture floats inside a slow dashed ring over a bloom of
+  plain bone light (lime tinted whatever was uploaded, owner 2026-09-16) and
+  tilts toward the pointer, up to 14 degrees, with the bloom drifting the other
+  way and the picture 48px forward in depth; mouse only, and reduced motion
+  drops the lot. Headings come from case.briefHeading
   and case.builtHeading. Project.body is the fallback for anything not yet
   moved across and renders the old scroll-reveal block; every real project was
   split into the new fields on 2026-09-16.
