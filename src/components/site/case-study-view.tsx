@@ -104,7 +104,7 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
                 whatWeBuilt={p.whatWeBuilt}
                 image={p.storyImage}
                 side={p.storySide}
-                labels={{ brief: t(blocks, "case.briefHeading"), whatWeBuilt: t(blocks, "case.builtHeading") }}
+                labels={{ brief: t(blocks, "case.briefHeading"), whatWeBuilt: t(blocks, "case.builtHeading"), close: t(blocks, "case.closeLabel") }}
               />
             ) : (
               <ScrollRevealText className="mt-5 max-w-[720px] lg:mx-auto">

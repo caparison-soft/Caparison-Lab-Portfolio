@@ -204,7 +204,11 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   small; 5+: lead + wide + a row). Period and source show under each value.
 - The story panel (owner-supplied spatial showcase, 2026-09-16, rebuilt):
   src/components/site/case-story.tsx. A picture on one side, the brief on the
-  other, and "What we built" folded into a row that opens on click. The two
+  other, and "What we built" as plain lime text (no shape, owner 2026-09-16)
+  that opens a native <dialog>: the top layer clears the grain and the header,
+  Escape and focus trapping come free, the body scrolls inside a
+  max-h-[82svh] box and the page behind is locked while it is open. Lime as
+  text is only allowed here because the panel sits on the matte ground. The two
   fields are Project.brief and Project.whatWeBuilt (rich text, Story tab), the
   picture is the STORY media slot (Project.storyImageId) and the side is
   Project.storySide, set in the admin rather than toggled by the visitor. With

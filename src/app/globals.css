@@ -668,3 +668,38 @@ html[data-preload] .reveal-mark { animation-play-state: paused; }
   .preloader { transition: none; }
   .preloader-bar > i { transition: none; }
 }
+
+/* ---- The case story's "what we built" window (owner, 2026-09-16). A native
+   <dialog>, so the top layer puts it over the grain and the header and
+   Escape closes it for free. The transitions need allow-discrete because
+   display and overlay are discrete properties; @starting-style gives the
+   opening frame. Browsers without either simply get no animation. ---- */
+.story-modal {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out),
+    overlay var(--duration-base) allow-discrete,
+    display var(--duration-base) allow-discrete;
+}
+.story-modal[open] { opacity: 1; transform: none; }
+@starting-style {
+  .story-modal[open] { opacity: 0; transform: translateY(12px) scale(0.98); }
+}
+.story-modal::backdrop {
+  background: rgb(0 0 0 / 0);
+  backdrop-filter: blur(2px);
+  transition:
+    background var(--duration-base) var(--ease-out),
+    overlay var(--duration-base) allow-discrete,
+    display var(--duration-base) allow-discrete;
+}
+.story-modal[open]::backdrop { background: rgb(0 0 0 / 0.72); }
+@starting-style {
+  .story-modal[open]::backdrop { background: rgb(0 0 0 / 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-modal, .story-modal::backdrop { transition: none; }
+  .story-modal { transform: none; }
+}

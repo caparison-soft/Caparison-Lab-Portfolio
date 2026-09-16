@@ -7,8 +7,8 @@
 // framer-motion, inline SVG instead of lucide, our tokens instead of the
 // blue and emerald in the original.
 
-import { useId, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useId, useRef } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { RichText } from "@/components/site/rich-text";
 import type { MediaItem } from "@/lib/queries/work";
 import { imageSrcSet } from "@/lib/media";
@@ -19,22 +19,23 @@ type Props = {
   whatWeBuilt: unknown;
   image: MediaItem | null;
   side: "LEFT" | "RIGHT";
-  labels: { brief: string; whatWeBuilt: string };
+  labels: { brief: string; whatWeBuilt: string; close: string };
 };
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-function Chevron({ open }: { open: boolean }) {
+function Chevron({ className }: { className?: string }) {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden="true"
-      className={cx("shrink-0 transition-transform dur-base ease-out", open && "rotate-90")}
-    >
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className={cx("shrink-0", className)}>
       <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function Close() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -99,9 +100,14 @@ function StoryImage({ image, reduced }: { image: MediaItem | null; reduced: bool
 }
 
 export function CaseStory({ brief, whatWeBuilt, image, side, labels }: Props) {
-  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDialogElement>(null);
   const reduced = useReducedMotion() ?? false;
   const panelId = useId();
+  // showModal() makes the page inert but does not stop it scrolling behind the
+  // dialog, so the lock is ours; the close event covers Escape too.
+  const open = () => { ref.current?.showModal(); document.documentElement.style.overflow = "hidden"; };
+  const onClose = () => { document.documentElement.style.overflow = ""; };
+  useEffect(() => () => { document.documentElement.style.overflow = ""; }, []);
   const hasBuilt = Boolean(whatWeBuilt);
   const rise = reduced ? {} : { initial: { opacity: 0, y: 16 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-80px" } };
 
@@ -128,35 +134,44 @@ export function CaseStory({ brief, whatWeBuilt, image, side, labels }: Props) {
         </div>
 
         {hasBuilt ? (
-          <div className="mt-4 rounded-lg border border-divider-light bg-paper/60 backdrop-blur-sm overflow-hidden">
+          <>
+            {/* Lime text, no shape (owner, 2026-09-16). Lime as text is only
+                allowed because the story panel sits on the matte ground. */}
             <button
               type="button"
-              onClick={() => setOpen((v) => !v)}
-              aria-expanded={open}
-              aria-controls={panelId}
-              className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-h4 font-medium text-ink hover:bg-paper transition-colors dur-fast"
+              onClick={open}
+              aria-haspopup="dialog"
+              className="mt-4 inline-flex items-center gap-1 text-h4 font-medium text-lime hover:text-bone transition-colors dur-fast underline-offset-4 hover:underline"
             >
               <span>{labels.whatWeBuilt}</span>
-              <Chevron open={open} />
+              <Chevron />
             </button>
-            <AnimatePresence initial={false}>
-              {open ? (
-                <motion.div
-                  id={panelId}
-                  key="panel"
-                  initial={reduced ? false : { height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: EASE }}
-                  className="overflow-hidden"
+
+            {/* A native dialog: the top layer beats the grain and the header, and
+                Escape, focus trapping and inertness come with it. */}
+            <dialog
+              ref={ref}
+              aria-labelledby={`${panelId}-title`}
+              onClose={onClose}
+              onClick={(e) => { if (e.target === ref.current) ref.current?.close(); }}
+              className="story-modal m-auto w-[min(92vw,720px)] max-h-[82svh] rounded-lg border border-divider-light bg-paper text-ink p-0 overflow-hidden"
+            >
+              <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-divider-light">
+                <h3 id={`${panelId}-title`} className="text-h4 font-medium text-ink m-0">{labels.whatWeBuilt}</h3>
+                <button
+                  type="button"
+                  onClick={() => ref.current?.close()}
+                  aria-label={labels.close}
+                  className="inline-flex items-center justify-center h-[32px] w-[32px] rounded-full text-ash hover:text-ink hover:bg-bone transition-colors dur-fast"
                 >
-                  <div className="px-3 pb-3 pt-1 text-body text-ash [&_p]:text-ash [&_li]:text-ash [&_p]:max-w-[60ch] [&_ul]:max-w-[60ch]">
-                    <RichText content={whatWeBuilt} />
-                  </div>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </div>
+                  <Close />
+                </button>
+              </div>
+              <div className="overflow-y-auto max-h-[calc(82svh-52px)] px-3 py-3 text-body text-ash [&_p]:text-ash [&_li]:text-ash [&_p]:max-w-[68ch] [&_ul]:max-w-[68ch]">
+                <RichText content={whatWeBuilt} />
+              </div>
+            </dialog>
+          </>
         ) : null}
       </motion.div>
     </section>
