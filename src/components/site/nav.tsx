@@ -46,7 +46,7 @@ export async function Nav({ blocks, siteName }: NavProps) {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
+    <header className="fixed inset-x-0 top-0 z-[70]">
       <NavScroll />
       <div className="site-nav px-3 md:px-[48px]">
         <div className="max-w-layout mx-auto h-full relative flex items-center gap-4">

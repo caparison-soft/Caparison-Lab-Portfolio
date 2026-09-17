@@ -112,7 +112,7 @@ export function CaseStory({ brief, whatWeBuilt, image, side, labels }: Props) {
         transition={{ duration: 0.7, ease: EASE }}
         // The picture is second in the DOM so the text leads on a phone; the
         // admin's choice only moves it at lg, where there are two columns.
-        className={cx("order-2", side === "LEFT" ? "lg:order-1" : "lg:order-2")}
+        className={cx("story-picture order-2", side === "LEFT" ? "lg:order-1" : "lg:order-2")}
       >
         <StoryImage image={image} reduced={reduced} />
       </motion.div>

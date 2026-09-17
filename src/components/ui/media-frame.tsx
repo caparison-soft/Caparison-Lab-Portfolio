@@ -26,7 +26,7 @@ export function MediaFrame({ ratio, width, height, radius = "lg", surface = "lig
   return (
     <div
       className={cx(
-        "relative overflow-hidden w-full",
+        "media-frame relative overflow-hidden w-full",
         radius === "lg" ? "rounded-lg" : "rounded-none",
         surface === "dark" ? "bg-olive-800 border border-olive-600" : "bg-paper border border-divider-light",
         "[&>img]:absolute [&>img]:inset-0 [&>img]:w-full [&>img]:h-full [&>img]:object-cover",

@@ -152,8 +152,16 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   remaps the colour tokens (bone/paper to two matte greys, ink/ash to
   bone/sage, cobalt to lime, hairlines to white/10); .section-dark, .on-dark and
   olive/lime/ink fills get the originals back inside them. One fixed grain
-  layer covers the viewport. The admin keeps the light palette. The hero
-  keeps pure ink under its shader lift.
+  layer covers the viewport, with pictures and video punched through it (owner,
+  2026-09-17: the noise read as haze over a photograph). Layers, lowest first:
+  page content, grain 60, media 61, the load screen 62, the header 70, the skip
+  link 100. The raise goes on the container, never the image: .case-hero-wrap
+  isolates and the story picture's reveal wrapper carries a transform, so a
+  z-index inside either cannot escape. The load screen carries its own grain now
+  that the page's layer is below it. Check a change here by painting
+  .site-ground::after solid red and seeing what it covers; a screenshot diff
+  lies, because motion keeps nudging pixels. The admin keeps the light palette.
+  The hero keeps pure ink under its shader lift.
 - No bar (owner's call, 2026-09-13): the header is fixed and transparent, laid
   over the page (sections start with at least 64px of padding; html has
   scroll-padding-top for anchors). NavScroll sets html[data-nav-compact] past 64px of scroll (header 64px
