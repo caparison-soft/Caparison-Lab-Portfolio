@@ -1,53 +1,82 @@
 "use client";
 // Client component: an endless horizontal marquee (owner-supplied
 // ibelick/infinite-slider, 2026-09-14, rebuilt on motion without
-// react-use-measure). Children render twice and the track scrolls by half
-// its width on a loop; hovering eases to the slower duration. Reduced
-// motion keeps the same markup and simply never starts the loop.
+// react-use-measure). Children render twice and the track is offset by a
+// wrapped position, so the loop has no seam and no restart. Hovering eases to
+// the slower speed, and the strip can be dragged (owner, 2026-09-17): the drag
+// moves the same position the loop does, so letting go carries straight on.
+// Reduced motion keeps the same markup, never starts the loop and never drags.
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { animate, motion, useMotionValue, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { motion, useAnimationFrame, useMotionValue, useReducedMotion, useTransform, wrap } from "motion/react";
 import { cx } from "@/lib/cx";
 
 type Props = { children: ReactNode; gap?: number; duration?: number; durationOnHover?: number; reverse?: boolean; className?: string };
 
 export function InfiniteSlider({ children, gap = 16, duration = 25, durationOnHover, reverse = false, className }: Props) {
-  const reduced = useReducedMotion();
-  const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-  const [current, setCurrent] = useState(duration);
-  const [transitioning, setTransitioning] = useState(false);
-  const [key, setKey] = useState(0);
-  const x = useMotionValue(0);
+  const reduced = useReducedMotion() ?? false;
+  const trackRef = useRef<HTMLDivElement>(null);
+  // One loop is half the doubled track plus the gap that sits across the seam.
+  const [span, setSpan] = useState(0);
+  const position = useMotionValue(0);
+  const x = useTransform(position, (v) => (span > 0 ? wrap(-span, 0, v) : 0));
+
+  // Pixels per second, eased toward the target so hover does not snap.
+  const speed = useRef(0);
+  const dragging = useRef(false);
+  const lastPointer = useRef(0);
+  const [hovered, setHovered] = useState(false);
+  const [grabbing, setGrabbing] = useState(false);
 
   useEffect(() => {
-    const el = ref.current;
+    const el = trackRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width));
+    const ro = new ResizeObserver(([e]) => setSpan((e.contentRect.width + gap) / 2));
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [gap]);
 
-  useEffect(() => {
-    if (reduced || width === 0) return;
-    const size = width + gap;
-    const from = reverse ? -size / 2 : 0;
-    const to = reverse ? 0 : -size / 2;
-    const controls = transitioning
-      ? animate(x, [x.get(), to], { ease: "linear", duration: current * Math.abs((x.get() - to) / size), onComplete: () => { setTransitioning(false); setKey((k) => k + 1); } })
-      : animate(x, [from, to], { ease: "linear", duration: current, repeat: Infinity, repeatType: "loop", repeatDelay: 0, onRepeat: () => x.set(from) });
-    return () => controls.stop();
-  }, [key, x, current, width, gap, transitioning, reverse, reduced]);
+  useAnimationFrame((_, delta) => {
+    if (reduced || span === 0) return;
+    const seconds = Math.min(delta, 64) / 1000;
+    const target = dragging.current ? 0 : span / (hovered && durationOnHover ? durationOnHover : duration);
+    speed.current += (target - speed.current) * Math.min(1, seconds * 4);
+    if (dragging.current) return;
+    position.set(position.get() + (reverse ? 1 : -1) * speed.current * seconds);
+  });
 
-  // Same markup whether or not motion is reduced (a different tree would
-  // mismatch the server render); reduced motion just never starts the loop.
-  const hover = durationOnHover
-    ? { onHoverStart: () => { setTransitioning(true); setCurrent(durationOnHover); }, onHoverEnd: () => { setTransitioning(true); setCurrent(duration); } }
-    : {};
+  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (reduced || span === 0) return;
+    dragging.current = true;
+    setGrabbing(true);
+    lastPointer.current = e.clientX;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!dragging.current) return;
+    position.set(position.get() + (e.clientX - lastPointer.current));
+    lastPointer.current = e.clientX;
+  };
+  const endDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    setGrabbing(false);
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+  };
 
   return (
-    <div className={cx("overflow-hidden", className)}>
-      <motion.div ref={ref} className="flex w-max" style={{ x, gap }} {...hover}>
+    <div
+      className={cx("overflow-hidden", !reduced && (grabbing ? "cursor-grabbing select-none" : "cursor-grab"), className)}
+      // Vertical gestures still scroll the page; only sideways drags reach us.
+      style={reduced ? undefined : { touchAction: "pan-y" }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <motion.div ref={trackRef} className="flex w-max" style={{ x, gap }}>
         {children}
         {children}
       </motion.div>

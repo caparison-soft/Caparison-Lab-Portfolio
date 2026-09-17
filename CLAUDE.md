@@ -284,7 +284,11 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - On the case page the stack is its own strip under the facts (owner,
   2026-09-14): src/components/site/infinite-slider.tsx (ibelick
   infinite-slider rebuilt on motion + ResizeObserver, children rendered
-  twice, slows on hover, static under reduced motion) scrolling StackMark
+  twice, slows on hover, static under reduced motion). The track offset is one
+  motion value wrapped over the loop span, so the auto-scroll and a pointer
+  drag both write to it and letting go carries straight on (owner,
+  2026-09-17); the span is half the doubled width plus the seam's gap, and
+  touch-action pan-y leaves vertical scrolling to the page. It scrolls StackMark
   tiles (64px, name slides in inside the tile on hover since anything outside
   is clipped by the slider) in a 520px strip with faded edges, five tiles
   across; short stacks repeat to fill the loop. /work rows keep the small StackLogos row.
