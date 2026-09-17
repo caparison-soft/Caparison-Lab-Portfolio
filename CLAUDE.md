@@ -169,11 +169,15 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   from the section under the header's left edge) so the wordmark and the sheet
   toggle invert over light sections. The hero has no spine rail; other
   sections keep theirs.
-- Favicon: src/app/favicon.ico is generated from public/brand/icon.png at
-  16/32/48 (Next serves it first, ahead of the metadata icon, so the Next
-  starter default that shipped there showed the Vercel mark in the tab until
-  2026-09-15). The mark's aperture is transparent in that PNG, so it reads on a
-  light or a dark tab bar. Regenerate it if the brand icon changes.
+- Favicon: src/app/favicon.ico and public/brand/icon-tile.png are generated
+  from public/brand/icon.png, composited on an olive-950 rounded square with
+  17% padding, at 16/32/48 (Next serves favicon.ico first, ahead of the
+  metadata icon, so the Next starter default that shipped there showed the
+  Vercel mark in the tab until 2026-09-15). The tile carries its own dark
+  ground because the mark's aperture is transparent and washed out on a light
+  tab bar (owner, 2026-09-17). Both layouts' metadata icons point at the tile;
+  the bare icon.png stays for the JSON-LD organization logo and the styleguide.
+  Regenerate both if the brand icon changes.
 - The compact nav mark is HexMark variant="simple": one currentColor hexagon
   with the aperture knocked through, bone on dark ground and ink on light, set
   by .nav-icon in globals.css. The full gradient mark put a white plate on the

@@ -28,7 +28,9 @@ const jetbrains = localFont({
 // Title and description move to SiteSettings in Phase 3.
 export const metadata: Metadata = {
   title: "Caparison Lab",
-  icons: { icon: "/brand/icon.png" },
+  // The tile, not the bare mark: the mark's aperture is transparent, so on a
+  // light tab bar it washed out (owner, 2026-09-17).
+  icons: { icon: "/brand/icon-tile.png" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

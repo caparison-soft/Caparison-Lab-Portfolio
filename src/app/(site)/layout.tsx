@@ -22,7 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: { canonical: "./", types: { "application/rss+xml": `${SITE}/feed.xml` } },
     openGraph: { siteName: settings.siteName, title, description, type: "website", images: [{ url: ogImage, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", title, description, images: [ogImage] },
-    icons: { icon: settings.faviconUrl ?? "/brand/icon.png" },
+    // The tile carries its own dark ground, so the mark reads on any tab bar.
+    icons: { icon: settings.faviconUrl ?? "/brand/icon-tile.png" },
     robots: { index: true, follow: true },
   };
 }
