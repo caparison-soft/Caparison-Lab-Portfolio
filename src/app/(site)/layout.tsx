@@ -22,8 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: { canonical: "./", types: { "application/rss+xml": `${SITE}/feed.xml` } },
     openGraph: { siteName: settings.siteName, title, description, type: "website", images: [{ url: ogImage, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", title, description, images: [ogImage] },
-    // The tile carries its own dark ground, so the mark reads on any tab bar.
-    icons: { icon: settings.faviconUrl ?? "/brand/icon-tile.png" },
+    // Only when the owner has set one: otherwise app/icon.svg (adaptive) and
+    // app/favicon.ico (the legacy fallback) are the icons, by file convention.
+    ...(settings.faviconUrl ? { icons: { icon: settings.faviconUrl } } : {}),
     robots: { index: true, follow: true },
   };
 }

@@ -169,15 +169,21 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   from the section under the header's left edge) so the wordmark and the sheet
   toggle invert over light sections. The hero has no spine rail; other
   sections keep theirs.
-- Favicon: src/app/favicon.ico and public/brand/icon-tile.png are generated
-  from public/brand/icon.png, composited on an olive-950 rounded square with
-  17% padding, at 16/32/48 (Next serves favicon.ico first, ahead of the
-  metadata icon, so the Next starter default that shipped there showed the
-  Vercel mark in the tab until 2026-09-15). The tile carries its own dark
-  ground because the mark's aperture is transparent and washed out on a light
-  tab bar (owner, 2026-09-17). Both layouts' metadata icons point at the tile;
-  the bare icon.png stays for the JSON-LD organization logo and the styleguide.
-  Regenerate both if the brand icon changes.
+- Favicon: src/app/icon.svg is the one that shows. It is the brand's
+  simplified single-colour hex, a solid hexagon with the spark knocked out,
+  and it carries its own stylesheet with a prefers-color-scheme query, so it
+  is ink on a light tab bar and bone on a dark one with no plate behind it
+  (owner, 2026-09-17; a dark tile was tried first and dropped). An SVG
+  favicon's own media query is the only way a favicon can answer the tab
+  colour. Next emits it with sizes="any", which is what makes browsers prefer
+  it over the .ico. src/app/favicon.ico stays as the legacy fallback: the
+  full-colour mark on an olive-950 rounded square, generated from
+  public/brand/icon-tile.png, which is itself public/brand/icon.png padded 17%
+  on that plate. Neither layout sets metadata.icons any more, so nothing
+  competes with the file conventions; the (site) layout only sets it when the
+  owner has put a faviconUrl in settings. The Next starter default sat in
+  favicon.ico showing the Vercel mark until 2026-09-15. The bare icon.png
+  stays for the JSON-LD organization logo and the styleguide.
 - The compact nav mark is HexMark variant="simple": one currentColor hexagon
   with the aperture knocked through, bone on dark ground and ink on light, set
   by .nav-icon in globals.css. The full gradient mark put a white plate on the
