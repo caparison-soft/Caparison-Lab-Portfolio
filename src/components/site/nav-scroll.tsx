@@ -28,7 +28,11 @@ export function NavScroll() {
       // Skip the header itself and the load screen (it covers the page while
       // this first runs and is not part of the ground).
       const hit = document.elementsFromPoint(24, y).find((el) => !el.closest("header, .preloader"));
-      const nextGround = hit?.closest(".section-dark, .site-ground") ? "dark" : "light";
+      // Nothing but the document under there means the page is between routes,
+      // not that the ground is light: answer only when a section is actually
+      // present, otherwise keep what we had.
+      if (!hit || hit === root || hit === document.body) return;
+      const nextGround = hit.closest(".section-dark, .site-ground") ? "dark" : "light";
       if (nextGround !== ground) {
         ground = nextGround;
         root.setAttribute("data-nav-ground", nextGround);
@@ -36,15 +40,16 @@ export function NavScroll() {
     };
     const schedule = () => { if (!raf) raf = window.requestAnimationFrame(update); };
     update();
-    // The route's content lands a frame after the pathname changes.
-    const settle = window.setTimeout(update, 0);
+    // The route's content lands some frames after the pathname changes, and
+    // the header sits over a blank page until it does.
+    const settle = [0, 120, 400].map((ms) => window.setTimeout(update, ms));
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     return () => {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
       if (raf) window.cancelAnimationFrame(raf);
-      window.clearTimeout(settle);
+      settle.forEach(window.clearTimeout);
       root.removeAttribute("data-nav-compact");
       root.removeAttribute("data-nav-ground");
     };

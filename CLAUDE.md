@@ -167,7 +167,12 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   scroll-padding-top for anchors). NavScroll sets html[data-nav-compact] past 64px of scroll (header 64px
   to 48px) and html[data-nav-ground] (dark or light,
   from the section under the header's left edge) so the wordmark and the sheet
-  toggle invert over light sections. The hero has no spine rail; other
+  toggle invert over light sections. Route changes leave a frame or two with
+  nothing under the header, and reading that as a light ground turned the whole
+  logo to ink on every case page opened from /work (owner, 2026-09-19): the
+  ground is only answered when a real element is under the point (html or body
+  alone keeps the last answer), and the post-route re-reads run at 0, 120 and
+  400ms rather than once. The hero has no spine rail; other
   sections keep theirs.
 - Favicon: src/app/icon.svg is the source of truth, and src/app/favicon.ico is
   rasterised from it at 16/32/48, so whichever icon a browser picks it is the
