@@ -367,10 +367,9 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
    This scrim fades the page out just before it reaches the header: a darkening
    gradient plus a blur, masked so both die away together and no bar edge shows.
    The blur is what actually stops the collision - dimming alone left the text
-   legible straight through the wordmark. It sits at 65, over the page and its
-   media, under the load screen and the header. It cannot live inside the
-   header: a fixed, layered element is its own backdrop root, so a
-   backdrop-filter in there blurs nothing (found live, 2026-09-19). */
+   legible straight through the wordmark. It is its own element rather than a
+   ::before on the header so its place in the layer stack is explicit: 65, over
+   the page and its media, under the load screen and the header. */
 .site-nav-scrim {
   position: fixed;
   inset: 0 0 auto 0;
@@ -378,9 +377,12 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
   z-index: 65;
   pointer-events: none;
   background: linear-gradient(to bottom, rgb(0 0 0 / 0.72) 0%, rgb(0 0 0 / 0.5) 45%, transparent 100%);
+  /* Standard property only, here and everywhere. Writing the -webkit- alias by
+     hand as well made the build collapse the pair down to the alias alone, and
+     Chrome does not support -webkit-backdrop-filter, so the blur silently did
+     nothing in production while dev was fine (2026-09-19). The build adds the
+     prefix for Safari on its own. */
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease-out);

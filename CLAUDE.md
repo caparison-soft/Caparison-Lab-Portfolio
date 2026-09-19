@@ -211,11 +211,16 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   the header), shown only while html[data-nav-compact="true"]: a dark gradient
   plus backdrop-filter blur(10px), with a matching mask-image so blur and tint
   fade out together and no bar edge shows. Dimming alone was not enough - body
-  text stayed legible straight through the wordmark. It is a sibling of
-  <header>, not a layer inside it: the fixed header paints as its own backdrop
-  root, so the first version, a ::before at z-index -1 in there, dimmed but
-  blurred nothing, which only showed on the live site under a real paragraph.
-  Light ground gets a white gradient.
+  text stayed legible straight through the wordmark. It is its own element
+  rather than a ::before on the header, so its place in the layer stack is
+  explicit. Light ground gets a white gradient.
+- Write backdrop-filter (and mask-image) with the standard property only and
+  let the build prefix them. The scrim shipped with a hand-written
+  -webkit-backdrop-filter after the standard one; the build collapsed the pair
+  to the alias alone and Chrome does not support -webkit-backdrop-filter, so
+  the blur did nothing in production while dev looked right (2026-09-19). Any
+  CSS that only the production pipeline can break has to be checked against
+  `npm run build && npx next start -p 3001`, not just `npm run dev`.
 - The notch (owner's reference, 2026-09-13): src/components/site/nav-menu.tsx.
   At lg+ a 460px bone tab hangs from the page's top edge, straight sides
   (owner dropped the inverted corners) and a rounded bottom, holding the links.
