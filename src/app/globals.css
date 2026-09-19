@@ -520,6 +520,51 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 .site-notch-card:hover { background: var(--color-bone); }
 .site-notch :focus-visible { outline-color: var(--color-ink); }
 
+/* Hovering the notch draws a lime line round it and walks a brighter arc
+   along that line, the same idea as the liquid metal button's ring (owner,
+   2026-09-17). The ring is a conic gradient masked down to the border: the
+   padding sets its thickness, and excluding the content box leaves only the
+   edge. --notch-angle needs @property to be animatable at all; without it the
+   arc simply sits still and the line is all you get. */
+@property --notch-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes notch-ring-spin {
+  to { --notch-angle: 360deg; }
+}
+.site-notch-tab::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-out);
+  background:
+    conic-gradient(from var(--notch-angle),
+      rgb(150 180 30 / 0.85) 0deg,
+      #D6F631 40deg,
+      rgb(150 180 30 / 0.85) 100deg,
+      rgb(150 180 30 / 0.85) 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.site-notch:hover .site-notch-tab::after,
+.site-notch:focus-within .site-notch-tab::after {
+  opacity: 1;
+  animation: notch-ring-spin 3s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-notch:hover .site-notch-tab::after,
+  .site-notch:focus-within .site-notch-tab::after { animation: none; }
+}
+
 /* ---- The public site on matte black (owner's call, 2026-09-14). The admin
    keeps the light palette. Every colour utility resolves through these
    variables, so remapping them on the wrapper turns light surfaces dark:

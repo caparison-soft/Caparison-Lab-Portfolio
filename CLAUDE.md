@@ -192,7 +192,14 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   its 24px floor use a simplified single-colour hex). Owner, 2026-09-15.
 - The notch (owner's reference, 2026-09-13): src/components/site/nav-menu.tsx.
   At lg+ a 460px bone tab hangs from the page's top edge, straight sides
-  (owner dropped the inverted corners) and a rounded bottom, holding the links. No action in the header (owner removed it);
+  (owner dropped the inverted corners) and a rounded bottom, holding the links.
+  Hovering or focusing it draws a lime line round the whole tab with a brighter
+  arc walking along it, the liquid metal button's idea in one colour (owner,
+  2026-09-17): a conic gradient masked to the border by excluding the content
+  box, so the padding is the line's thickness. The angle animates only because
+  --notch-angle is registered with @property; without that the line still draws
+  and the arc sits still. It follows the tab when a panel opens, since it is
+  inset 0. Reduced motion keeps the line and drops the travel. No action in the header (owner removed it);
   the hero carries the CTA. Wordmark 92x24, hex mark 24. The liquid metal
   button is listed with the dark-surface exceptions in .site-ground so its
   olive-950/ink body and sage label look the same on every page (owner
