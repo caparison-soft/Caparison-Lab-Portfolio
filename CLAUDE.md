@@ -169,21 +169,24 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   from the section under the header's left edge) so the wordmark and the sheet
   toggle invert over light sections. The hero has no spine rail; other
   sections keep theirs.
-- Favicon: src/app/icon.svg is the one that shows. It is the brand's
-  simplified single-colour hex, a solid hexagon with the spark knocked out,
-  and it carries its own stylesheet with a prefers-color-scheme query, so it
-  is ink on a light tab bar and bone on a dark one with no plate behind it
-  (owner, 2026-09-17; a dark tile was tried first and dropped). An SVG
-  favicon's own media query is the only way a favicon can answer the tab
-  colour. Next emits it with sizes="any", which is what makes browsers prefer
-  it over the .ico. src/app/favicon.ico stays as the legacy fallback: the
-  full-colour mark on an olive-950 rounded square, generated from
-  public/brand/icon-tile.png, which is itself public/brand/icon.png padded 17%
-  on that plate. Neither layout sets metadata.icons any more, so nothing
-  competes with the file conventions; the (site) layout only sets it when the
-  owner has put a faviconUrl in settings. The Next starter default sat in
-  favicon.ico showing the Vercel mark until 2026-09-15. The bare icon.png
-  stays for the JSON-LD organization logo and the styleguide.
+- Favicon: src/app/icon.svg is the source of truth, and src/app/favicon.ico is
+  rasterised from it at 16/32/48, so whichever icon a browser picks it is the
+  same mark. It is the brand's simplified single-colour hex, a solid hexagon
+  with the spark knocked out (the circular aperture closes up at 16px), in
+  lime, on nothing.
+  Two approaches were tried and dropped first (owner, 2026-09-17): the
+  full-colour mark washed out on a light tab bar because its aperture is
+  transparent; a dark olive-950 tile fixed that but read as a badge; and an
+  SVG carrying a prefers-color-scheme query showed its light-scheme colour on
+  a dark tab bar, because **Chrome does not apply prefers-color-scheme inside
+  a favicon** (Firefox and Safari do). So the icon does not adapt at all: lime
+  is the one brand value that reads on a white tab bar and a near-black one
+  alike. Do not reintroduce a media query here.
+  Neither layout sets metadata.icons, so nothing competes with the file
+  conventions; the (site) layout only sets it when the owner has put a
+  faviconUrl in settings. The Next starter default sat in favicon.ico showing
+  the Vercel mark until 2026-09-15. public/brand/icon.png, the full-colour
+  mark, stays for the JSON-LD organization logo and the styleguide.
 - The compact nav mark is HexMark variant="simple": one currentColor hexagon
   with the aperture knocked through, bone on dark ground and ink on light, set
   by .nav-icon in globals.css. The full gradient mark put a white plate on the
