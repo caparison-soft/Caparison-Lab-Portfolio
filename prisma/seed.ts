@@ -150,7 +150,7 @@ const blocks: Block[] = [
   { key: "footer.rssLabel", group: "Footer", label: "RSS link label", value: "RSS" },
 
   // Meta
-  { key: "meta.defaultTitle", group: "SEO", label: "Default title", value: "Caparison Lab — web and mobile apps, scoped and shipped in weeks" },
+  { key: "meta.defaultTitle", group: "SEO", label: "Default title", value: "Caparison Lab", helpText: "The home page's browser tab. Short on purpose (owner, 2026-09-19); the description carries the detail." },
   { key: "meta.defaultDescription", group: "SEO", label: "Default description", value: "A build studio in Dhaka. Web apps, mobile apps, automation and design systems, with the budget and timeline listed on every project." },
   { key: "meta.titleSuffix", group: "SEO", label: "Title suffix", value: "Caparison Lab", helpText: "Appended to page titles, e.g. \"Nexus CRM — Caparison Lab\"." },
 
@@ -428,7 +428,7 @@ async function main() {
       availabilityStatus: "AVAILABLE",
       availabilityNote: "available for Q1, 2 slots open",
       socials: { github: "https://github.com/caparisonlab", linkedin: "https://www.linkedin.com/company/caparisonlab" },
-      metaTitle: "Caparison Lab — web and mobile apps, scoped and shipped in weeks",
+      metaTitle: "Caparison Lab",
       metaDescription: "A build studio in Dhaka. Web apps, mobile apps, automation and design systems, with the budget and timeline listed on every project.",
     },
     update: {},
