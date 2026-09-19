@@ -206,12 +206,16 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   paper or olive-950 only; below its 24px floor use a simplified single-colour
   hex). Owner, 2026-09-15.
 - The header is transparent and the page runs under it, so text scrolling past
-  collided with the logo (owner, 2026-09-19). .site-nav::before is a fixed
-  118px scrim at z-index -1 inside the header's stacking context, shown only
-  while html[data-nav-compact="true"]: a dark gradient plus backdrop-filter
-  blur(10px), with a matching mask-image so blur and tint fade out together and
-  no bar edge shows. Dimming alone was not enough - body text stayed legible
-  straight through the wordmark. Light ground gets a white gradient.
+  collided with the logo (owner, 2026-09-19). .site-nav-scrim is a fixed 118px
+  layer at z-index 65 (over the page and its media, under the load screen and
+  the header), shown only while html[data-nav-compact="true"]: a dark gradient
+  plus backdrop-filter blur(10px), with a matching mask-image so blur and tint
+  fade out together and no bar edge shows. Dimming alone was not enough - body
+  text stayed legible straight through the wordmark. It is a sibling of
+  <header>, not a layer inside it: the fixed header paints as its own backdrop
+  root, so the first version, a ::before at z-index -1 in there, dimmed but
+  blurred nothing, which only showed on the live site under a real paragraph.
+  Light ground gets a white gradient.
 - The notch (owner's reference, 2026-09-13): src/components/site/nav-menu.tsx.
   At lg+ a 460px bone tab hangs from the page's top edge, straight sides
   (owner dropped the inverted corners) and a rounded bottom, holding the links.

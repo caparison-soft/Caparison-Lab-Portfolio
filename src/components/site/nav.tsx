@@ -46,6 +46,11 @@ export async function Nav({ blocks, siteName }: NavProps) {
   };
 
   return (
+    <>
+      {/* The scrim has to be a sibling of the header, not a layer inside it:
+          the fixed header paints as its own backdrop root, so a backdrop-filter
+          in there has nothing behind it to blur (found live, 2026-09-19). */}
+      <div aria-hidden="true" className="site-nav-scrim" />
     <header className="fixed inset-x-0 top-0 z-[70]">
       <NavScroll />
       <div className="site-nav px-3 md:px-[48px]">
@@ -65,5 +70,6 @@ export async function Nav({ blocks, siteName }: NavProps) {
         </div>
       </div>
     </header>
+    </>
   );
 }

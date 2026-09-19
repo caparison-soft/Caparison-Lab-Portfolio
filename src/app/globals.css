@@ -364,21 +364,20 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
 
 /* The header is transparent and the page runs under it, so a title or a
    paragraph scrolling past used to collide with the logo (owner, 2026-09-19).
-   This scrim fades the page out just before it reaches the header. It is a
-   darkening gradient, not a bar: over the near-black grounds the site uses it
-   reads as the page falling away, and it sits behind the header's own content
-   because the header is the stacking context. */
-.site-nav::before {
-  content: "";
+   This scrim fades the page out just before it reaches the header: a darkening
+   gradient plus a blur, masked so both die away together and no bar edge shows.
+   The blur is what actually stops the collision - dimming alone left the text
+   legible straight through the wordmark. It sits at 65, over the page and its
+   media, under the load screen and the header. It cannot live inside the
+   header: a fixed, layered element is its own backdrop root, so a
+   backdrop-filter in there blurs nothing (found live, 2026-09-19). */
+.site-nav-scrim {
   position: fixed;
   inset: 0 0 auto 0;
   height: 118px;
-  z-index: -1;
+  z-index: 65;
   pointer-events: none;
   background: linear-gradient(to bottom, rgb(0 0 0 / 0.72) 0%, rgb(0 0 0 / 0.5) 45%, transparent 100%);
-  /* The blur is what actually stops a collision: dimming alone still left the
-     text legible straight through the wordmark. Masking the element fades the
-     blur out with the tint, so there is no hard edge and still no bar. */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
@@ -386,10 +385,10 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease-out);
 }
-html[data-nav-compact="true"] .site-nav::before { opacity: 1; }
+html[data-nav-compact="true"] .site-nav-scrim { opacity: 1; }
 /* Every public page sits on .site-ground, so the ground is dark in practice;
    this keeps the scrim right if a light section ever reaches the header. */
-html[data-nav-ground="light"] .site-nav::before {
+html[data-nav-ground="light"] .site-nav-scrim {
   background: linear-gradient(to bottom, rgb(255 255 255 / 0.8) 0%, rgb(255 255 255 / 0.55) 45%, transparent 100%);
 }
 
