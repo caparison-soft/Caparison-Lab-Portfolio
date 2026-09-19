@@ -101,7 +101,7 @@ const blocks: Block[] = [
   { key: "case.meta.year", group: "Case study", label: "Meta: year", value: "year" },
   { key: "case.meta.team", group: "Case study", label: "Meta: team", value: "team" },
   { key: "case.meta.stack", group: "Case study", label: "Meta: stack", value: "stack" },
-  { key: "case.meta.liveLabel", group: "Case study", label: "Live site link", value: "Open the live site" },
+  { key: "case.meta.liveLabel", group: "Case study", label: "Live site link", value: "Visit site" },
   { key: "case.briefHeading", group: "Case study", label: "Brief heading", value: "The brief", helpText: "The big title on the story panel." },
   { key: "case.buildHeading", group: "Case study", label: "Build heading", value: "what we built" },
   { key: "case.metricsHeading", group: "Case study", label: "Metrics heading", value: "results" },

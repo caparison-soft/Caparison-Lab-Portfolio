@@ -667,87 +667,93 @@ html[data-nav-ground="light"] .site-nav-scrim {
   --color-divider-light: rgba(0, 0, 0, 0.08);
   --divider-light: rgba(0, 0, 0, 0.08);
 }
-/* ---- The case page's live-site link. It is the one action on the header, so
-   it carries a lime bloom that breathes (the site is running now) and, on
-   hover, fills lime and sends a bright core round its edge, the notch's
-   language reused (owner, 2026-09-19). ---- */
-.case-live { isolation: isolate; }
-/* The breath: a soft lime bloom under the pill, always on. */
-.case-live::before {
-  content: "";
+/* ---- Arrow fill button (owner-supplied, 2026-09-19; replaces the bloom-and-dot
+   live-site pill). A lime puck sits at the right end of an outlined pill; on
+   hover or keyboard focus it sweeps out to fill the pill, the label crossfades
+   to ink under the advancing lime, and the arrow flies out right while a second
+   flies in from the left. No JavaScript: the component renders on the server.
+   The pasted version sized everything in vw and hardcoded hex; sizes here are
+   the site's 44px pill and the motion values are the tokens. ---- */
+.arrow-fill {
+  --puck: 34px;
+  --puck-inset: 5px;
+  /* Filling lime means the label must be real ink, not the bone that ink is
+     remapped to inside .site-ground (the .bg-lime exception above only matches
+     the plain class). */
+  --color-ink: #000000;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding-left: 20px;
+  padding-right: calc(var(--puck) + var(--puck-inset) + 14px);
+  border-radius: 999px;
+  border: 1px solid var(--color-lime);
+  color: var(--color-lime);
+  font-size: var(--text-body);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  overflow: hidden;
+  isolation: isolate;
+}
+.arrow-fill-label { position: relative; z-index: 1; }
+.arrow-fill-sheet {
   position: absolute;
-  inset: -8px -10px;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(ellipse 70% 120% at 50% 50%, rgb(214 246 49 / 0.30), transparent 70%);
-  filter: blur(10px);
-  animation: case-live-breath 4s ease-in-out infinite;
+  z-index: 2;
+  border-radius: 999px;
+  background: var(--color-lime);
+  inset: var(--puck-inset) var(--puck-inset) var(--puck-inset) calc(100% - var(--puck-inset) - var(--puck));
+  transition: inset var(--duration-base) var(--ease-in-out);
 }
-@keyframes case-live-breath {
-  0%, 100% { opacity: 0.55; transform: scale(0.97); }
-  50% { opacity: 1; transform: scale(1.03); }
-}
-/* The core, on hover only: same conic-gradient-masked-to-the-border trick as
-   the notch, reusing --notch-angle so there is one registered property. */
-.case-live::after {
-  content: "";
+/* The clipped copy of the label sits in the same box as the real one, so it
+   lands exactly on top of it however the text wraps or scales. */
+.arrow-fill-clip {
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration-base) var(--ease-out);
-  background:
-    conic-gradient(from var(--notch-angle),
-      rgb(23 27 6 / 0.25) 0deg,
-      #FFFFFF 16deg,
-      rgb(23 27 6 / 0.25) 34deg,
-      rgb(23 27 6 / 0.25) 360deg);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  padding-right: calc(var(--puck) + var(--puck-inset) + 14px);
+  color: var(--color-ink);
+  clip-path: inset(var(--puck-inset) var(--puck-inset) var(--puck-inset) calc(100% - var(--puck-inset) - var(--puck)) round 999px);
+  transition: clip-path var(--duration-base) var(--ease-in-out);
 }
-.case-live:hover::after,
-.case-live:focus-visible::after {
-  opacity: 1;
-  animation: notch-ring-spin 1.6s linear infinite;
-}
-/* The dot: the same "it is live" signal the facts card uses. */
-.case-live-dot {
-  width: 8px;
-  height: 8px;
-  flex: none;
+.arrow-fill-puck {
+  position: absolute;
+  z-index: 3;
+  right: var(--puck-inset);
+  top: 50%;
+  width: var(--puck);
+  height: var(--puck);
+  transform: translateY(-50%);
   border-radius: 999px;
-  background: #D6F631;
-  box-shadow: 0 0 0 0 rgb(214 246 49 / 0.7);
-  animation: case-live-ping 2.4s ease-out infinite;
+  background: var(--color-lime);
+  color: var(--color-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
-@keyframes case-live-ping {
-  0% { box-shadow: 0 0 0 0 rgb(214 246 49 / 0.65); }
-  70%, 100% { box-shadow: 0 0 0 9px rgb(214 246 49 / 0); }
+.arrow-fill-arrow {
+  position: absolute;
+  transition: transform var(--duration-base) var(--ease-in-out);
 }
-/* Filling lime on hover: ink must be ink there, not the remapped bone (the
-   .bg-lime exception above only matches the plain class). */
-.site-ground .case-live:hover,
-.site-ground .case-live:focus-visible {
-  --color-ink: #000000;
-  background: #D6F631;
-  border-color: #D6F631;
-  color: #000000;
-}
-.site-ground .case-live:hover .case-live-dot,
-.site-ground .case-live:focus-visible .case-live-dot {
-  background: #000000;
-  animation: none;
-  box-shadow: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .case-live::before, .case-live-dot { animation: none; }
-  .case-live:hover::after, .case-live:focus-visible::after { animation: none; }
-}
+.arrow-fill-arrow-in { transform: translateX(-170%) scale(0); }
+.arrow-fill:hover .arrow-fill-sheet,
+.arrow-fill:focus-visible .arrow-fill-sheet,
+.arrow-fill:active .arrow-fill-sheet { inset: 0; }
+.arrow-fill:hover .arrow-fill-clip,
+.arrow-fill:focus-visible .arrow-fill-clip,
+.arrow-fill:active .arrow-fill-clip { clip-path: inset(0 round 999px); }
+.arrow-fill:hover .arrow-fill-arrow-in,
+.arrow-fill:focus-visible .arrow-fill-arrow-in,
+.arrow-fill:active .arrow-fill-arrow-in { transform: none; }
+.arrow-fill:hover .arrow-fill-arrow-out,
+.arrow-fill:focus-visible .arrow-fill-arrow-out,
+.arrow-fill:active .arrow-fill-arrow-out { transform: translateX(170%) scale(0); }
 /* Hero keeps pure ink under its shader lift; every other dark section is the matte. */
 .site-ground .section-dark { background: var(--matte); }
 .site-ground .section-dark.ground-ink { background: #000000; }

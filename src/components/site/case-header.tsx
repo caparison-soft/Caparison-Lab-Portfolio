@@ -1,7 +1,7 @@
 "use client";
 // Client component: the case-page header (owner's brief, 2026-09-15). Two
-// columns: category pill, title (letters rise in one by one), summary, role
-// and platform pills and the live-site button on the left; a raised facts
+// columns: category pill, title (letters rise in one by one) with the
+// live-site button beside it, summary, role and platform pills on the left; a raised facts
 // card on the right with the client logo and the numbers, which count up
 // when the card enters view. One choreographed load sequence; reduced
 // motion renders everything in place.
@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import { animate, motion, useInView, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { cx } from "@/lib/cx";
+import { ArrowFillButton } from "@/components/ui/arrow-fill-button";
 
 export type Fact =
   | { kind: "money"; label: string; symbol: string; min: number; max: number | null; display?: string | null }
@@ -106,7 +107,12 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
             {category}
           </motion.span>
         ) : null}
-        <h1 className="mt-2 text-display-l" aria-label={title}>
+        {/* The live site is what a visitor most wants from this page, so the
+            button sits beside the title rather than trailing the metadata
+            (owner, 2026-09-19). It drops to its own line when the title fills
+            the column. */}
+        <div className="mt-2 flex flex-wrap items-end gap-x-3 gap-y-2">
+        <h1 className="text-display-l m-0" aria-label={title}>
           {reduced ? title : words.map((w, wi) => (
             <span key={wi} className="inline-block whitespace-nowrap mr-[0.25em]" aria-hidden="true">
               {w.split("").map((ch) => {
@@ -126,27 +132,16 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
             </span>
           ))}
         </h1>
-        <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.35)} className="mt-2 text-body-l text-ash max-w-[52ch]">{summary}</motion.p>
-        {outcome ? <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.45)} className="mt-3 text-h3 font-bold text-ink max-w-[40ch] leading-tight">{outcome}</motion.p> : null}
-        {/* The live site is the thing a visitor most wants from this page, so it
-            gets its own line straight after the outcome rather than trailing a
-            row of metadata pills (owner, 2026-09-19). */}
         {live ? (
-          <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.5)} className="mt-4">
-            <a
-              href={live.href}
-              rel="noopener noreferrer"
-              target="_blank"
-              className="case-live relative inline-flex items-center gap-2 h-[44px] pl-3 pr-4 rounded-full border border-lime/70 text-body font-medium text-lime no-underline transition-colors dur-fast"
-            >
-              <span aria-hidden="true" className="case-live-dot" />
-              {live.label}
-              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="shrink-0"><path d="M3 9l6-6M4.5 3H9v4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </a>
+          <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.5)} className="pb-[0.12em]">
+            <ArrowFillButton label={live.label} href={live.href} external />
           </motion.div>
         ) : null}
+        </div>
+        <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.35)} className="mt-2 text-body-l text-ash max-w-[52ch]">{summary}</motion.p>
+        {outcome ? <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.45)} className="mt-3 text-h3 font-bold text-ink max-w-[40ch] leading-tight">{outcome}</motion.p> : null}
         {pills.length > 0 ? (
-          <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.6)} className="mt-3 flex flex-wrap items-center gap-1">
+          <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.6)} className="mt-4 flex flex-wrap items-center gap-1">
             {pills.map((p) => <span key={p} className="data inline-flex items-center h-[28px] px-2 rounded-full bg-paper border border-divider-light text-ink">{p}</span>)}
           </motion.div>
         ) : null}

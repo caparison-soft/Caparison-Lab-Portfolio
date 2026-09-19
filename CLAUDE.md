@@ -299,14 +299,21 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   The hero frame is capped at 880px on lg+.
 - Header (owner's brief, 2026-09-15): src/components/site/case-header.tsx,
   two columns at lg. Left: category pill, title whose letters rise in per
-  word (motion stagger), summary, outcome, then the live-site link on its own
-  line, then the role and platform pills. The live link is the header's one
-  action, so it sits straight after the outcome at 44px and body size rather
-  than trailing the pills as a 28px tag (owner, 2026-09-19). It carries a lime
-  bloom that breathes and a pulsing dot, the same "it is running" signal the
-  facts card uses, and on hover it fills lime with ink and sends a white core
-  round its edge, reusing --notch-angle so one registered property serves both
-  it and the notch. Reduced motion stops all three. Right: a raised facts card (client
+  word (motion stagger) with the live-site button beside it, summary, outcome,
+  then the role and platform pills. The live link is the header's one action,
+  so it sits next to the title at 44px and body size rather than trailing the
+  pills as a 28px tag (owner, 2026-09-19); it drops to its own line when the
+  title fills the column. It is the owner-supplied arrow-fill button,
+  src/components/ui/arrow-fill-button.tsx: a lime puck at the right end of an
+  outlined pill that sweeps out to fill it on hover or keyboard focus, the
+  label crossfading to ink under the advancing lime while one arrow flies out
+  right and another flies in from the left. The pasted version sized
+  everything in vw, hardcoded hex and imported lucide; this one is the site's
+  44px pill on tokens with an inline SVG, and it is pure CSS (:hover,
+  :focus-visible, :active), so it renders on the server. Styles in globals.css
+  under "Arrow fill button". It replaced the breathing-bloom-and-dot pill of
+  earlier the same day. Label is the case.meta.liveLabel block, "Visit site"
+  since 2026-09-19. Right: a raised facts card (client
   logo + name, budget, duration, launched, status with a lime dot when live,
   team) that slides in and whose numbers count up on first view (motion
   animate; dates tick by month; display overrides skip the count). The card
@@ -322,8 +329,8 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   sits with the body because it is part of the story, not an appendix under
   the results (owner, 2026-09-15).
   Lime on the header (owner, 2026-09-15: page felt colourless): the category
-  pill is a lime fill with ink text, the live-site link is lime outline and
-  label (lime fill + ink on hover, via .case-live restoring --color-ink), the
+  pill is a lime fill with ink text, the live-site button is lime outline and
+  label (lime fill + ink on hover, via .arrow-fill restoring --color-ink), the
   live status value is lime next to its dot, and a lime hairline runs along
   the card's top edge. Lime stays a fill or dark-ground text only.
 - Project story fields: outcome (bold line under the summary), role ("our
