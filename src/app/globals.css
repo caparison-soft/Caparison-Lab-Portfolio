@@ -540,29 +540,60 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
   inset: 0;
   z-index: 2;
   border-radius: inherit;
-  padding: 2px;
+  padding: 3px;
   pointer-events: none;
   opacity: 0;
   transition: opacity var(--duration-base) var(--ease-out);
+  /* Full lime all the way round with a near-white core racing through it: the
+     hot spot is what reads as a charge running along the wire. */
   background:
     conic-gradient(from var(--notch-angle),
-      rgb(150 180 30 / 0.85) 0deg,
-      #D6F631 40deg,
-      rgb(150 180 30 / 0.85) 100deg,
-      rgb(150 180 30 / 0.85) 360deg);
+      #D6F631 0deg,
+      #F7FFC9 14deg,
+      #D6F631 30deg,
+      rgb(214 246 49 / 0.7) 110deg,
+      rgb(214 246 49 / 0.7) 360deg);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
 }
-.site-notch:hover .site-notch-tab::after,
-.site-notch:focus-within .site-notch-tab::after {
-  opacity: 1;
-  animation: notch-ring-spin 3s linear infinite;
+/* The bloom: the same gradient and the same angle, blurred and spilling past
+   the tab's edges. It sits behind the tab, which is opaque, so only the halo
+   outside shows. .site-notch carries z-30, so it is the stacking context and
+   -1 puts this under the tab without escaping the notch. */
+.site-notch::before {
+  content: "";
+  position: absolute;
+  inset: -7px -7px -9px;
+  z-index: -1;
+  border-radius: 0 0 20px 20px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-out);
+  filter: blur(9px);
+  background:
+    conic-gradient(from var(--notch-angle),
+      #D6F631 0deg,
+      #F7FFC9 14deg,
+      #D6F631 30deg,
+      rgb(214 246 49 / 0.55) 110deg,
+      rgb(214 246 49 / 0.55) 360deg);
 }
+.site-notch:hover .site-notch-tab::after,
+.site-notch:focus-within .site-notch-tab::after,
+.site-notch:hover::before,
+.site-notch:focus-within::before {
+  opacity: 1;
+  animation: notch-ring-spin 1.8s linear infinite;
+}
+.site-notch:hover::before,
+.site-notch:focus-within::before { opacity: 0.85; }
 @media (prefers-reduced-motion: reduce) {
   .site-notch:hover .site-notch-tab::after,
-  .site-notch:focus-within .site-notch-tab::after { animation: none; }
+  .site-notch:focus-within .site-notch-tab::after,
+  .site-notch:hover::before,
+  .site-notch:focus-within::before { animation: none; }
 }
 
 /* ---- The public site on matte black (owner's call, 2026-09-14). The admin

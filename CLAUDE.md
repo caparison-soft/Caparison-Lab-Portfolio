@@ -193,13 +193,17 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - The notch (owner's reference, 2026-09-13): src/components/site/nav-menu.tsx.
   At lg+ a 460px bone tab hangs from the page's top edge, straight sides
   (owner dropped the inverted corners) and a rounded bottom, holding the links.
-  Hovering or focusing it draws a lime line round the whole tab with a brighter
-  arc walking along it, the liquid metal button's idea in one colour (owner,
-  2026-09-17): a conic gradient masked to the border by excluding the content
-  box, so the padding is the line's thickness. The angle animates only because
-  --notch-angle is registered with @property; without that the line still draws
-  and the arc sits still. It follows the tab when a panel opens, since it is
-  inset 0. Reduced motion keeps the line and drops the travel. No action in the header (owner removed it);
+  Hovering or focusing it lights a 3px lime line round the whole tab with a
+  near-white core racing along it and a blurred bloom spilling onto the page,
+  the liquid metal button's idea in one colour (owner, 2026-09-17; a thinner,
+  duller first pass did not read). The line is .site-notch-tab::after, a conic
+  gradient masked to the border by excluding the content box, so the padding is
+  its thickness. The bloom is .site-notch::before: the same gradient and angle,
+  blurred, at z-index -1 so the opaque tab hides all but the halo. Both animate
+  --notch-angle, which is only animatable because it is registered with
+  @property; without that the line still draws and the core sits still. Both
+  are inset from the tab, so they follow it when a panel opens. Reduced motion
+  keeps the light and drops the travel. No action in the header (owner removed it);
   the hero carries the CTA. Wordmark 92x24, hex mark 24. The liquid metal
   button is listed with the dark-surface exceptions in .site-ground so its
   olive-950/ink body and sage label look the same on every page (owner
