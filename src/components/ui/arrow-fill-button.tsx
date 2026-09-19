@@ -22,7 +22,7 @@ type Props = {
 
 function Arrow({ className }: { className: string }) {
   return (
-    <svg className={className} width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+    <svg className={className} width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path d="M2.5 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -36,10 +36,9 @@ export function ArrowFillButton({ label, href, external = false, className }: Pr
       className={cx("arrow-fill", className)}
     >
       <span className="arrow-fill-label">{label}</span>
-      {/* The sweeping fill, and the same label clipped to it so the words turn
+      {/* The sweeping fill carries its own copy of the label, so the words turn
           ink exactly as the lime passes under them. */}
-      <span aria-hidden="true" className="arrow-fill-sheet" />
-      <span aria-hidden="true" className="arrow-fill-clip">
+      <span aria-hidden="true" className="arrow-fill-fill">
         <span>{label}</span>
       </span>
       <span aria-hidden="true" className="arrow-fill-puck">

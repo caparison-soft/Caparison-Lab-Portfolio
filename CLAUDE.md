@@ -306,17 +306,26 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   two columns at lg. Left: category pill, title whose letters rise in per
   word (motion stagger) with the live-site button beside it, summary, outcome,
   then the role and platform pills. The live link is the header's one action,
-  so it sits next to the title at 44px and body size rather than trailing the
-  pills as a 28px tag (owner, 2026-09-19); it drops to its own line when the
-  title fills the column. It is the owner-supplied arrow-fill button,
+  so it sits next to the title rather than trailing the pills as a 28px tag
+  (owner, 2026-09-19). It renders inside the <h1>, after the last word, so it
+  follows the title wherever that wraps; a flex row beside the heading pushed
+  it onto a line of its own as soon as the title took two lines (owner,
+  2026-09-19). The heading therefore carries the plain title in an .sr-only
+  span with the animated letters aria-hidden, instead of an aria-label, so the
+  link keeps its own name. The button is 36px at text-small and resets
+  letter-spacing, since the display size's tracking would otherwise come down
+  into it. It is the owner-supplied arrow-fill button,
   src/components/ui/arrow-fill-button.tsx: a lime puck at the right end of an
   outlined pill that sweeps out to fill it on hover or keyboard focus, the
   label crossfading to ink under the advancing lime while one arrow flies out
   right and another flies in from the left. The pasted version sized
-  everything in vw, hardcoded hex and imported lucide; this one is the site's
-  44px pill on tokens with an inline SVG, and it is pure CSS (:hover,
-  :focus-visible, :active), so it renders on the server. Styles in globals.css
-  under "Arrow fill button". It replaced the breathing-bloom-and-dot pill of
+  everything in vw, hardcoded hex and imported lucide; this one is a token
+  pill with an inline SVG, and it is pure CSS (:hover, :focus-visible,
+  :active), so it renders on the server. The lime and the ink copy of the
+  label are one element clipped together, not a fill sheet with a clipped
+  label over it: the two rendered the same, but axe measured the ink text
+  against the dark page behind it and called it a contrast failure. Styles in
+  globals.css under "Arrow fill button". It replaced the breathing-bloom-and-dot pill of
   earlier the same day. Label is the case.meta.liveLabel block, "Visit site"
   since 2026-09-19. Right: a raised facts card (client
   logo + name, budget, duration, launched, status with a lime dot when live,
@@ -372,6 +381,8 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   tooltip on hover or focus and as aria-label; names without a mark (AWS,
   Adobe are not in simple-icons) fall back to a text tag. Map of tag name to
   icon key lives in src/components/site/stack-logos.tsx; add new stacks there.
+  Both tiles are spans with role="img": aria-label is prohibited on a span with
+  no role, which axe was reporting on every stack mark (found 2026-09-19).
 
 ## Work section (home)
 - Owner-supplied interactive hover links (2026-09-14, replacing the earlier

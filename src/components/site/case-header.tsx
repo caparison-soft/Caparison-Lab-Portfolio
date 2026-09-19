@@ -109,12 +109,15 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
         ) : null}
         {/* The live site is what a visitor most wants from this page, so the
             button sits beside the title rather than trailing the metadata
-            (owner, 2026-09-19). It drops to its own line when the title fills
-            the column. */}
-        <div className="mt-2 flex flex-wrap items-end gap-x-3 gap-y-2">
-        <h1 className="text-display-l m-0" aria-label={title}>
-          {reduced ? title : words.map((w, wi) => (
-            <span key={wi} className="inline-block whitespace-nowrap mr-[0.25em]" aria-hidden="true">
+            (owner, 2026-09-19). It is inside the heading, so it follows the
+            last word wherever the title wraps instead of being pushed onto a
+            line of its own by a flex row (owner, 2026-09-19). The letters are
+            hidden from assistive tech and the plain title is read instead, so
+            the link keeps its own name inside the heading. */}
+        <h1 className="mt-2 text-display-l">
+          {reduced ? title : <span className="sr-only">{title}</span>}
+          {reduced ? null : words.map((w, wi) => (
+            <span key={wi} className={cx("inline-block whitespace-nowrap", wi < words.length - 1 && "mr-[0.25em]")} aria-hidden="true">
               {w.split("").map((ch) => {
                 const i = n++;
                 return (
@@ -131,13 +134,12 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
               })}
             </span>
           ))}
+          {live ? (
+            <motion.span initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.5)} className="inline-flex align-middle ml-[0.25em]">
+              <ArrowFillButton label={live.label} href={live.href} external />
+            </motion.span>
+          ) : null}
         </h1>
-        {live ? (
-          <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.5)} className="pb-[0.12em]">
-            <ArrowFillButton label={live.label} href={live.href} external />
-          </motion.div>
-        ) : null}
-        </div>
         <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.35)} className="mt-2 text-body-l text-ash max-w-[52ch]">{summary}</motion.p>
         {outcome ? <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.45)} className="mt-3 text-h3 font-bold text-ink max-w-[40ch] leading-tight">{outcome}</motion.p> : null}
         {pills.length > 0 ? (

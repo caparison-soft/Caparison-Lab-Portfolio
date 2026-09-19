@@ -43,7 +43,7 @@ function iconFor(name: string): Icon | null {
 export function StackMark({ name, size = 26 }: { name: string; size?: number }) {
   const icon = iconFor(name);
   return (
-    <span tabIndex={0} aria-label={name} className="stack-mark group relative inline-flex flex-col items-center justify-center h-[64px] w-[64px] rounded-lg bg-paper border border-divider-light text-ink transition-colors dur-fast hover:border-ash focus-visible:border-ash overflow-hidden">
+    <span tabIndex={0} role="img" aria-label={name} className="stack-mark group relative inline-flex flex-col items-center justify-center h-[64px] w-[64px] rounded-lg bg-paper border border-divider-light text-ink transition-colors dur-fast hover:border-ash focus-visible:border-ash overflow-hidden">
       <span className="flex items-center justify-center transition-transform dur-base ease-out group-hover:-translate-y-[9px] group-focus-visible:-translate-y-[9px]">
         {icon ? <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg> : <span className="data text-small">{name}</span>}
       </span>
@@ -60,7 +60,7 @@ export function StackLogos({ items, className, size = 20 }: { items: string[]; c
         return (
           <li key={name} className="relative group">
             {icon ? (
-              <span tabIndex={0} aria-label={name} className="stack-logo inline-flex items-center justify-center h-[36px] w-[36px] rounded-sm bg-paper border border-divider-light text-ink transition-colors dur-fast hover:border-ash focus-visible:border-ash">
+              <span tabIndex={0} role="img" aria-label={name} className="stack-logo inline-flex items-center justify-center h-[36px] w-[36px] rounded-sm bg-paper border border-divider-light text-ink transition-colors dur-fast hover:border-ash focus-visible:border-ash">
                 <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={icon.path} /></svg>
               </span>
             ) : (

@@ -677,8 +677,8 @@ html[data-nav-ground="light"] .site-nav-scrim {
    The pasted version sized everything in vw and hardcoded hex; sizes here are
    the site's 44px pill and the motion values are the tokens. ---- */
 .arrow-fill {
-  --puck: 34px;
-  --puck-inset: 5px;
+  --puck: 26px;
+  --puck-inset: 4px;
   /* Filling lime means the label must be real ink, not the bone that ink is
      remapped to inside .site-ground (the .bg-lime exception above only matches
      the plain class). */
@@ -686,14 +686,17 @@ html[data-nav-ground="light"] .site-nav-scrim {
   position: relative;
   display: inline-flex;
   align-items: center;
-  height: 44px;
-  padding-left: 20px;
-  padding-right: calc(var(--puck) + var(--puck-inset) + 14px);
+  height: 36px;
+  padding-left: 14px;
+  padding-right: calc(var(--puck) + var(--puck-inset) + 10px);
   border-radius: 999px;
   border: 1px solid var(--color-lime);
   color: var(--color-lime);
-  font-size: var(--text-body);
+  font-size: var(--text-small);
   font-weight: 500;
+  /* It sits inside the h1, so the display size's tight tracking would come
+     down with it and squeeze the label. */
+  letter-spacing: normal;
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
@@ -701,24 +704,21 @@ html[data-nav-ground="light"] .site-nav-scrim {
   isolation: isolate;
 }
 .arrow-fill-label { position: relative; z-index: 1; }
-.arrow-fill-sheet {
-  position: absolute;
-  z-index: 2;
-  border-radius: 999px;
-  background: var(--color-lime);
-  inset: var(--puck-inset) var(--puck-inset) var(--puck-inset) calc(100% - var(--puck-inset) - var(--puck));
-  transition: inset var(--duration-base) var(--ease-in-out);
-}
-/* The clipped copy of the label sits in the same box as the real one, so it
-   lands exactly on top of it however the text wraps or scales. */
-.arrow-fill-clip {
+/* The lime and the ink copy of the label are one element, clipped to the puck
+   at rest and to the whole pill on hover. Two elements (a fill sheet plus a
+   clipped label over it) rendered the same, but axe then measured ink text
+   against the dark page behind and called it a contrast failure; keeping the
+   lime on the same element it clips with makes the check see what a person
+   sees. The box matches the real label's, so the two line up exactly. */
+.arrow-fill-fill {
   position: absolute;
   inset: 0;
   z-index: 2;
   display: flex;
   align-items: center;
-  padding-left: 20px;
-  padding-right: calc(var(--puck) + var(--puck-inset) + 14px);
+  padding-left: 14px;
+  padding-right: calc(var(--puck) + var(--puck-inset) + 10px);
+  background: var(--color-lime);
   color: var(--color-ink);
   clip-path: inset(var(--puck-inset) var(--puck-inset) var(--puck-inset) calc(100% - var(--puck-inset) - var(--puck)) round 999px);
   transition: clip-path var(--duration-base) var(--ease-in-out);
@@ -732,7 +732,7 @@ html[data-nav-ground="light"] .site-nav-scrim {
   height: var(--puck);
   transform: translateY(-50%);
   border-radius: 999px;
-  background: var(--color-lime);
+  /* The lime under it is the fill layer; this one only clips the arrows. */
   color: var(--color-ink);
   display: inline-flex;
   align-items: center;
@@ -744,12 +744,9 @@ html[data-nav-ground="light"] .site-nav-scrim {
   transition: transform var(--duration-base) var(--ease-in-out);
 }
 .arrow-fill-arrow-in { transform: translateX(-170%) scale(0); }
-.arrow-fill:hover .arrow-fill-sheet,
-.arrow-fill:focus-visible .arrow-fill-sheet,
-.arrow-fill:active .arrow-fill-sheet { inset: 0; }
-.arrow-fill:hover .arrow-fill-clip,
-.arrow-fill:focus-visible .arrow-fill-clip,
-.arrow-fill:active .arrow-fill-clip { clip-path: inset(0 round 999px); }
+.arrow-fill:hover .arrow-fill-fill,
+.arrow-fill:focus-visible .arrow-fill-fill,
+.arrow-fill:active .arrow-fill-fill { clip-path: inset(0 round 999px); }
 .arrow-fill:hover .arrow-fill-arrow-in,
 .arrow-fill:focus-visible .arrow-fill-arrow-in,
 .arrow-fill:active .arrow-fill-arrow-in { transform: none; }
