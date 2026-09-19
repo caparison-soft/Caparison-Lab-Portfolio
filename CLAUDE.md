@@ -172,16 +172,20 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - Favicon: src/app/icon.svg is the source of truth, and src/app/favicon.ico is
   rasterised from it at 16/32/48, so whichever icon a browser picks it is the
   same mark. It is the brand's simplified single-colour hex, a solid hexagon
-  with the spark knocked out (the circular aperture closes up at 16px), in
-  lime, on nothing.
-  Two approaches were tried and dropped first (owner, 2026-09-17): the
-  full-colour mark washed out on a light tab bar because its aperture is
-  transparent; a dark olive-950 tile fixed that but read as a badge; and an
-  SVG carrying a prefers-color-scheme query showed its light-scheme colour on
-  a dark tab bar, because **Chrome does not apply prefers-color-scheme inside
-  a favicon** (Firefox and Safari do). So the icon does not adapt at all: lime
-  is the one brand value that reads on a white tab bar and a near-black one
-  alike. Do not reintroduce a media query here.
+  on a lime body, an olive-950 edge and an olive-950 spark (the circular
+  aperture closes up at 16px, so the spark sits straight on the body). No
+  plate: the edge is part of the mark and is what carries it.
+  Four approaches were tried and dropped first (owner, 2026-09-17 and 19):
+  the full-colour mark washed out on a light tab bar because its aperture is
+  transparent; a dark olive-950 tile fixed that but read as a badge; an SVG
+  carrying a prefers-color-scheme query showed its light-scheme colour on a
+  dark tab bar, because **Chrome does not apply prefers-color-scheme inside a
+  favicon** (Firefox and Safari do); and flat lime then vanished into the
+  pale-green Chrome theme the owner actually runs. So the mark brings its own
+  contrast instead of adapting: the dark edge carries it on white, pale green
+  and grey, the lime body carries it on near-black. Checked against all four
+  grounds at 16/20/32/44px, and again by rasterising the .ico's own payloads.
+  Do not make this adapt, and do not drop the edge.
   Neither layout sets metadata.icons, so nothing competes with the file
   conventions; the (site) layout only sets it when the owner has put a
   faviconUrl in settings. The Next starter default sat in favicon.ico showing
