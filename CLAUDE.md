@@ -202,8 +202,10 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   blurred, at z-index -1 so the opaque tab hides all but the halo. Both animate
   --notch-angle, which is only animatable because it is registered with
   @property; without that the line still draws and the core sits still. Both
-  are inset from the tab, so they follow it when a panel opens. Reduced motion
-  keeps the light and drops the travel. No action in the header (owner removed it);
+  are inset from the tab, so they follow it when a panel opens. Keyboard focus
+  lights it through :has(:focus-visible), never :focus-within: a panel button
+  keeps focus after a click, so :focus-within left the light on after the
+  pointer had gone. Reduced motion keeps the light and drops the travel. No action in the header (owner removed it);
   the hero carries the CTA. Wordmark 92x24, hex mark 24. The liquid metal
   button is listed with the dark-surface exceptions in .site-ground so its
   olive-950/ink body and sage label look the same on every page (owner

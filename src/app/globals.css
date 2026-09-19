@@ -558,6 +558,9 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   mask-composite: exclude;
 }
+/* Keyboard focus lights it too, but only :focus-visible: with :focus-within a
+   click on a panel button left the light on after the pointer had gone (owner,
+   2026-09-17), because the button keeps focus. */
 /* The bloom: the same gradient and the same angle, blurred and spilling past
    the tab's edges. It sits behind the tab, which is opaque, so only the halo
    outside shows. .site-notch carries z-30, so it is the stacking context and
@@ -581,19 +584,19 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
       rgb(214 246 49 / 0.55) 360deg);
 }
 .site-notch:hover .site-notch-tab::after,
-.site-notch:focus-within .site-notch-tab::after,
+.site-notch:has(:focus-visible) .site-notch-tab::after,
 .site-notch:hover::before,
-.site-notch:focus-within::before {
+.site-notch:has(:focus-visible)::before {
   opacity: 1;
   animation: notch-ring-spin 1.8s linear infinite;
 }
 .site-notch:hover::before,
-.site-notch:focus-within::before { opacity: 0.85; }
+.site-notch:has(:focus-visible)::before { opacity: 0.85; }
 @media (prefers-reduced-motion: reduce) {
   .site-notch:hover .site-notch-tab::after,
-  .site-notch:focus-within .site-notch-tab::after,
+  .site-notch:has(:focus-visible) .site-notch-tab::after,
   .site-notch:hover::before,
-  .site-notch:focus-within::before { animation: none; }
+  .site-notch:has(:focus-visible)::before { animation: none; }
 }
 
 /* ---- The public site on matte black (owner's call, 2026-09-14). The admin
