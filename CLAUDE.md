@@ -280,8 +280,14 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   The hero frame is capped at 880px on lg+.
 - Header (owner's brief, 2026-09-15): src/components/site/case-header.tsx,
   two columns at lg. Left: category pill, title whose letters rise in per
-  word (motion stagger), summary, outcome, role and platform pills, live-site
-  outlined button with an outward arrow. Right: a raised facts card (client
+  word (motion stagger), summary, outcome, then the live-site link on its own
+  line, then the role and platform pills. The live link is the header's one
+  action, so it sits straight after the outcome at 44px and body size rather
+  than trailing the pills as a 28px tag (owner, 2026-09-19). It carries a lime
+  bloom that breathes and a pulsing dot, the same "it is running" signal the
+  facts card uses, and on hover it fills lime with ink and sends a white core
+  round its edge, reusing --notch-angle so one registered property serves both
+  it and the notch. Reduced motion stops all three. Right: a raised facts card (client
   logo + name, budget, duration, launched, status with a lime dot when live,
   team) that slides in and whose numbers count up on first view (motion
   animate; dates tick by month; display overrides skip the count). The card

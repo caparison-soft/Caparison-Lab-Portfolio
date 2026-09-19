@@ -128,15 +128,26 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
         </h1>
         <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.35)} className="mt-2 text-body-l text-ash max-w-[52ch]">{summary}</motion.p>
         {outcome ? <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.45)} className="mt-3 text-h3 font-bold text-ink max-w-[40ch] leading-tight">{outcome}</motion.p> : null}
-        {pills.length > 0 || live ? (
-          <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.55)} className="mt-4 flex flex-wrap items-center gap-1">
+        {/* The live site is the thing a visitor most wants from this page, so it
+            gets its own line straight after the outcome rather than trailing a
+            row of metadata pills (owner, 2026-09-19). */}
+        {live ? (
+          <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.5)} className="mt-4">
+            <a
+              href={live.href}
+              rel="noopener noreferrer"
+              target="_blank"
+              className="case-live relative inline-flex items-center gap-2 h-[44px] pl-3 pr-4 rounded-full border border-lime/70 text-body font-medium text-lime no-underline transition-colors dur-fast"
+            >
+              <span aria-hidden="true" className="case-live-dot" />
+              {live.label}
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="shrink-0"><path d="M3 9l6-6M4.5 3H9v4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </a>
+          </motion.div>
+        ) : null}
+        {pills.length > 0 ? (
+          <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.6)} className="mt-3 flex flex-wrap items-center gap-1">
             {pills.map((p) => <span key={p} className="data inline-flex items-center h-[28px] px-2 rounded-full bg-paper border border-divider-light text-ink">{p}</span>)}
-            {live ? (
-              <a href={live.href} rel="noopener noreferrer" target="_blank" className="case-live inline-flex items-center gap-1 h-[28px] px-2 rounded-full border border-lime/60 text-small font-medium text-lime no-underline hover:bg-lime hover:border-lime hover:text-ink transition-colors dur-fast">
-                {live.label}
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 9l6-6M4.5 3H9v4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </a>
-            ) : null}
           </motion.div>
         ) : null}
       </div>

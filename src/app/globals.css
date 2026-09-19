@@ -641,10 +641,87 @@ html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
   --color-divider-light: rgba(0, 0, 0, 0.08);
   --divider-light: rgba(0, 0, 0, 0.08);
 }
-/* The case page's live-site link fills lime on hover: ink must be ink there, not the
-   remapped bone (the .bg-lime exception above only matches the plain class). */
+/* ---- The case page's live-site link. It is the one action on the header, so
+   it carries a lime bloom that breathes (the site is running now) and, on
+   hover, fills lime and sends a bright core round its edge, the notch's
+   language reused (owner, 2026-09-19). ---- */
+.case-live { isolation: isolate; }
+/* The breath: a soft lime bloom under the pill, always on. */
+.case-live::before {
+  content: "";
+  position: absolute;
+  inset: -8px -10px;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 120% at 50% 50%, rgb(214 246 49 / 0.30), transparent 70%);
+  filter: blur(10px);
+  animation: case-live-breath 4s ease-in-out infinite;
+}
+@keyframes case-live-breath {
+  0%, 100% { opacity: 0.55; transform: scale(0.97); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+/* The core, on hover only: same conic-gradient-masked-to-the-border trick as
+   the notch, reusing --notch-angle so there is one registered property. */
+.case-live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-out);
+  background:
+    conic-gradient(from var(--notch-angle),
+      rgb(23 27 6 / 0.25) 0deg,
+      #FFFFFF 16deg,
+      rgb(23 27 6 / 0.25) 34deg,
+      rgb(23 27 6 / 0.25) 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.case-live:hover::after,
+.case-live:focus-visible::after {
+  opacity: 1;
+  animation: notch-ring-spin 1.6s linear infinite;
+}
+/* The dot: the same "it is live" signal the facts card uses. */
+.case-live-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 999px;
+  background: #D6F631;
+  box-shadow: 0 0 0 0 rgb(214 246 49 / 0.7);
+  animation: case-live-ping 2.4s ease-out infinite;
+}
+@keyframes case-live-ping {
+  0% { box-shadow: 0 0 0 0 rgb(214 246 49 / 0.65); }
+  70%, 100% { box-shadow: 0 0 0 9px rgb(214 246 49 / 0); }
+}
+/* Filling lime on hover: ink must be ink there, not the remapped bone (the
+   .bg-lime exception above only matches the plain class). */
 .site-ground .case-live:hover,
-.site-ground .case-live:focus-visible { --color-ink: #000000; }
+.site-ground .case-live:focus-visible {
+  --color-ink: #000000;
+  background: #D6F631;
+  border-color: #D6F631;
+  color: #000000;
+}
+.site-ground .case-live:hover .case-live-dot,
+.site-ground .case-live:focus-visible .case-live-dot {
+  background: #000000;
+  animation: none;
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .case-live::before, .case-live-dot { animation: none; }
+  .case-live:hover::after, .case-live:focus-visible::after { animation: none; }
+}
 /* Hero keeps pure ink under its shader lift; every other dark section is the matte. */
 .site-ground .section-dark { background: var(--matte); }
 .site-ground .section-dark.ground-ink { background: #000000; }
