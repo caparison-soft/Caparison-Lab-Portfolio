@@ -350,21 +350,48 @@
   height: 64px;
   transition: height var(--duration-base) var(--ease-in-out);
 }
-.nav-icon { display: none; }
 .nav-wordmark-ink { display: none; }
 html[data-nav-ground="light"] .nav-wordmark-bone { display: none; }
 html[data-nav-ground="light"] .nav-wordmark-ink { display: block; }
 .site-sheet-toggle { color: var(--color-bone); }
 html[data-nav-ground="light"] .site-sheet-toggle { color: var(--color-ink); }
-/* The compact mark is the single-colour hex, so it inverts with the ground the
-   way the wordmark it replaces does. The header sits outside .site-ground, so
-   these are the original token values. */
+/* The mark inverts with the ground the way the wordmark beside it does. The
+   header sits outside .site-ground, so these are the original token values. */
 .nav-icon { color: var(--color-bone); }
 html[data-nav-ground="light"] .nav-icon { color: var(--color-ink); }
 html[data-nav-compact="true"] .site-nav { height: 48px; }
-html[data-nav-compact="true"] .nav-wordmark { display: none; }
-html[data-nav-compact="true"] .nav-icon { display: block; }
 html[data-nav-compact="true"] .site-menu-panel { top: 48px; }
+
+/* The header is transparent and the page runs under it, so a title or a
+   paragraph scrolling past used to collide with the logo (owner, 2026-09-19).
+   This scrim fades the page out just before it reaches the header. It is a
+   darkening gradient, not a bar: over the near-black grounds the site uses it
+   reads as the page falling away, and it sits behind the header's own content
+   because the header is the stacking context. */
+.site-nav::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 118px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 0.72) 0%, rgb(0 0 0 / 0.5) 45%, transparent 100%);
+  /* The blur is what actually stops a collision: dimming alone still left the
+     text legible straight through the wordmark. Masking the element fades the
+     blur out with the tint, so there is no hard edge and still no bar. */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+html[data-nav-compact="true"] .site-nav::before { opacity: 1; }
+/* Every public page sits on .site-ground, so the ground is dark in practice;
+   this keeps the scrim right if a light section ever reaches the header. */
+html[data-nav-ground="light"] .site-nav::before {
+  background: linear-gradient(to bottom, rgb(255 255 255 / 0.8) 0%, rgb(255 255 255 / 0.55) 45%, transparent 100%);
+}
 
 /* ---- The capability sheet: shared hairlines, no gap, no radius ---- */
 .sheet {

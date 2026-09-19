@@ -165,7 +165,7 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - No bar (owner's call, 2026-09-13): the header is fixed and transparent, laid
   over the page (sections start with at least 64px of padding; html has
   scroll-padding-top for anchors). NavScroll sets html[data-nav-compact] past 64px of scroll (header 64px
-  to 48px, wordmark to hex mark) and html[data-nav-ground] (dark or light,
+  to 48px) and html[data-nav-ground] (dark or light,
   from the section under the header's left edge) so the wordmark and the sheet
   toggle invert over light sections. The hero has no spine rail; other
   sections keep theirs.
@@ -191,12 +191,22 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   faviconUrl in settings. The Next starter default sat in favicon.ico showing
   the Vercel mark until 2026-09-15. public/brand/icon.png, the full-colour
   mark, stays for the JSON-LD organization logo and the styleguide.
-- The compact nav mark is HexMark variant="simple": one currentColor hexagon
-  with the aperture knocked through, bone on dark ground and ink on light, set
-  by .nav-icon in globals.css. The full gradient mark put a white plate on the
-  matte ground and its lower-right went to olive on black, which the brand
-  guide already rules out (full colour on bone, paper or olive-950 only; below
-  its 24px floor use a simplified single-colour hex). Owner, 2026-09-15.
+- The logo is one lockup that does not change on scroll (owner, 2026-09-19:
+  the wordmark swapping to the bare mark read as a glitch): HexMark
+  variant="simple" at 22px beside the wordmark image, gap-1. The simple mark
+  is one currentColor hexagon with the aperture knocked through, bone on dark
+  ground and ink on light, set by .nav-icon in globals.css; the full gradient
+  mark put a white plate on the matte ground and its lower-right went to olive
+  on black, which the brand guide already rules out (full colour on bone,
+  paper or olive-950 only; below its 24px floor use a simplified single-colour
+  hex). Owner, 2026-09-15.
+- The header is transparent and the page runs under it, so text scrolling past
+  collided with the logo (owner, 2026-09-19). .site-nav::before is a fixed
+  118px scrim at z-index -1 inside the header's stacking context, shown only
+  while html[data-nav-compact="true"]: a dark gradient plus backdrop-filter
+  blur(10px), with a matching mask-image so blur and tint fade out together and
+  no bar edge shows. Dimming alone was not enough - body text stayed legible
+  straight through the wordmark. Light ground gets a white gradient.
 - The notch (owner's reference, 2026-09-13): src/components/site/nav-menu.tsx.
   At lg+ a 460px bone tab hangs from the page's top edge, straight sides
   (owner dropped the inverted corners) and a rounded bottom, holding the links.

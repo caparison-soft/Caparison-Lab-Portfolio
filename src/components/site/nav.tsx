@@ -50,10 +50,13 @@ export async function Nav({ blocks, siteName }: NavProps) {
       <NavScroll />
       <div className="site-nav px-3 md:px-[48px]">
         <div className="max-w-layout mx-auto h-full relative flex items-center gap-4">
-          <Link href="/" className="flex items-center no-underline flex-none" aria-label={siteName}>
+          {/* One lockup, the mark beside the name, and it does not change on
+              scroll (owner, 2026-09-19): swapping to the bare mark read as a
+              glitch. The two wordmark files are the ground inversion. */}
+          <Link href="/" className="flex items-center gap-1 no-underline flex-none" aria-label={siteName}>
+            <HexMark variant="simple" className="nav-icon w-[22px] h-[22px] flex-none" />
             <img src="/brand/wordmark-bone.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-bone w-[92px] h-[24px] object-contain" />
             <img src="/brand/wordmark-ink.png" alt="" width={384} height={102} className="nav-wordmark nav-wordmark-ink w-[92px] h-[24px] object-contain" />
-            <HexMark variant="simple" className="nav-icon w-[24px] h-[24px]" />
           </Link>
 
           <NavNotch {...menu} />
