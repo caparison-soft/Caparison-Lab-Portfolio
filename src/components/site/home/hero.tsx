@@ -38,7 +38,7 @@ export function Hero({ blocks, work = [] }: HeroProps) {
       <HeroWeave />
 
       <div className="relative z-10 w-full max-w-layout mx-auto pt-[64px] lg:pt-0">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,480px)] gap-5 lg:gap-6 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,500px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,620px)] gap-5 lg:gap-6 items-center">
           <div className="min-w-0">
             <h1 className="text-bone lg:text-display-hero">
               {headline.map((line, i) => (
@@ -47,7 +47,7 @@ export function Hero({ blocks, work = [] }: HeroProps) {
                 </span>
               ))}
             </h1>
-            <p className="reveal-quick mt-3 text-body-l text-sage max-w-[46ch]" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
+            <p className="reveal-quick mt-3 text-body-l text-sage max-w-[40ch]" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>
               {t(blocks, "home.hero.sub")}
             </p>
             <div className="reveal-quick mt-4 flex flex-wrap items-center gap-2" style={{ "--reveal-delay": "180ms" } as React.CSSProperties}>

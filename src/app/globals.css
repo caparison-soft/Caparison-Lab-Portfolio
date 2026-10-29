@@ -61,7 +61,7 @@
   --text-display-l--font-weight: 700;
   /* Hero headline at lg+ (owner, 2026-09-13): between display-xl and display-l
      so two long sentences stay one line each beside the glass logo. */
-  --text-display-hero: clamp(2.5rem, 3.6vw, 3.25rem);
+  --text-display-hero: clamp(2.75rem, 4.4vw, 4rem);
   --text-display-hero--line-height: 0.95;
   --text-display-hero--letter-spacing: -0.03em;
   --text-display-hero--font-weight: 900;
@@ -760,7 +760,7 @@ html[data-nav-ground="light"] .site-nav-scrim {
    Lime as text is allowed here because the ground is near-black. ---- */
 .hero-work {
   width: 100%;
-  max-width: 520px;
+  max-width: 620px;
 }
 .hero-work-card {
   display: block;
@@ -783,18 +783,39 @@ html[data-nav-ground="light"] .site-nav-scrim {
   aspect-ratio: 16 / 9;
   background: rgb(255 255 255 / 0.04);
 }
-.hero-work-shot img {
+.hero-work-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform var(--duration-slow) var(--ease-out);
 }
-.hero-work-card:hover .hero-work-shot img,
-.hero-work-card:focus-visible .hero-work-shot img { transform: scale(1.03); }
+/* The hover lift is on the shot, not the picture: the wipe's columns each
+   hold their own copy of the picture, and scaling those individually would
+   pull them out of register. */
+.hero-work-shot { transition: transform var(--duration-slow) var(--ease-out); }
+.hero-work-card:hover .hero-work-shot,
+.hero-work-card:focus-visible .hero-work-shot { transform: scale(1.015); }
+/* The strip wipe. Every column carries the whole picture pushed back by its
+   own offset, so one scale settles them all around the same centre. */
+.hero-work-wipe { position: absolute; inset: 0; display: block; }
+.hero-work-strip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: block;
+  overflow: hidden;
+  will-change: clip-path;
+}
+.hero-work-strip-inner {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: block;
+  will-change: transform;
+}
 .hero-work-body {
   display: block;
-  padding: 14px 10px 6px;
+  padding: 16px 12px 6px;
 }
 .hero-work-cat {
   display: block;
@@ -805,7 +826,7 @@ html[data-nav-ground="light"] .site-nav-scrim {
 .hero-work-title {
   display: block;
   margin-top: 2px;
-  font-size: var(--text-h3);
+  font-size: var(--text-h2);
   font-weight: 700;
   line-height: 1.2;
   color: var(--color-bone);
@@ -866,7 +887,9 @@ html[data-nav-ground="light"] .site-nav-scrim {
   .hero-work { max-width: 100%; }
   .hero-work-card { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 18px; }
   .hero-work-card:hover, .hero-work-card:focus-visible { transform: none; }
-  .hero-work-shot { width: 108px; flex: none; border-radius: 12px; }
+  .hero-work-card:hover .hero-work-shot, .hero-work-card:focus-visible .hero-work-shot { transform: none; }
+  .hero-work-shot { width: 120px; flex: none; border-radius: 12px; }
+  .hero-work-title { font-size: var(--text-h4); }
   .hero-work-body { padding: 0; min-width: 0; }
   .hero-work-title { font-size: var(--text-h4); }
   .hero-work-metric { margin-top: 2px; font-size: var(--text-small); }

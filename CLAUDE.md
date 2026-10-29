@@ -258,13 +258,24 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
 - Two columns at lg+ (owner, 2026-10-29): headline, sub and CTA on the left, a
   rotating case card on the right where the 3D glass logo used to be. The logo
   said nothing and enquiries were thin, so the space carries proof instead.
-  Headline is text-display-hero (clamp 40-52px at lg+, weight 900, defined in
+  Headline is text-display-hero (clamp 44-64px at lg+, weight 900, defined in
   globals.css @theme); phones keep display-xl. It was 44-72px while the glass
-  sat beside it - with a real second column the long sentences ran to three
-  lines, so the ceiling came down to 52px and each sentence is one line again.
+  sat beside it; the card is wide enough (500px at lg, 620px at xl) that the
+  sentences wrap, and the owner wants them to - big type over more lines reads
+  better here than one line held small (2026-10-29).
 - The card is src/components/site/home/hero-work.tsx: picture, category,
   title and the project's first metric, the whole card a link to the case
-  page. It advances every 5s and the hairline under it shows the time left;
+  page. The picture changes with the owner-supplied strip wipe (2026-10-29):
+  the incoming one arrives as ten vertical columns that uncover left to right,
+  45ms apart, the whole image settling out of a 1.14 zoom underneath. Every
+  column holds the whole picture pushed back by its own offset so one scale
+  settles them all around the same centre, and the hover lift is on the shot
+  rather than the picture for the same reason. The pasted version drove this
+  with GSAP and SplitText; clip-path and the motion already in the bundle do
+  the same thing, so nothing was added. The body text commits when the wipe
+  ends, on a timer rather than the last column's onAnimationComplete, which
+  never arrives if the tab is backgrounded mid-wipe. It advances every 5s and
+  the hairline under it shows the time left;
   pointer or keyboard inside it pauses where it is, and so does a hidden tab,
   so nobody comes back to a card that moved three times unwatched. Reduced
   motion never advances on its own and leaves the dots to do the work. Under

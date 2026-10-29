@@ -1,0 +1,32 @@
+GOALS - Mohammad Zahidul A.
+(Fill the [ ] parts)
+
+DIRECTION
+- Keep video production running (main income now)
+- Grow into AI SaaS, web apps, Chrome extensions, AI tools
+- Best first niche: video-adjacent software (creator tools, video
+  workflow, content automation, AI video apps, Chrome extensions)
+
+CONNECTS
+- Current balance: 2,549
+- Monthly connects for video: [ ]
+- Monthly connects for AI/SaaS: [ ]
+- Boost rule: [e.g. boost only when match score 8+]
+
+AI/SAAS TARGETS
+- Target hourly rate: [ ]
+- Target fixed-price project size: [e.g. $500-$5,000]
+- Job types wanted: [MVP / Chrome extension / AI tool / web app / automation]
+- Job types to avoid: [ ]
+- AI/SaaS bids per week: [ ]
+
+INCOME
+- Monthly income target: [ ]
+- Target date to make AI/SaaS a major share of income: [ ]
+
+TEAM
+- Video bidding: [who handles it]
+- AI/SaaS bidding: me
+- Rule: no two bids on the same job; split connects as above
+- Note: Upwork does not allow anyone else to log in to my account.
+  Use an Upwork Agency account so teammates bid from their own accounts.
