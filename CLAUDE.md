@@ -33,7 +33,9 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   Generated client is src/generated/prisma (gitignored, built on postinstall).
   New migrations: `npm run db:migrate:new > prisma/migrations/<ts>_<name>/migration.sql`
   then `npm run db:migrate`. No shadow database is used.
-- Media lives in Cloudflare R2 behind cdn.caparisonlab.com. Uploads go browser
+- Media lives in Cloudflare R2. Production serves it from the bucket's public
+  r2.dev host (NEXT_PUBLIC_CDN_URL); cdn.caparisonlab.com was the plan and is
+  not wired up, so do not assume that host when checking a key. Uploads go browser
   -> presigned PUT, never proxied through a Vercel function (4.5MB body limit).
   Store keyPrefix, derive URLs from NEXT_PUBLIC_CDN_URL at read time.
 - R2 has no image transforms and no video transcoding. sharp makes the variants
@@ -253,9 +255,35 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   centred vertically (the next section must not show on load); the "currently
   building" strip is gone (home.live.* keys and getLiveProject stay for admin
   use). One CTA. Sub sits mt-3 under the headline.
-- Headline is text-display-hero at lg+ (clamp 44-72px, weight 900, defined in
-  globals.css @theme) so the two long sentences stay one line each beside the
-  glass logo; phones keep display-xl.
+- Two columns at lg+ (owner, 2026-10-29): headline, sub and CTA on the left, a
+  rotating case card on the right where the 3D glass logo used to be. The logo
+  said nothing and enquiries were thin, so the space carries proof instead.
+  Headline is text-display-hero (clamp 40-52px at lg+, weight 900, defined in
+  globals.css @theme); phones keep display-xl. It was 44-72px while the glass
+  sat beside it - with a real second column the long sentences ran to three
+  lines, so the ceiling came down to 52px and each sentence is one line again.
+- The card is src/components/site/home/hero-work.tsx: picture, category,
+  title and the project's first metric, the whole card a link to the case
+  page. It advances every 5s and the hairline under it shows the time left;
+  pointer or keyboard inside it pauses where it is, and so does a hidden tab,
+  so nobody comes back to a card that moved three times unwatched. Reduced
+  motion never advances on its own and leaves the dots to do the work. Under
+  lg the card lies down into a row (108px thumbnail beside the text) - standing
+  up it pushed the CTA and the next section past the fold, which the hero's own
+  rule forbids. Which projects appear is Project.showInHero, a checkbox on the
+  editor's Publish tab, kept separate from `featured` so the hero and the nav
+  panel can differ; a project with no thumbnail is skipped, since the card is
+  the picture. getHeroProjects in src/lib/queries/home.ts. Copy key
+  home.hero.workLabel (the link's and the dots' accessible name).
+- Gone with the glass: the headline's real refraction (three.js can only
+  refract what it draws, so the lines used to be painted into the glass scene
+  and the DOM copies hidden) and one WebGL context. src/lib/glass-state.ts is
+  now src/lib/hero-state.ts and the load screen waits on [data-hero-wait],
+  which the card carries; it reports ready when its first picture is actually
+  drawn, and a cached picture is caught with img.complete because its onLoad
+  fires before hydration. hero-glass.tsx, the .glb and the vendored module are
+  unused but kept, the way scroll-reveal-text.tsx is; the WebP still of the 3D
+  mark is still the case-story stand-in.
 
 ## Case study page (owner's brief, 2026-09-14)
 - Results render as a bento (owner-supplied stats-bento, 2026-09-14,

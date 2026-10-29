@@ -8,7 +8,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CaparisonLogoHandle } from "@/lib/vendor/caparison-logo";
 import { getSharedWeave } from "@/lib/hero-weave";
-import { setGlassState } from "@/lib/glass-state";
+import { setHeroState } from "@/lib/hero-state";
 import { cx } from "@/lib/cx";
 
 const GLB = "/caparison_logo.glb";
@@ -112,7 +112,7 @@ export function HeroGlass() {
 
   useEffect(() => { if (useGl === null) setUseGl(canRunWebGL()); }, [useGl]);
   // Tell the load screen whether to wait for the glass.
-  useEffect(() => { if (useGl === false) setGlassState("off"); }, [useGl]);
+  useEffect(() => { if (useGl === false) setHeroState("off"); }, [useGl]);
 
   useLayoutEffect(() => {
     if (!useGl || !hostRef.current) return;
@@ -160,7 +160,7 @@ export function HeroGlass() {
       canvas.classList.replace("opacity-0", "opacity-100");
       setReady(true);
       block.setAttribute("data-glass-ready", "true");
-      setGlassState("ready");
+      setHeroState("ready");
     };
     canvas.addEventListener("logo:ready", onReady);
 
@@ -253,7 +253,7 @@ export function HeroGlass() {
           the first paint, exactly where the glass will render; the canvas is appended
           by the effect (so it can outlive the page) and the still fades out when the
           glass is live. When WebGL is unavailable the still simply stays. */}
-      <div ref={hostRef} aria-hidden="true" data-glass-host className="pointer-events-none absolute left-0 -right-[240px] -top-[88px] -bottom-[24px] z-10 hidden lg:block [container-type:size]">
+      <div ref={hostRef} aria-hidden="true" data-hero-wait className="pointer-events-none absolute left-0 -right-[240px] -top-[88px] -bottom-[24px] z-10 hidden lg:block [container-type:size]">
         <img
           src="/brand/logo-3d-1280.webp"
           srcSet="/brand/logo-3d-640.webp 640w, /brand/logo-3d-1280.webp 1280w"

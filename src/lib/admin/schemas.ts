@@ -54,6 +54,7 @@ export const projectSchema = z.object({
   ogImageUrl: optionalUrl,
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   featured: bool,
+  showInHero: bool,
   currentlyBuilding: bool,
   buildNote: optionalString,
   publishedAt: optionalDate,
@@ -76,7 +77,7 @@ export type ProjectInput = {
   videoUrl: string; videoProvider: "R2" | "YOUTUBE" | "VIMEO";
   ctaMode: "ENQUIRY" | "EXTERNAL" | "NONE"; ctaLabel: string; ctaHref: string; ctaNote: string;
   metaTitle: string; metaDescription: string; ogImageUrl: string;
-  status: "DRAFT" | "PUBLISHED" | "ARCHIVED"; featured: boolean; currentlyBuilding: boolean; buildNote: string; publishedAt: string;
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED"; featured: boolean; showInHero: boolean; currentlyBuilding: boolean; buildNote: string; publishedAt: string;
 };
 export type ProjectOutput = z.output<typeof projectSchema>;
 

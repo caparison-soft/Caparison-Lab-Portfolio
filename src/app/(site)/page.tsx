@@ -6,17 +6,18 @@ import { ProcessStrip } from "@/components/site/home/process-strip";
 import { ContactBlock } from "@/components/site/home/contact-block";
 import { Testimonials } from "@/components/site/testimonials";
 import { getBlocks, getSettings, t } from "@/lib/queries/content";
-import { getCapabilities, getFeaturedProjects, getProcessSteps, getPublishedProjectCount, getTestimonials } from "@/lib/queries/home";
+import { getCapabilities, getFeaturedProjects, getHeroProjects, getProcessSteps, getPublishedProjectCount, getTestimonials } from "@/lib/queries/home";
 import { formatList } from "@/lib/format";
 
 export const revalidate = 3600;
 
 /** Homepage. Everything below is read from the database; nothing is hardcoded. */
 export default async function HomePage() {
-  const [blocks, settings, projects, total, capabilities, steps, testimonials] = await Promise.all([
+  const [blocks, settings, projects, heroWork, total, capabilities, steps, testimonials] = await Promise.all([
     getBlocks(["Homepage", "Contact form"]),
     getSettings(),
     getFeaturedProjects(5),
+    getHeroProjects(5),
     getPublishedProjectCount(),
     getCapabilities(),
     getProcessSteps(),
@@ -25,7 +26,7 @@ export default async function HomePage() {
 
   return (
     <main id="main">
-      <Hero blocks={blocks} settings={settings} />
+      <Hero blocks={blocks} settings={settings} work={heroWork} />
       <WorkIndex blocks={blocks} projects={projects} total={total} />
       <CapabilitySheet blocks={blocks} items={capabilities} />
       <ProcessStrip blocks={blocks} steps={steps} />

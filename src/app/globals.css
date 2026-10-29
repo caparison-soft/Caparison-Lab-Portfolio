@@ -61,7 +61,7 @@
   --text-display-l--font-weight: 700;
   /* Hero headline at lg+ (owner, 2026-09-13): between display-xl and display-l
      so two long sentences stay one line each beside the glass logo. */
-  --text-display-hero: clamp(2.75rem, 5vw, 4.5rem);
+  --text-display-hero: clamp(2.5rem, 3.6vw, 3.25rem);
   --text-display-hero--line-height: 0.95;
   --text-display-hero--letter-spacing: -0.03em;
   --text-display-hero--font-weight: 900;
@@ -753,6 +753,125 @@ html[data-nav-ground="light"] .site-nav-scrim {
 .arrow-fill:hover .arrow-fill-arrow-out,
 .arrow-fill:focus-visible .arrow-fill-arrow-out,
 .arrow-fill:active .arrow-fill-arrow-out { transform: translateX(170%) scale(0); }
+/* ---- Hero work card (owner, 2026-10-29). The hero's right column: one case
+   at a time, rotating. It sits on the dark hero, so the surface is built from
+   explicit translucent values the way .story-modal is, rather than the paper
+   token - inside .section-dark the tokens are back to their light originals.
+   Lime as text is allowed here because the ground is near-black. ---- */
+.hero-work {
+  width: 100%;
+  max-width: 520px;
+}
+.hero-work-card {
+  display: block;
+  border-radius: 24px;
+  padding: 10px;
+  text-decoration: none;
+  background: color-mix(in srgb, #ECEEE8 6%, rgb(0 0 0 / 0.55));
+  border: 1px solid rgb(255 255 255 / 0.10);
+  box-shadow: 0 32px 64px rgb(0 0 0 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.07);
+  backdrop-filter: blur(14px);
+  transition: transform var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);
+}
+.hero-work-card:hover,
+.hero-work-card:focus-visible { transform: translateY(-4px); border-color: rgb(214 246 49 / 0.45); }
+.hero-work-shot {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  aspect-ratio: 16 / 9;
+  background: rgb(255 255 255 / 0.04);
+}
+.hero-work-shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+.hero-work-card:hover .hero-work-shot img,
+.hero-work-card:focus-visible .hero-work-shot img { transform: scale(1.03); }
+.hero-work-body {
+  display: block;
+  padding: 14px 10px 6px;
+}
+.hero-work-cat {
+  display: block;
+  font-size: var(--text-small);
+  color: var(--color-sage);
+  letter-spacing: normal;
+}
+.hero-work-title {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-h3);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-bone);
+}
+.hero-work-metric {
+  display: block;
+  margin-top: 6px;
+  font-size: var(--text-body);
+  color: var(--color-sage);
+}
+.hero-work-metric b { color: var(--color-lime); font-weight: 500; }
+.hero-work-foot {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 0 10px;
+}
+.hero-work-bar {
+  display: block;
+  flex: 1;
+  height: 2px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.12);
+  overflow: hidden;
+}
+.hero-work-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--color-lime);
+  animation: hero-work-fill linear forwards;
+}
+/* Holding pauses where it is, so the pointer leaving carries on rather than
+   restarting the count. */
+.hero-work-bar i[data-held="true"] { animation-play-state: paused; }
+@keyframes hero-work-fill { from { width: 0; } to { width: 100%; } }
+.hero-work-dots { display: flex; align-items: center; gap: 8px; }
+.hero-work-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: rgb(255 255 255 / 0.25);
+  transition: background var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+}
+.hero-work-dot:hover { background: rgb(255 255 255 / 0.5); }
+.hero-work-dot.is-on { background: var(--color-lime); transform: scale(1.3); }
+@media (prefers-reduced-motion: reduce) {
+  .hero-work-bar i { animation: none; width: 100%; }
+}
+/* Under lg the card lies down into a row. Standing up, it pushed the CTA and
+   the next section past the fold, and the hero's rule is that nothing below it
+   shows on load (owner, 2026-09-13). */
+@media (max-width: 1023px) {
+  .hero-work { max-width: 100%; }
+  .hero-work-card { display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 18px; }
+  .hero-work-card:hover, .hero-work-card:focus-visible { transform: none; }
+  .hero-work-shot { width: 108px; flex: none; border-radius: 12px; }
+  .hero-work-body { padding: 0; min-width: 0; }
+  .hero-work-title { font-size: var(--text-h4); }
+  .hero-work-metric { margin-top: 2px; font-size: var(--text-small); }
+  .hero-work-foot { margin-top: 10px; padding: 0 4px; }
+}
 /* Hero keeps pure ink under its shader lift; every other dark section is the matte. */
 .site-ground .section-dark { background: var(--matte); }
 .site-ground .section-dark.ground-ink { background: #000000; }

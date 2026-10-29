@@ -1,16 +1,17 @@
 "use client";
 // Client component: the site's load screen (owner's call, 2026-09-15). On a
 // full page load the ground, the hex mark and a hairline of progress cover
-// the page until the hero glass is drawing; then the screen fades and the
-// hero's own reveal plays, so the page appears whole rather than the still
-// swapping into the 3D logo in front of the visitor. Pages without a glass
-// host, phones, reduced motion and no-WebGL lift it at once. The (site)
-// layout owns it, so client-side navigation never shows it again. A cap and
-// an inline fallback in the layout make sure it can never stay up.
+// the page until the hero says it is whole; then the screen fades and the
+// hero's own reveal plays, so nothing is seen half-built. What it waits on
+// was the 3D glass logo until 2026-10-29 and is the hero's case card now;
+// either way it is whatever carries [data-hero-wait]. Routes without one, and
+// reduced motion, lift it at once. The (site) layout owns it, so client-side
+// navigation never shows it again. A cap and an inline fallback in the layout
+// make sure it can never stay up.
 
 import { useEffect, useState } from "react";
 import { HexMark } from "@/components/site/hex-mark";
-import { onGlassState } from "@/lib/glass-state";
+import { onHeroState } from "@/lib/hero-state";
 
 /** Longest the screen may hold before the page is shown regardless. */
 const CAP_MS = 6000;
@@ -35,10 +36,10 @@ export function Preloader() {
     };
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const host = document.querySelector("[data-glass-host]");
+    const host = document.querySelector("[data-hero-wait]");
     if (!host || reduced) { lift(); return () => timers.forEach((t) => window.clearTimeout(t)); }
 
-    const off = onGlassState((s) => { if (s !== "pending") lift(); });
+    const off = onHeroState((s) => { if (s !== "pending") lift(); });
     timers.push(window.setTimeout(lift, CAP_MS));
     return () => { off(); timers.forEach((t) => window.clearTimeout(t)); };
   }, []);

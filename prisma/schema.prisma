@@ -228,6 +228,9 @@ model Project {
   ctaNote         String?
   status          ProjectStatus @default(DRAFT)
   featured        Boolean       @default(false)
+  /// Shown in the home hero's rotating case card. Separate from `featured`,
+  /// which drives the nav panel and the homepage list.
+  showInHero      Boolean       @default(false)
   /// Shown in the homepage "currently building" strip regardless of status.
   currentlyBuilding Boolean     @default(false)
   /// Progress note for the strip, e.g. "wk 4 of 7".

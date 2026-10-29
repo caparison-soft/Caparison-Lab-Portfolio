@@ -65,6 +65,48 @@ export const getFeaturedProjects = unstable_cache(
   { tags: [CACHE_TAGS.projects] },
 );
 
+/** One project as the hero's rotating card: the picture, who it was for, and
+ *  the single number that makes the case. Only projects the admin has ticked
+ *  into the hero and that actually have a cover, since the card is the picture. */
+export type HeroProject = {
+  slug: string;
+  title: string;
+  summary: string;
+  category: string | null;
+  metric: { value: string; label: string } | null;
+  cover: { keyPrefix: string; alt: string | null; width: number | null; height: number | null; blurDataUrl: string | null; variants: Record<string, string> | null };
+};
+
+export const getHeroProjects = unstable_cache(
+  async (limit = 5): Promise<HeroProject[]> => {
+    const rows = await prisma.project.findMany({
+      where: { status: "PUBLISHED", deletedAt: null, showInHero: true, NOT: { coverImageId: null } },
+      orderBy: [{ order: "asc" }, { publishedAt: "desc" }],
+      take: limit,
+      select: {
+        slug: true, title: true, summary: true,
+        category: { select: { name: true } },
+        cover: { select: { keyPrefix: true, alt: true, width: true, height: true, blurDataUrl: true, variants: true } },
+        metrics: { orderBy: { order: "asc" }, take: 1, select: { value: true, label: true } },
+      },
+    });
+    return rows.flatMap((r) =>
+      r.cover
+        ? [{
+            slug: r.slug,
+            title: r.title,
+            summary: r.summary,
+            category: r.category?.name ?? null,
+            metric: r.metrics[0] ?? null,
+            cover: { ...r.cover, variants: (r.cover.variants as Record<string, string> | null) ?? null },
+          }]
+        : [],
+    );
+  },
+  ["hero-projects"],
+  { tags: [CACHE_TAGS.projects] },
+);
+
 export const getPublishedProjectCount = unstable_cache(
   async (): Promise<number> => prisma.project.count({ where: { status: "PUBLISHED", deletedAt: null } }),
   ["published-project-count"],
