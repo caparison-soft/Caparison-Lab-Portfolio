@@ -53,6 +53,27 @@ export function HeroWork({ items, viewLabel }: Props) {
     if (img?.complete) ready();
   }, [ready]);
 
+  // Only the showing card is in the DOM, so the next picture would start
+  // loading at the moment it is needed and flash half-drawn. Fetch the rest
+  // once the first is up, at idle, picking the same srcset candidate the card
+  // will ask for.
+  useEffect(() => {
+    if (n < 2) return;
+    let cancelled = false;
+    const warm = () => {
+      if (cancelled) return;
+      for (const p of items.slice(1)) {
+        const img = new Image();
+        img.sizes = "(min-width: 1024px) 44vw, 100vw";
+        img.srcset = p.cover.srcSet;
+        img.src = p.cover.src;
+      }
+    };
+    const w = window as Window & { requestIdleCallback?: (cb: () => void) => number };
+    const id = w.requestIdleCallback ? w.requestIdleCallback(warm) : window.setTimeout(warm, 1200);
+    return () => { cancelled = true; if (!w.requestIdleCallback) window.clearTimeout(id); };
+  }, [items, n]);
+
   // A hidden tab holds too: coming back to a card that moved three times
   // while nobody watched reads as a glitch.
   const [visible, setVisible] = useState(true);
