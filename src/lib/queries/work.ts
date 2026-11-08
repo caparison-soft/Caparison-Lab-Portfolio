@@ -40,7 +40,7 @@ export const getProjectIndex = unstable_cache(
       };
     });
   },
-  ["project-index-live-url"],
+  ["project-index-live-url-v2"],
   { tags: [CACHE_TAGS.projects] },
 );
 
@@ -78,7 +78,7 @@ export const getWorkFilters = unstable_cache(
       kinds,
     };
   },
-  ["work-filters-kind"],
+  ["work-filters-kind-v2"],
   { tags: [CACHE_TAGS.projects] },
 );
 
@@ -226,7 +226,7 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
     };
 }
 
-export const getCaseStudy = unstable_cache(async (slug: string) => loadCaseStudy(slug, true), ["case-study-kind"], { tags: [CACHE_TAGS.projects] });
+export const getCaseStudy = unstable_cache(async (slug: string) => loadCaseStudy(slug, true), ["case-study-kind-v2"], { tags: [CACHE_TAGS.projects] });
 
 /** Uncached, any status. Only reachable through a signed preview link. */
 export async function getCaseStudyPreview(slug: string): Promise<CaseStudy | null> {
@@ -236,6 +236,6 @@ export async function getCaseStudyPreview(slug: string): Promise<CaseStudy | nul
 export const getPublishedSlugs = unstable_cache(
   async (): Promise<string[]> =>
     (await prisma.project.findMany({ where: { status: "PUBLISHED", deletedAt: null }, select: { slug: true } })).map((p) => p.slug),
-  ["published-slugs"],
+  ["published-slugs-v2"],
   { tags: [CACHE_TAGS.projects] },
 );

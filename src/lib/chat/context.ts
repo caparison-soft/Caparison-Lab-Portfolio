@@ -194,7 +194,7 @@ ${work || "- Nothing published yet."}
 
 export const getChatContext = unstable_cache(
   buildChatContext,
-  ["chat-context"],
+  ["chat-context-v2"],
   {
     tags: [CACHE_TAGS.content, CACHE_TAGS.settings, CACHE_TAGS.capabilities, CACHE_TAGS.process, CACHE_TAGS.faqs, CACHE_TAGS.projects],
     revalidate: 3600,

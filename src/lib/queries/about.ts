@@ -10,20 +10,20 @@ export type FaqItem = { question: string; answer: unknown };
 export const getTeam = unstable_cache(
   async (): Promise<TeamItem[]> =>
     prisma.teamMember.findMany({ where: { status: "PUBLISHED" }, orderBy: { order: "asc" }, select: { name: true, role: true, bio: true, avatarUrl: true } }),
-  ["team"],
+  ["team-v2"],
   { tags: [CACHE_TAGS.team] },
 );
 
 export const getStats = unstable_cache(
   async (): Promise<StatItem[]> =>
     prisma.stat.findMany({ where: { status: "PUBLISHED" }, orderBy: { order: "asc" }, select: { label: true, value: true, note: true } }),
-  ["stats"],
+  ["stats-v2"],
   { tags: [CACHE_TAGS.stats] },
 );
 
 export const getFaqs = unstable_cache(
   async (): Promise<FaqItem[]> =>
     prisma.faq.findMany({ where: { status: "PUBLISHED" }, orderBy: { order: "asc" }, select: { question: true, answer: true } }),
-  ["faqs"],
+  ["faqs-v2"],
   { tags: [CACHE_TAGS.faqs] },
 );

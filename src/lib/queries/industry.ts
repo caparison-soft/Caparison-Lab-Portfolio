@@ -24,6 +24,6 @@ export const getConceptTeaser = unstable_cache(
     if (!r) return null;
     return { ...r, cover: r.cover ? { ...r.cover, variants: (r.cover.variants as Record<string, string> | null) ?? null } : null };
   },
-  ["concept-teaser"],
+  ["concept-teaser-v2"],
   { tags: [CACHE_TAGS.projects] },
 );

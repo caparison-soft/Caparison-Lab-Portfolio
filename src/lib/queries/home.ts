@@ -65,7 +65,7 @@ export const getFeaturedProjects = unstable_cache(
     });
     return rows.map(toIndexProject);
   },
-  ["featured-projects-live-url"],
+  ["featured-projects-live-url-v2"],
   { tags: [CACHE_TAGS.projects] },
 );
 
@@ -107,13 +107,13 @@ export const getHeroProjects = unstable_cache(
         : [],
     );
   },
-  ["hero-projects"],
+  ["hero-projects-v2"],
   { tags: [CACHE_TAGS.projects] },
 );
 
 export const getPublishedProjectCount = unstable_cache(
   async (): Promise<number> => prisma.project.count({ where: { status: "PUBLISHED", deletedAt: null } }),
-  ["published-project-count"],
+  ["published-project-count-v2"],
   { tags: [CACHE_TAGS.projects] },
 );
 
@@ -135,7 +135,7 @@ export const getLiveProject = unstable_cache(
       stack: r.tags.filter((x) => x.tag.kind === "STACK").sort((a, b) => a.tag.order - b.tag.order).map((x) => x.tag.name).slice(0, 4),
     };
   },
-  ["live-project"],
+  ["live-project-v2"],
   { tags: [CACHE_TAGS.projects] },
 );
 
@@ -152,7 +152,7 @@ export const getCapabilities = unstable_cache(
       orderBy: { order: "asc" },
       select: { slug: true, title: true, blurb: true, startingPrice: true, typicalTimeline: true, deliverables: true, weight: true, image: { select: { keyPrefix: true, alt: true, width: true, height: true, blurDataUrl: true, variants: true } } },
     })).map((c) => ({ ...c, image: c.image ? { ...c.image, variants: (c.image.variants as Record<string, string> | null) ?? null } : null })),
-  ["capabilities"],
+  ["capabilities-v2"],
   { tags: [CACHE_TAGS.capabilities] },
 );
 
@@ -165,7 +165,7 @@ export const getProcessSteps = unstable_cache(
       orderBy: { order: "asc" },
       select: { title: true, description: true, duration: true, order: true },
     }),
-  ["process-steps"],
+  ["process-steps-v2"],
   { tags: [CACHE_TAGS.process] },
 );
 
@@ -183,7 +183,7 @@ export const getTestimonials = unstable_cache(
     const companies = Array.from(new Set(all.map((r) => r.company).filter((c): c is string => Boolean(c))));
     return { featured: featured.length > 0 ? featured : all.slice(0, 3), companies };
   },
-  ["testimonials"],
+  ["testimonials-v2"],
   { tags: [CACHE_TAGS.testimonials] },
 );
 
@@ -193,6 +193,6 @@ export type ProjectOption = { slug: string; title: string };
 export const getProjectBySlugForForm = unstable_cache(
   async (slug: string): Promise<ProjectOption | null> =>
     prisma.project.findFirst({ where: { slug, status: "PUBLISHED", deletedAt: null }, select: { slug: true, title: true } }),
-  ["project-for-form"],
+  ["project-for-form-v2"],
   { tags: [CACHE_TAGS.projects] },
 );

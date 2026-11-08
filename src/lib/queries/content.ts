@@ -30,7 +30,7 @@ export const getBlocks = unstable_cache(
     for (const r of rows) out[r.key] = r.value ?? r.defaultValue ?? r.key;
     return out;
   },
-  ["content-blocks"],
+  ["content-blocks-v2"],
   { tags: [CACHE_TAGS.content] },
 );
 
@@ -87,6 +87,6 @@ export const getSettings = unstable_cache(
       maintenanceMode: s.maintenanceMode,
     };
   },
-  ["site-settings"],
+  ["site-settings-v2"],
   { tags: [CACHE_TAGS.settings] },
 );
