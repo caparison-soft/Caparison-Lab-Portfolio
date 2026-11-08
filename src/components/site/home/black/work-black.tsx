@@ -38,7 +38,7 @@ function Cover({ p, lead }: { p: IndexProject; lead: boolean }) {
 export function WorkBlack({ blocks, projects }: { blocks: Blocks; projects: IndexProject[] }) {
   const cats: WorkTab[] = [];
   for (const p of projects) if (p.category && !cats.some((c) => c.slug === p.category!.slug)) cats.push({ slug: p.category.slug, label: p.category.name });
-  const items: WorkItem[] = projects.map((p) => ({ kind: "project", slug: p.slug, title: p.title, summary: p.summary, category: p.category?.slug ?? null, cover: <Cover p={p} lead={false} /> }));
+  const items: WorkItem[] = projects.map((p) => ({ kind: "project", slug: p.slug, title: p.title, summary: p.summary, category: p.category?.slug ?? null, liveUrl: p.liveUrl, cover: <Cover p={p} lead={false} /> }));
   // The videos (owner, 2026-11-07): their own cards, under Everything and Video production.
   const play = t(blocks, "home.work.videoPlay");
   for (const i of [1, 2, 3, 4]) {

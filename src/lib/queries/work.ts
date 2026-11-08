@@ -12,7 +12,7 @@ export type WorkFilters = { category?: string; stack?: string; kind?: ProjectKin
 const indexSelect = {
   id: true, slug: true, title: true, summary: true, clientName: true,
   budgetMin: true, budgetMax: true, budgetCurrency: true, budgetDisplay: true,
-  durationValue: true, durationUnit: true, durationDisplay: true, year: true, kind: true,
+  durationValue: true, durationUnit: true, durationDisplay: true, year: true, kind: true, liveUrl: true,
   category: { select: { name: true, slug: true } },
   cover: { select: { keyPrefix: true, alt: true, width: true, height: true, blurDataUrl: true, variants: true } },
   tags: { select: { tag: { select: { name: true, kind: true, order: true } } } },
@@ -40,7 +40,7 @@ export const getProjectIndex = unstable_cache(
       };
     });
   },
-  ["project-index-kind"],
+  ["project-index-live-url"],
   { tags: [CACHE_TAGS.projects] },
 );
 

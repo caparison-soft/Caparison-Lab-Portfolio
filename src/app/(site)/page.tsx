@@ -71,7 +71,7 @@ export default async function HomePage() {
   return (
     <main id="main" className="home-black">
       <Starfield />
-      <PrefetchRoutes hrefs={[...projects.map((p) => `/work/${p.slug}`), "/#contact"]} />
+      <PrefetchRoutes hrefs={[...projects.filter((p) => !p.liveUrl).map((p) => `/work/${p.slug}`), "/#contact"]} />
       <HomeHero blocks={blocks} />
       <VideoGrow
         label={t(blocks, "home.video.label")}

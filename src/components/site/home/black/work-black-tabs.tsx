@@ -13,7 +13,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 export type WorkTab = { slug: string; label: string };
 type Base = { slug: string; title: string; summary: string; category: string | null };
 export type WorkItem =
-  | (Base & { kind: "project"; cover: ReactNode })
+  | (Base & { kind: "project"; liveUrl: string | null; cover: ReactNode })
   | (Base & { kind: "video"; video: string; poster: string; ratio: string; playLabel: string });
 
 /** Small line icons for the tabs, by category; anything unknown gets the grid. */
@@ -90,11 +90,21 @@ export function WorkBlackTabs({ tabs, items, closeLabel }: { tabs: WorkTab[]; it
           {shown.map((p, i) => (
             <li key={p.slug} className="hbw-item" style={{ ["--n" as string]: i }}>
               {p.kind === "project" ? (
-                <Link href={`/work/${p.slug}`} className="hbw-card2">
-                  <div className="hbw-thumb">{p.cover}</div>
-                  <h3 className="hbw-name">{p.title}</h3>
-                  <p className="hbw-line">{p.summary}</p>
-                </Link>
+                // A project with a live site opens it in a new tab rather than
+                // the case page (owner, 2026-11-08); the rest keep the case page.
+                p.liveUrl ? (
+                  <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className="hbw-card2">
+                    <div className="hbw-thumb">{p.cover}</div>
+                    <h3 className="hbw-name">{p.title}</h3>
+                    <p className="hbw-line">{p.summary}</p>
+                  </a>
+                ) : (
+                  <Link href={`/work/${p.slug}`} className="hbw-card2">
+                    <div className="hbw-thumb">{p.cover}</div>
+                    <h3 className="hbw-name">{p.title}</h3>
+                    <p className="hbw-line">{p.summary}</p>
+                  </Link>
+                )
               ) : (
                 <button type="button" className="hbw-card2 hbw-card2--video" aria-haspopup="dialog" aria-label={p.playLabel} onClick={() => setPlaying(p)}>
                   <div className="hbw-thumb">
