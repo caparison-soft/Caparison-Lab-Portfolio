@@ -1,17 +1,8 @@
-/** Generic public skeleton: a heading block in the spine layout. */
+/**
+ * What shows for the moment before a public page streams in, including the
+ * first visit from a search result. Plain black, the home page's own ground
+ * (owner, 2026-11-08: the light skeleton flashed before the black page).
+ */
 export default function SiteLoading() {
-  return (
-    <main id="main" aria-busy="true">
-      <section className="px-3 md:px-[48px] py-6">
-        <div className="max-w-layout mx-auto flex flex-col gap-3">
-          <div className="h-[16px] w-[64px] bg-paper rounded-sm" />
-          <div>
-            <div className="h-[60px] w-[420px] max-w-full bg-paper rounded-sm" />
-            <div className="mt-3 h-[24px] w-[560px] max-w-full bg-paper rounded-sm" />
-            <div className="mt-6 h-[240px] w-full bg-paper rounded-lg" />
-          </div>
-        </div>
-      </section>
-    </main>
-  );
+  return <main id="main" aria-busy="true" className="min-h-[100svh] bg-ink" />;
 }
