@@ -80,7 +80,7 @@ export async function saveProject(id: string, values: ProjectInput): Promise<Sav
           budgetDisplay: v.budgetDisplay, durationValue: v.durationValue, durationUnit: v.durationUnit, durationDisplay: v.durationDisplay,
           videoUrl: v.videoUrl, videoProvider: v.videoProvider, ctaMode: v.ctaMode, ctaLabel: v.ctaLabel, ctaHref: v.ctaHref, ctaNote: v.ctaNote,
           metaTitle: v.metaTitle, metaDescription: v.metaDescription, ogImageUrl: v.ogImageUrl,
-          status: v.status, featured: v.featured, showInHero: v.showInHero, currentlyBuilding: v.currentlyBuilding, buildNote: v.buildNote, publishedAt,
+          status: v.status, featured: v.featured, showInHero: v.showInHero, kind: v.kind, currentlyBuilding: v.currentlyBuilding, buildNote: v.buildNote, publishedAt,
           outcome: v.outcome, role: v.role, platforms: v.platforms, stage: v.stage, launchedAt: v.launchedAt ? new Date(v.launchedAt) : null, afterNote: v.afterNote,
           team: { set: v.teamMemberIds.map((id) => ({ id })) },
         },

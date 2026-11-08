@@ -79,7 +79,7 @@ function renderNode(node: Node, key: number): ReactNode {
         </li>
       );
     case "blockquote":
-      return <blockquote key={key} className="m-0 pl-3 border-l-2 border-lime text-body-l text-ink max-w-[52ch]">{renderChildren(node)}</blockquote>;
+      return <blockquote key={key} className="m-0 pl-3 border-l-2 border-ink text-body-l text-ink max-w-[52ch]">{renderChildren(node)}</blockquote>;
     case "codeBlock":
       return (
         <pre key={key} className="data bg-olive-950 text-bone rounded-sm p-2 overflow-x-auto max-w-none">

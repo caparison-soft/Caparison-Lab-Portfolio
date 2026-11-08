@@ -26,6 +26,7 @@ const schema = z.object({
   company: z.string().trim().max(120).optional().or(z.literal("")),
   budgetBand: z.string().trim().max(60).optional().or(z.literal("")),
   timelineBand: z.string().trim().max(60).optional().or(z.literal("")),
+  projectType: z.string().trim().max(80).optional().or(z.literal("")),
   message: z.string().trim().min(10).max(4000),
   // Honeypot. Real people never fill this in; it is visually hidden.
   website: z.string().max(0),
@@ -94,6 +95,7 @@ export async function submitInquiry(_prev: InquiryState, formData: FormData): Pr
         company: d.company || null,
         budgetBand: d.budgetBand || null,
         timelineBand: d.timelineBand || null,
+        projectType: d.projectType || null,
         message: d.message,
         sourceProjectId: sourceProject?.id ?? null,
         sourcePath: d.sourcePath || null,
@@ -116,6 +118,7 @@ export async function submitInquiry(_prev: InquiryState, formData: FormData): Pr
     company: d.company || null,
     budgetBand: d.budgetBand || null,
     timelineBand: d.timelineBand || null,
+    projectType: d.projectType || null,
     message: d.message,
     sourcePath: d.sourcePath || null,
     sourceProjectTitle: created.sourceProjectTitle,

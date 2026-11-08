@@ -16,16 +16,16 @@ export const metadata: Metadata = {
  */
 
 const swatches = [
-  { name: "lime", cls: "bg-lime", hex: "#D6F631", onDark: false },
-  { name: "olive-950", cls: "bg-olive-950", hex: "#171B06", onDark: true },
-  { name: "olive-800", cls: "bg-olive-800", hex: "#2B3110", onDark: true },
-  { name: "olive-600", cls: "bg-olive-600", hex: "#4A5410", onDark: true },
-  { name: "olive-400", cls: "bg-olive-400", hex: "#8EA320", onDark: false },
+  { name: "lime", cls: "bg-lime", hex: "#CDFF9B", onDark: false },
+  { name: "olive-950", cls: "bg-olive-950", hex: "#203D43", onDark: true },
+  { name: "olive-800", cls: "bg-olive-800", hex: "#2A4C53", onDark: true },
+  { name: "olive-600", cls: "bg-olive-600", hex: "#3E646B", onDark: true },
+  { name: "olive-400", cls: "bg-olive-400", hex: "#6F9C77", onDark: false },
   { name: "bone", cls: "bg-bone", hex: "#ECEEE8", onDark: false },
   { name: "paper", cls: "bg-paper", hex: "#FAFBF7", onDark: false },
   { name: "ink", cls: "bg-ink", hex: "#000000", onDark: true },
   { name: "ash", cls: "bg-ash", hex: "#5A6152", onDark: true },
-  { name: "sage", cls: "bg-sage", hex: "#A8B09C", onDark: false },
+  { name: "sage", cls: "bg-sage", hex: "#A9C2C4", onDark: false },
   { name: "cobalt", cls: "bg-cobalt", hex: "#2033A6", onDark: true },
 ];
 
@@ -97,14 +97,14 @@ export default function StyleguidePage() {
           {swatches.map((s) => (
             <li key={s.name} className={`${s.cls} rounded-lg p-2 border border-divider-light`}>
               <p className={`font-medium max-w-none ${s.onDark ? "text-bone" : "text-ink"}`}>{s.name}</p>
-              <p className={`data max-w-none ${s.onDark ? "text-sage" : "text-ash"}`}>{s.hex}</p>
+              <p className={`data max-w-none ${s.onDark ? "text-bone" : "text-ink"}`}>{s.hex}</p>
             </li>
           ))}
         </ul>
         <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
           <div className="rounded-lg p-3 bg-paper border border-divider-light">
             <p className="text-small text-ash">Light surface</p>
-            <p className="mt-1">Ink for headings and body. <span className="text-ash">Ash for secondary text.</span> <a href="#colour">Cobalt for links.</a></p>
+            <p className="mt-1">Ink for headings and body. <span className="text-ash">Ash for secondary text.</span> <a href="#colour" className="underline">Cobalt for links.</a></p>
             <p className="mt-2"><StatusDot status="live" label="Lime only as a dot, or a fill with ink on top." /></p>
           </div>
           <div className="section-dark on-dark rounded-lg p-3 border border-olive-600">

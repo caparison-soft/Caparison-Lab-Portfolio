@@ -40,7 +40,7 @@ const tabOfField: Record<string, string> = {
   videoUrl: "media", videoProvider: "media",
   ctaMode: "cta", ctaLabel: "cta", ctaHref: "cta", ctaNote: "cta",
   metaTitle: "seo", metaDescription: "seo", ogImageUrl: "seo",
-  status: "publish", featured: "publish", showInHero: "publish", currentlyBuilding: "publish", buildNote: "publish", publishedAt: "publish",
+  status: "publish", featured: "publish", showInHero: "publish", kind: "publish", currentlyBuilding: "publish", buildNote: "publish", publishedAt: "publish",
 };
 
 const AUTOSAVE_MS = 20_000;
@@ -275,7 +275,7 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
                       return (
                         <li key={m.id}>
                           <label className="inline-flex items-center gap-1 text-small border border-divider-light rounded-sm px-2 py-1 bg-paper cursor-pointer">
-                            <input type="checkbox" className="w-2 h-2 accent-[#D6F631]" checked={on} onChange={(e) => field.onChange(e.target.checked ? [...(field.value ?? []), m.id] : (field.value ?? []).filter((id: string) => id !== m.id))} />
+                            <input type="checkbox" className="w-2 h-2 accent-[#CDFF9B]" checked={on} onChange={(e) => field.onChange(e.target.checked ? [...(field.value ?? []), m.id] : (field.value ?? []).filter((id: string) => id !== m.id))} />
                             {m.name} <span className="text-ash">{m.role}</span>
                           </label>
                         </li>
@@ -413,7 +413,7 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
                 { v: "EXTERNAL", l: "External link" },
                 { v: "NONE", l: "No call to action" },
               ].map((o) => (
-                <label key={o.v} className="inline-flex items-center gap-1 text-small"><input type="radio" value={o.v} {...register("ctaMode")} className="accent-[#D6F631]" />{o.l}</label>
+                <label key={o.v} className="inline-flex items-center gap-1 text-small"><input type="radio" value={o.v} {...register("ctaMode")} className="accent-[#CDFF9B]" />{o.l}</label>
               ))}
             </fieldset>
             {ctaMode !== "NONE" ? <Field id="ctaLabel" label="Button label" error={err("ctaLabel")} help="Leave empty for the site default."><Input {...register("ctaLabel")} /></Field> : null}
@@ -442,9 +442,11 @@ export function ProjectEditor({ data, previewToken, media }: { data: EditorData;
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Field id="status" label="Status" help="Draft and archived never show on the site. Choose Published, then press Publish at the top; live pages change only when you press Update live page."><Select {...register("status")}><option value="DRAFT">Draft</option><option value="PUBLISHED">Published</option><option value="ARCHIVED">Archived</option></Select></Field>
             <Field id="publishedAt" label="Publish date" help="Set automatically on first publish if empty."><Input type="date" {...register("publishedAt")} /></Field>
-            <label className="inline-flex items-center gap-1 text-small"><input type="checkbox" {...register("featured")} className="w-2 h-2 accent-[#D6F631]" />Featured on the homepage</label>
-            <label className="inline-flex items-center gap-1 text-small"><input type="checkbox" {...register("showInHero")} className="w-2 h-2 accent-[#D6F631]" />In the home hero card (needs a thumbnail)</label>
-            <label className="inline-flex items-center gap-1 text-small"><input type="checkbox" {...register("currentlyBuilding")} className="w-2 h-2 accent-[#D6F631]" />Currently building (internal note, not shown on the site)</label>
+            <Field id="kind" label="Kind" error={err("kind")} help="Shown as a label on every card and on the case page. A concept always carries the concept note, and its numbers read as targets."><Select {...register("kind")}><option value="CLIENT">Client project</option><option value="INTERNAL">Our product</option><option value="CONCEPT">Concept</option></Select></Field>
+            <div />
+            <label className="inline-flex items-center gap-1 text-small"><input type="checkbox" {...register("featured")} className="w-2 h-2 accent-[#CDFF9B]" />Featured on the homepage</label>
+            <label className="inline-flex items-center gap-1 text-small"><input type="checkbox" {...register("showInHero")} className="w-2 h-2 accent-[#CDFF9B]" />In the home hero card (needs a thumbnail)</label>
+            <label className="inline-flex items-center gap-1 text-small"><input type="checkbox" {...register("currentlyBuilding")} className="w-2 h-2 accent-[#CDFF9B]" />Currently building (internal note, not shown on the site)</label>
             {currentlyBuilding ? <Field id="buildNote" label="Progress note" help="e.g. wk 4 of 7"><Input {...register("buildNote")} className="font-mono text-mono" /></Field> : <div />}
             <div className="md:col-span-2 flex flex-wrap items-center gap-2 border-t border-divider-light pt-3">
               <Button variant="secondary" size="sm" href={`/preview/${data.slug}?token=${previewToken}`} target="_blank" rel="noopener">Preview as visitor</Button>

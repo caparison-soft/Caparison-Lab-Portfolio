@@ -9,8 +9,9 @@
         prefers-color-scheme INSIDE A FAVICON (Firefox and Safari do);
       - flat lime then disappeared into a pale-green Chrome theme, which is
         the tab bar the owner actually uses.
-    So: lime body, olive-950 edge, olive-950 spark. The dark edge carries it on
-    white, pale green and grey; the lime body carries it on near-black. Checked
+    So: Bright Leaf body, Emerald edge, Emerald spark (colours from the
+    2026-11-05 rebrand; the shape and the reasoning are unchanged). The dark edge carries it on
+    white, pale green and grey; the Leaf body carries it on near-black. Checked
     against all four at 16/20/32/44px. Do not make this adapt, and do not drop
     the edge. favicon.ico is rasterised from this file so both icons match.
     Shape is the brand's simplified single-colour hex, per the guide below its
@@ -18,7 +19,7 @@
     sits straight on the body.
   -->
   <polygon points="50,8 86,29 86,71 50,92 14,71 14,29"
-           fill="#D6F631" stroke="#171B06" stroke-width="10" stroke-linejoin="round"/>
+           fill="#CDFF9B" stroke="#203D43" stroke-width="10" stroke-linejoin="round"/>
   <path d="M50 30 C52.4 42.9 57.1 47.6 70 50 C57.1 52.4 52.4 57.1 50 70 C47.6 57.1 42.9 52.4 30 50 C42.9 47.6 47.6 42.9 50 30 Z"
-        fill="#171B06"/>
+        fill="#203D43"/>
 </svg>

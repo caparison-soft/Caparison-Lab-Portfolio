@@ -7,6 +7,16 @@
    ============================================================ */
 
 @import "tailwindcss";
+@import "../styles/site.css";
+@import "../styles/chat.css";
+@import "../styles/services.css";
+@import "../styles/work.css";
+@import "../styles/home.css";
+@import "../styles/home-black.css";
+@import "../styles/home-black-sections.css";
+@import "../styles/home-services.css";
+@import "../styles/home-crowd.css";
+@import "../styles/dark-pages.css";
 
 @theme {
   /* Wipe Tailwind's defaults for the namespaces we own. */
@@ -17,24 +27,27 @@
   --ease-*: initial;
   --font-*: initial;
 
-  /* ---- Core palette ---- */
-  --color-lime: #D6F631;        /* brand accent, exact from logo */
-  --color-olive-950: #171B06;   /* primary dark surface = brand "black" */
-  --color-olive-800: #2B3110;   /* raised surface on dark */
-  --color-olive-600: #4A5410;   /* borders on dark */
-  --color-olive-400: #8EA320;   /* gradient mid-tone, quiet accent */
+  /* ---- Core palette ----
+     Rebranded 2026-11-05 (owner): Bright Leaf #CDFF9B and Emerald #203D43.
+     The token names are kept so nothing has to be renamed: "lime" is now
+     Bright Leaf, the "olive" scale is now the Emerald scale. ---- */
+  --color-lime: #CDFF9B;        /* Bright Leaf: brand accent, a fill, never text on light */
+  --color-olive-950: #203D43;   /* Emerald: primary dark surface and the main button on light */
+  --color-olive-800: #2A4C53;   /* raised surface on dark */
+  --color-olive-600: #3E646B;   /* borders on dark */
+  --color-olive-400: #6F9C77;   /* gradient mid-tone between Leaf and Emerald, quiet accent */
   --color-bone: #ECEEE8;        /* primary light surface */
   --color-paper: #FAFBF7;       /* raised surface on light */
   --color-ink: #000000;         /* text on light, matches wordmark */
   --color-ash: #5A6152;         /* secondary text on light, 5.5:1 on bone */
-  --color-sage: #A8B09C;        /* secondary text on dark, 7.8:1 on olive-950 */
+  --color-sage: #A9C2C4;        /* secondary text on dark, 6.2:1 on Emerald */
 
   /* ---- Support ---- */
   --color-cobalt: #2033A6;      /* links, info, second data series */
 
   /* ---- Status ---- */
-  --color-status-live: #D6F631;
-  --color-status-progress: #8EA320;
+  --color-status-live: #CDFF9B;
+  --color-status-progress: #6F9C77;
   --color-status-draft: #5A6152;
   --color-status-info: #2033A6;
   --color-status-warn: #B4740F;
@@ -44,11 +57,13 @@
 
   /* ---- Dividers (values from caparison-tokens.css :root) ---- */
   --color-divider-light: rgba(0, 0, 0, 0.08);
-  --color-divider-dark: #4A5410;
+  --color-divider-dark: #3E646B;
 
   /* ---- Type ---- */
   --font-sans: var(--font-satoshi), "Hanken Grotesk", system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", Menlo, monospace;
+  /* Display face (rebrand, 2026-11-05): big moments only, see site.css "Display type". */
+  --font-display: var(--font-archivo), "Arial Black", system-ui, sans-serif;
 
   /* Scale: 1.25 on 16px, display sizes larger and tighter. Fluid display sizes. */
   --text-display-xl: clamp(2.75rem, 7vw, 5.25rem);
@@ -59,6 +74,12 @@
   --text-display-l--line-height: 1;
   --text-display-l--letter-spacing: -0.025em;
   --text-display-l--font-weight: 700;
+  /* Light redesign (owner, 2026-11-05): the home headline and the footer
+     signature run larger than display-xl. */
+  --text-mega: clamp(3rem, 8.2vw, 7.75rem);
+  --text-mega--line-height: 0.9;
+  --text-mega--letter-spacing: -0.045em;
+  --text-mega--font-weight: 900;
   /* Hero headline at lg+ (owner, 2026-09-13): between display-xl and display-l
      so two long sentences stay one line each beside the glass logo. */
   --text-display-hero: clamp(2.75rem, 4.4vw, 4rem);
@@ -124,11 +145,11 @@
   --spine-width: 180px;
 
   --divider-light: rgba(0, 0, 0, 0.08);
-  --divider-dark: #4A5410;
+  --divider-dark: #3E646B;
 
   /* Reserved. Logo, and at most one large decorative mark per page.
      Never behind text. Never on a button. Never a section background. */
-  --gradient-signature: linear-gradient(135deg, #D6F631 0%, #8EA320 46%, #171B06 100%);
+  --gradient-signature: linear-gradient(135deg, #CDFF9B 0%, #6F9C77 46%, #203D43 100%);
 }
 
 /* Duration utilities so a transition can only use a token value. */
@@ -194,7 +215,7 @@
 .section-dark p,
 .section-dark .muted { color: var(--color-sage); }
 .section-dark .accent { color: var(--color-lime); }
-.section-dark a { color: var(--color-bone); }
+.section-dark a:not(.cl-btn):not(.bg-lime) { color: var(--color-bone); }
 /* Owner's call: the hero and the bar sit on ink (#000000, from the token file)
    rather than olive-950. Text rules from .section-dark still apply. */
 .section-dark.ground-ink { background: var(--color-ink); }
@@ -202,34 +223,6 @@
    what the weave shader paints) with the same grain. */
 .section-dark.ground-matte { background: color-mix(in srgb, var(--color-bone) 5%, var(--color-ink)); }
 
-/* Matte grain over the whole public site: one fixed layer above the page
-   (the glass canvas included), so the grain is uniform from the header to the
-   footer. The admin has none. SVG turbulence tiled at low opacity.
-   Layers, lowest first: page content, grain 60, media 61 (pictures and video
-   sit above the grain, owner 2026-09-17: it made them look hazy), the load
-   screen 62, the header 70, the skip link 100. */
-.site-ground::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 60;
-  opacity: 0.15;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 160px 160px;
-}
-/* Pictures and video punch through the grain: over a photograph the noise read
-   as haze rather than texture (owner, 2026-09-17). Everything else keeps it.
-   These are the containers, not the images: .case-hero-wrap isolates and the
-   story picture's reveal wrapper carries a transform, so a z-index on the
-   image itself could never escape its own stacking context. */
-.site-ground .media-frame,
-.site-ground .case-hero-wrap,
-.site-ground .gallery,
-.site-ground .story-picture {
-  position: relative;
-  z-index: 61;
-}
 /* Exceptions: a lime button always carries ink, and the mobile menu sheet is a light surface. */
 .section-dark a.btn-primary,
 .section-dark a.btn-primary:hover { color: var(--color-ink); }
@@ -576,11 +569,11 @@ html[data-nav-ground="light"] .site-nav-scrim {
      hot spot is what reads as a charge running along the wire. */
   background:
     conic-gradient(from var(--notch-angle),
-      #D6F631 0deg,
+      #CDFF9B 0deg,
       #F7FFC9 14deg,
-      #D6F631 30deg,
-      rgb(214 246 49 / 0.7) 110deg,
-      rgb(214 246 49 / 0.7) 360deg);
+      #CDFF9B 30deg,
+      rgb(205 255 155 / 0.7) 110deg,
+      rgb(205 255 155 / 0.7) 360deg);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -605,11 +598,11 @@ html[data-nav-ground="light"] .site-nav-scrim {
   filter: blur(9px);
   background:
     conic-gradient(from var(--notch-angle),
-      #D6F631 0deg,
+      #CDFF9B 0deg,
       #F7FFC9 14deg,
-      #D6F631 30deg,
-      rgb(214 246 49 / 0.55) 110deg,
-      rgb(214 246 49 / 0.55) 360deg);
+      #CDFF9B 30deg,
+      rgb(205 255 155 / 0.55) 110deg,
+      rgb(205 255 155 / 0.55) 360deg);
 }
 .site-notch:hover .site-notch-tab::after,
 .site-notch:has(:focus-visible) .site-notch-tab::after,
@@ -627,132 +620,6 @@ html[data-nav-ground="light"] .site-nav-scrim {
   .site-notch:has(:focus-visible)::before { animation: none; }
 }
 
-/* ---- The public site on matte black (owner's call, 2026-09-14). The admin
-   keeps the light palette. Every colour utility resolves through these
-   variables, so remapping them on the wrapper turns light surfaces dark:
-   bone (page) and paper (raised) become two matte greys, ink and ash become
-   bone and sage, cobalt links become lime, hairlines go translucent white.
-   Components that were already designed for a dark surface (.section-dark,
-   .on-dark, olive or lime or ink fills) get the original values back inside
-   them so bone stays bone and ink stays ink where they mean it. ---- */
-.site-ground {
-  --matte: color-mix(in srgb, #ECEEE8 5%, #000000);
-  --matte-raised: color-mix(in srgb, #ECEEE8 9%, #000000);
-  --color-bone: var(--matte);
-  --color-paper: var(--matte-raised);
-  --color-ink: #ECEEE8;
-  --color-ash: #A8B09C;
-  --color-cobalt: #D6F631;
-  --color-divider-light: rgba(255, 255, 255, 0.10);
-  --divider-light: rgba(255, 255, 255, 0.10);
-  --color-olive-950: var(--matte);
-  --color-olive-800: var(--matte-raised);
-  --color-olive-600: rgba(255, 255, 255, 0.14);
-  --color-divider-dark: rgba(255, 255, 255, 0.14);
-  background: var(--matte);
-  color: var(--color-ink);
-  color-scheme: dark;
-  min-height: 100svh;
-}
-.site-ground .section-dark,
-.site-ground .on-dark,
-.site-ground .liquid-metal,
-.site-ground .bg-olive-950,
-.site-ground .bg-olive-800,
-.site-ground .bg-lime,
-.site-ground .bg-ink {
-  --color-bone: #ECEEE8;
-  --color-paper: #FAFBF7;
-  --color-ink: #000000;
-  --color-ash: #5A6152;
-  --color-cobalt: #2033A6;
-  --color-divider-light: rgba(0, 0, 0, 0.08);
-  --divider-light: rgba(0, 0, 0, 0.08);
-}
-/* ---- Arrow fill button (owner-supplied, 2026-09-19; replaces the bloom-and-dot
-   live-site pill). A lime puck sits at the right end of an outlined pill; on
-   hover or keyboard focus it sweeps out to fill the pill, the label crossfades
-   to ink under the advancing lime, and the arrow flies out right while a second
-   flies in from the left. No JavaScript: the component renders on the server.
-   The pasted version sized everything in vw and hardcoded hex; sizes here are
-   the site's 44px pill and the motion values are the tokens. ---- */
-.arrow-fill {
-  --puck: 26px;
-  --puck-inset: 4px;
-  /* Filling lime means the label must be real ink, not the bone that ink is
-     remapped to inside .site-ground (the .bg-lime exception above only matches
-     the plain class). */
-  --color-ink: #000000;
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: 36px;
-  padding-left: 14px;
-  padding-right: calc(var(--puck) + var(--puck-inset) + 10px);
-  border-radius: 999px;
-  border: 1px solid var(--color-lime);
-  color: var(--color-lime);
-  font-size: var(--text-small);
-  font-weight: 500;
-  /* It sits inside the h1, so the display size's tight tracking would come
-     down with it and squeeze the label. */
-  letter-spacing: normal;
-  line-height: 1;
-  white-space: nowrap;
-  text-decoration: none;
-  overflow: hidden;
-  isolation: isolate;
-}
-.arrow-fill-label { position: relative; z-index: 1; }
-/* The lime and the ink copy of the label are one element, clipped to the puck
-   at rest and to the whole pill on hover. Two elements (a fill sheet plus a
-   clipped label over it) rendered the same, but axe then measured ink text
-   against the dark page behind and called it a contrast failure; keeping the
-   lime on the same element it clips with makes the check see what a person
-   sees. The box matches the real label's, so the two line up exactly. */
-.arrow-fill-fill {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  padding-left: 14px;
-  padding-right: calc(var(--puck) + var(--puck-inset) + 10px);
-  background: var(--color-lime);
-  color: var(--color-ink);
-  clip-path: inset(var(--puck-inset) var(--puck-inset) var(--puck-inset) calc(100% - var(--puck-inset) - var(--puck)) round 999px);
-  transition: clip-path var(--duration-base) var(--ease-in-out);
-}
-.arrow-fill-puck {
-  position: absolute;
-  z-index: 3;
-  right: var(--puck-inset);
-  top: 50%;
-  width: var(--puck);
-  height: var(--puck);
-  transform: translateY(-50%);
-  border-radius: 999px;
-  /* The lime under it is the fill layer; this one only clips the arrows. */
-  color: var(--color-ink);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.arrow-fill-arrow {
-  position: absolute;
-  transition: transform var(--duration-base) var(--ease-in-out);
-}
-.arrow-fill-arrow-in { transform: translateX(-170%) scale(0); }
-.arrow-fill:hover .arrow-fill-fill,
-.arrow-fill:focus-visible .arrow-fill-fill,
-.arrow-fill:active .arrow-fill-fill { clip-path: inset(0 round 999px); }
-.arrow-fill:hover .arrow-fill-arrow-in,
-.arrow-fill:focus-visible .arrow-fill-arrow-in,
-.arrow-fill:active .arrow-fill-arrow-in { transform: none; }
-.arrow-fill:hover .arrow-fill-arrow-out,
-.arrow-fill:focus-visible .arrow-fill-arrow-out,
-.arrow-fill:active .arrow-fill-arrow-out { transform: translateX(170%) scale(0); }
 /* ---- Hero work card (owner, 2026-10-29). The hero's right column: one case
    at a time, rotating. It sits on the dark hero, so the surface is built from
    explicit translucent values the way .story-modal is, rather than the paper
@@ -774,7 +641,7 @@ html[data-nav-ground="light"] .site-nav-scrim {
   transition: transform var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);
 }
 .hero-work-card:hover,
-.hero-work-card:focus-visible { transform: translateY(-4px); border-color: rgb(214 246 49 / 0.45); }
+.hero-work-card:focus-visible { transform: translateY(-4px); border-color: rgb(205 255 155 / 0.45); }
 .hero-work-shot {
   display: block;
   position: relative;
@@ -895,47 +762,6 @@ html[data-nav-ground="light"] .site-nav-scrim {
   .hero-work-metric { margin-top: 2px; font-size: var(--text-small); }
   .hero-work-foot { margin-top: 10px; padding: 0 4px; }
 }
-/* Hero keeps pure ink under its shader lift; every other dark section is the matte. */
-.site-ground .section-dark { background: var(--matte); }
-.site-ground .section-dark.ground-ink { background: #000000; }
-.site-ground .section-dark.ground-matte { background: var(--matte); }
-.site-ground .section-dark { border-color: var(--color-olive-600); }
-.site-ground :focus-visible { outline-color: #D6F631; }
-.site-ground ::selection { background: #D6F631; color: #000000; }
-/* Whole-section paper bands sit on the same matte as the page; only cards and controls are raised. */
-.site-ground .section-paper { background: var(--matte); }
-/* Lime cursor on hovered index rows reads on the matte too. */
-.site-ground .work-row-light:hover, .site-ground .work-row-light:focus-within { background: var(--matte-raised); }
-/* Page behind the wrapper (overscroll) matches. */
-html:has(.site-ground) { background: var(--matte, #1a1a1a); }
-html:has(.site-ground) body { background: color-mix(in srgb, #ECEEE8 5%, #000000); }
-
-/* ---- Case hero lift (top level: the .cover-in rule above sits inside a
-   @supports block that Chromium never enters). ---- */
-/* Case hero: a soft, layered drop shadow that fades out in steps, so the
-   frame lifts off the matte ground instead of sitting flat on it. */
-.case-hero {
-  box-shadow:
-    0 1px 0 rgb(255 255 255 / 0.08),
-    0 12px 24px rgb(0 0 0 / 0.5),
-    0 32px 64px rgb(0 0 0 / 0.5),
-    0 72px 120px rgb(0 0 0 / 0.45);
-}
-/* On the matte ground a black shadow alone barely reads, so a soft bone glow
-   sits behind and below the frame: the gradient the eye actually sees. */
-.case-hero-wrap { position: relative; isolation: isolate; }
-.case-hero-wrap::before {
-  content: "";
-  position: absolute;
-  inset: 0 -14% -40%;
-  z-index: 0;
-  pointer-events: none;
-  /* Brightest just under the frame's bottom edge, fading out below and to the sides. */
-  background: radial-gradient(ellipse 75% 60% at 50% 58%, rgb(236 238 232 / 0.55), rgb(236 238 232 / 0.22) 40%, rgb(236 238 232 / 0.06) 62%, transparent 78%);
-  filter: blur(36px);
-}
-.case-hero-wrap > .case-hero { position: relative; z-index: 1; }
-
 /* Stack marks: the icon tile shrinks a touch in the index rows. */
 .work-row .stack-logo { height: 28px; width: 28px; }
 .work-row .stack-tag { height: 28px; }
@@ -1023,17 +849,15 @@ html[data-preload] .reveal-mark { animation-play-state: paused; }
   .preloader-bar > i { transition: none; }
 }
 
-/* ---- The case story's "what we built" window (owner, 2026-09-16). A native
-   <dialog>, so the top layer puts it over the grain and the header and
-   Escape closes it for free. The transitions need allow-discrete because
-   display and overlay are discrete properties; @starting-style gives the
-   opening frame. Browsers without either simply get no animation. ---- */
+/* ---- The case story's "what we built" window (owner, 2026-09-16; light
+   redesign 2026-11-05). A native <dialog>, so the top layer puts it over the
+   header and Escape closes it for free. A paper sheet with a hairline over a
+   dimmed, blurred page: elevation by contrast, not a soft shadow. The
+   transitions need allow-discrete because display and overlay are discrete
+   properties; @starting-style gives the opening frame. ---- */
 .story-modal {
-  /* Glass, not a solid card: the page stays faintly readable behind it. */
-  background: color-mix(in srgb, #ECEEE8 8%, rgb(0 0 0 / 0.72));
-  backdrop-filter: blur(24px) saturate(1.2);
-  border: 1px solid rgb(255 255 255 / 0.12);
-  box-shadow: 0 40px 80px rgb(0 0 0 / 0.55), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  background: var(--color-paper);
+  border: 1px solid var(--color-divider-light);
   opacity: 0;
   transform: translateY(28px) scale(0.96);
   transition:
@@ -1047,20 +871,18 @@ html[data-preload] .reveal-mark { animation-play-state: paused; }
   .story-modal[open] { opacity: 0; transform: translateY(28px) scale(0.96); }
 }
 .story-modal::backdrop {
-  background: rgb(0 0 0 / 0);
-  backdrop-filter: blur(3px);
+  background: color-mix(in srgb, var(--color-olive-950) 0%, transparent);
+  backdrop-filter: blur(6px);
   transition:
     background var(--duration-slow) var(--ease-out),
     backdrop-filter var(--duration-slow) var(--ease-out),
     overlay var(--duration-slow) allow-discrete,
     display var(--duration-slow) allow-discrete;
 }
-.story-modal[open]::backdrop { background: rgb(0 0 0 / 0.55); }
+.story-modal[open]::backdrop { background: color-mix(in srgb, var(--color-olive-950) 55%, transparent); }
 @starting-style {
-  .story-modal[open]::backdrop { background: rgb(0 0 0 / 0); }
+  .story-modal[open]::backdrop { background: color-mix(in srgb, var(--color-olive-950) 0%, transparent); }
 }
-/* The trigger is lime on a dark ground and stays lime: only the underline moves. */
-.story-open { text-decoration-thickness: 1px; }
 @media (prefers-reduced-motion: reduce) {
   .story-modal, .story-modal::backdrop { transition: none; }
   .story-modal { transform: none; }

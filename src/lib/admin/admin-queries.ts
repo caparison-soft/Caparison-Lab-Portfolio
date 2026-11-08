@@ -75,7 +75,7 @@ export async function getProjectForEditor(id: string): Promise<EditorData | null
       videoUrl: s(p.videoUrl), videoProvider: p.videoProvider,
       ctaMode: p.ctaMode, ctaLabel: s(p.ctaLabel), ctaHref: s(p.ctaHref), ctaNote: s(p.ctaNote),
       metaTitle: s(p.metaTitle), metaDescription: s(p.metaDescription), ogImageUrl: s(p.ogImageUrl),
-      status: p.status, featured: p.featured, showInHero: p.showInHero, currentlyBuilding: p.currentlyBuilding, buildNote: s(p.buildNote),
+      status: p.status, featured: p.featured, showInHero: p.showInHero, kind: p.kind, currentlyBuilding: p.currentlyBuilding, buildNote: s(p.buildNote),
       publishedAt: p.publishedAt ? p.publishedAt.toISOString().slice(0, 10) : "",
     },
   };

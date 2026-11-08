@@ -8,15 +8,47 @@ Design plan: docs/PHASE0_DESIGN_PLAN.md. Brief: CLAUDE_CODE_PROMPT.md.
 Brand: CAPARISON_LAB_BRAND_GUIDE.md. Tokens: caparison-tokens.css (wired into
 src/app/globals.css). Setup checklist: docs/SETUP.md.
 
+## Light redesign (owner, 2026-11-05, branch redesign-light)
+The public site was redesigned light, positioned for home service businesses
+in the US, UK, Canada and Australia. Read docs/REDESIGN_LIGHT.md before any
+public UI work. The sections below on the matte-black ground, the notch, the
+liquid metal button, the hero glass, weave and load screen, the home work,
+capability and process sections, and the dark case page describe the site
+before the redesign. Where they disagree with docs/REDESIGN_LIGHT.md, that
+file wins. The owner lifted the motion limits (one scroll reveal, no
+count-up); reduced motion still has to be respected. Colour, type, copy and
+data rules below still hold.
+
+## Home on black (owner, 2026-11-07)
+The home page is black with a service orbit hero; the other public pages are
+still light. Read "Home on black" in docs/REDESIGN_LIGHT.md before touching
+the home page, the header tabs, the arrow fill button or the assistant
+launcher. On the home page only, headings are Satoshi medium (not Archivo
+caps) and the ground is ink, by the owner's choice over Emerald.
+
 ## Non-negotiable
 - Colours, type, radius, and motion values come ONLY from caparison-tokens.css.
   globals.css disables Tailwind's default colours, text sizes, radii and the
   spacing multiplier, so only token utilities exist (p-1 = 8px … p-7 = 160px).
-- lime (#D6F631) is NEVER text on a light surface (1.05:1). It is a fill with
-  ink on top, or a small non-informational graphic.
-- The brand dark is olive-950 (#171B06), never #111 or #0B0B0B.
-- Two typefaces: Satoshi, JetBrains Mono (self-hosted, /public/fonts). Mono
-  only for genuine data (.data class or font-mono).
+- Palette (rebrand, owner 2026-11-05): Bright Leaf #CDFF9B and Emerald
+  #203D43. Token names are unchanged: `lime` is Bright Leaf, the `olive-*`
+  scale is the Emerald scale (950 #203D43, 800 #2A4C53, 600 #3E646B, 400
+  #6F9C77), sage #A9C2C4. The logo keeps its shape with a Leaf to Emerald
+  gradient and an Emerald spark; favicon.ico and public/brand/icon.png are
+  rasterised from the SVGs (the lockup PNGs, used only by /styleguide, still
+  show the old colours).
+- lime (Bright Leaf) is NEVER text on a light surface (1.02:1), and a Leaf
+  fill barely separates from bone or paper: on light surfaces the main
+  button is Emerald with a Leaf label, Leaf chips get a faint Emerald edge.
+  Leaf is the button and accent inside Emerald sections, and a band colour.
+- The brand dark is olive-950 (Emerald, #203D43), never #111 or #0B0B0B.
+  Brand fills that used to be ink (chips, icons, progress lines) are Emerald.
+- Three typefaces (owner, 2026-11-05): Satoshi for text and most headings,
+  Archivo Black (OFL, self-hosted, `--font-display`, `.cl-display`) for the
+  big moments only: public page h1s, the closing offer, the footer name, the
+  marquee, the promise figures. Capitals only on short lines. JetBrains Mono
+  only for genuine data (.data class or font-mono). All self-hosted in
+  /public/fonts.
 - No public-site copy is hardcoded. Every string is a ContentBlock row.
 - Server components by default. Mutations via server actions.
 - RLS enabled with deny-all default on EVERY table. Supabase exposes PostgREST
@@ -176,7 +208,9 @@ src/app/globals.css). Setup checklist: docs/SETUP.md.
   alone keeps the last answer), and the post-route re-reads run at 0, 120 and
   400ms rather than once. The hero has no spine rail; other
   sections keep theirs.
-- Favicon: src/app/icon.svg is the source of truth, and src/app/favicon.ico is
+- Favicon (colours updated in the 2026-11-05 rebrand: Leaf body, Emerald
+  edge and spark; everything below about shape and contrast still holds):
+  src/app/icon.svg is the source of truth, and src/app/favicon.ico is
   rasterised from it at 16/32/48, so whichever icon a browser picks it is the
   same mark. It is the brand's simplified single-colour hex, a solid hexagon
   on a lime body, an olive-950 edge and an olive-950 spark (the circular

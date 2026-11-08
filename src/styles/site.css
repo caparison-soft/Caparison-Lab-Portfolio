@@ -1,0 +1,642 @@
+/* ============================================================
+   Public site, light redesign (owner, 2026-11-05).
+   Imported by globals.css so Tailwind sees the token variables used here.
+   Components live in @layer components so a utility class on the same
+   element still wins. Colours, radii and durations are tokens only.
+
+   Reveal system: any element with data-reveal starts hidden and is shown by
+   RevealObserver (src/components/motion/reveal-observer.tsx) setting
+   data-in when it scrolls into view. The hidden state only applies when
+   JavaScript runs (html[data-js]) and motion is allowed, so a visitor with
+   no JS or reduced motion always sees the content as is.
+   ============================================================ */
+
+@layer components {
+  /* ---- Lenis smooth scroll ---- */
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+  .lenis.lenis-stopped { overflow: hidden; }
+
+  /* ---- Page ground ---- */
+  .site-light {
+    background: var(--color-bone);
+    color: var(--color-ink);
+    min-height: 100svh;
+  }
+  html:has(.site-light), html:has(.site-light) body { background: var(--color-bone); }
+
+  /* ---- Kicker: sentence case, a lime hex before it. Never all caps. ---- */
+  .cl-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--text-small);
+    line-height: 1.4;
+    font-weight: 500;
+    color: var(--color-ash);
+  }
+  .cl-kicker::before {
+    content: "";
+    width: 10px;
+    height: 11px;
+    flex: none;
+    background: var(--color-lime);
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    box-shadow: inset 0 0 0 1px var(--color-olive-950);
+  }
+  .on-dark .cl-kicker, .section-dark .cl-kicker { color: var(--color-sage); }
+  /* On light the lime hex gets an ink edge so it never relies on lime vs bone. */
+  .cl-kicker::after { content: none; }
+
+  /* ---- Status pill (availability) ---- */
+  .cl-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 34px;
+    padding: 0 14px 0 12px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-divider-light);
+    background: var(--color-paper);
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  .cl-pill .cl-live {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    background: var(--color-olive-400);
+  }
+  .cl-pill .cl-live::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-olive-400);
+    animation: cl-ping 2.4s var(--ease-out) infinite;
+  }
+  @keyframes cl-ping {
+    0% { transform: scale(0.6); opacity: 1; }
+    80%, 100% { transform: scale(1.8); opacity: 0; }
+  }
+
+  /* ---- Buttons (rebrand, 2026-11-05). Bright Leaf on bone is 1.02:1, so a
+     Leaf button vanished into the page. On light surfaces the main button is
+     Emerald with a Leaf label and a Leaf sheet rises on hover (label goes
+     Emerald). Inside dark sections it flips to Leaf with an Emerald label and
+     a bone sheet. --ink is the quiet Emerald button with a bone label, for
+     Leaf bands and secondary actions. The arrow puck swaps on hover. ---- */
+  .cl-btn {
+    --btn-h: 52px;
+    --btn-bg: var(--color-olive-950);
+    --btn-fg: var(--color-lime);
+    --btn-sheet: var(--color-lime);
+    --btn-fg-hover: var(--color-olive-950);
+    --puck-bg: var(--color-lime);
+    --puck-fg: var(--color-olive-950);
+    --puck-bg-hover: var(--color-olive-950);
+    --puck-fg-hover: var(--color-lime);
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    height: var(--btn-h);
+    padding: 0 8px 0 24px;
+    border-radius: var(--radius-full);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-weight: 700;
+    font-size: var(--text-body);
+    line-height: 1;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+    border: 0;
+    transition: color var(--duration-base) var(--ease-out);
+  }
+  .cl-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--btn-sheet);
+    border-radius: inherit;
+    transform: translateY(101%);
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+  .cl-btn:hover::before, .cl-btn:focus-visible::before { transform: translateY(0); }
+  .cl-btn:hover, .cl-btn:focus-visible { color: var(--btn-fg-hover); }
+  .cl-btn-puck {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(var(--btn-h) - 14px);
+    height: calc(var(--btn-h) - 14px);
+    border-radius: var(--radius-full);
+    background: var(--puck-bg);
+    color: var(--puck-fg);
+    overflow: hidden;
+    flex: none;
+    transition: background-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out);
+  }
+  .cl-btn:hover .cl-btn-puck, .cl-btn:focus-visible .cl-btn-puck { background: var(--puck-bg-hover); color: var(--puck-fg-hover); }
+  .cl-btn-puck svg { width: 16px; height: 16px; transition: transform var(--duration-slow) var(--ease-out); }
+  .cl-btn-puck svg + svg { position: absolute; transform: translate(-150%, 150%); }
+  .cl-btn:hover .cl-btn-puck svg:first-child, .cl-btn:focus-visible .cl-btn-puck svg:first-child { transform: translate(150%, -150%); }
+  .cl-btn:hover .cl-btn-puck svg + svg, .cl-btn:focus-visible .cl-btn-puck svg + svg { transform: translate(0, 0); }
+
+  .cl-btn--sm { --btn-h: 42px; padding-left: 18px; gap: 10px; font-size: var(--text-small); }
+  .cl-btn--plain { padding: 0 24px; }
+
+  /* Inside dark sections the main button is Leaf. */
+  .section-dark .cl-btn, .on-dark .cl-btn {
+    --btn-bg: var(--color-lime);
+    --btn-fg: var(--color-olive-950);
+    --btn-sheet: var(--color-bone);
+    --btn-fg-hover: var(--color-olive-950);
+    --puck-bg: var(--color-olive-950);
+    --puck-fg: var(--color-lime);
+    --puck-bg-hover: var(--color-olive-950);
+    --puck-fg-hover: var(--color-lime);
+  }
+
+  /* Quiet Emerald: bone label, a bone sheet rises. Reads on Leaf bands too. */
+  .cl-btn.cl-btn--ink {
+    --btn-bg: var(--color-olive-950);
+    --btn-fg: var(--color-bone);
+    --btn-sheet: var(--color-bone);
+    --btn-fg-hover: var(--color-olive-950);
+    --puck-bg: var(--color-lime);
+    --puck-fg: var(--color-olive-950);
+    --puck-bg-hover: var(--color-olive-950);
+    --puck-fg-hover: var(--color-lime);
+  }
+
+  /* Ghost: hairline outline, an Emerald sheet rises. On dark it inverts. */
+  .cl-btn.cl-btn--ghost {
+    --btn-bg: transparent;
+    --btn-fg: var(--color-olive-950);
+    --btn-sheet: var(--color-olive-950);
+    --btn-fg-hover: var(--color-bone);
+    --puck-bg: transparent;
+    --puck-fg: var(--color-olive-950);
+    --puck-bg-hover: var(--color-lime);
+    --puck-fg-hover: var(--color-olive-950);
+    box-shadow: inset 0 0 0 1px rgba(32, 61, 67, 0.22);
+  }
+  .on-dark .cl-btn.cl-btn--ghost, .section-dark .cl-btn.cl-btn--ghost {
+    --btn-fg: var(--color-bone);
+    --btn-sheet: var(--color-bone);
+    --btn-fg-hover: var(--color-olive-950);
+    --puck-fg: var(--color-bone);
+    --puck-bg-hover: var(--color-olive-950);
+    --puck-fg-hover: var(--color-lime);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  }
+
+  .cl-btn[aria-disabled="true"], .cl-btn:disabled { opacity: 0.55; pointer-events: none; }
+
+  /* ---- Text link with a drawn underline ---- */
+  .cl-link {
+    position: relative;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 500;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--duration-slow) var(--ease-out);
+  }
+  .cl-link:hover, .cl-link:focus-visible { background-size: 100% 1px; }
+  .cl-link--always { background-size: 100% 1px; }
+  .cl-link--always:hover { background-size: 0% 1px; background-position: 100% 100%; }
+
+  /* ---- Cards: elevation by border and background step, never a soft shadow ---- */
+  .cl-card {
+    position: relative;
+    background: var(--color-paper);
+    border: 1px solid var(--color-divider-light);
+    border-radius: var(--radius-lg);
+    transition: border-color var(--duration-base) var(--ease-out), transform var(--duration-slow) var(--ease-out);
+  }
+  .cl-card-hover:hover { border-color: rgba(0, 0, 0, 0.18); transform: translateY(-3px); }
+
+  /* A pointer-following light inside a card (set --mx/--my from JS). */
+  .cl-spot { --mx: 50%; --my: 50%; }
+  .cl-spot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(420px circle at var(--mx) var(--my), rgba(205, 255, 155, 0.14), transparent 60%);
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+  .cl-spot:hover::after { opacity: 1; }
+
+  /* ---- Header ---- */
+  .cl-header {
+    position: fixed;
+    inset: 12px 0 auto 0;
+    z-index: 70;
+    padding: 0 12px;
+    pointer-events: none;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+  .cl-header[data-hidden="true"] { transform: translateY(calc(-100% - 16px)); }
+  .cl-header-bar {
+    pointer-events: auto;
+    position: relative;
+    max-width: 1280px;
+    margin: 0 auto;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 8px 0 18px;
+    border-radius: var(--radius-full);
+    border: 1px solid transparent;
+    background: transparent;
+    transition: background-color var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out);
+  }
+  .cl-header[data-scrolled="true"] .cl-header-bar,
+  .cl-header[data-open="true"] .cl-header-bar {
+    background: color-mix(in srgb, var(--color-paper) 84%, transparent);
+    border-color: var(--color-divider-light);
+    backdrop-filter: blur(16px) saturate(1.4);
+  }
+  .cl-nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: var(--radius-full);
+    font-size: var(--text-small);
+    font-weight: 500;
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+  .cl-nav-link:hover { background: rgba(0, 0, 0, 0.05); }
+  .cl-nav-link[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 5px;
+    height: 5px;
+    margin-left: -2.5px;
+    border-radius: var(--radius-full);
+    background: var(--color-olive-950);
+  }
+
+  /* Mobile menu sheet */
+  .cl-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 69;
+    background: var(--color-bone);
+    padding: 96px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+    transition: clip-path var(--duration-slow) var(--ease-in-out), visibility 0s linear var(--duration-slow);
+  }
+  .cl-sheet[data-open="true"] {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+    transition: clip-path var(--duration-slow) var(--ease-in-out), visibility 0s;
+  }
+  .cl-sheet-link {
+    display: block;
+    font-size: clamp(2.25rem, 10vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    color: var(--color-ink);
+    text-decoration: none;
+    padding: 6px 0;
+    transform: translateY(40%);
+    opacity: 0;
+    transition: transform var(--duration-slow) var(--ease-out), opacity var(--duration-slow) var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 50ms + 120ms);
+  }
+  .cl-sheet[data-open="true"] .cl-sheet-link { transform: none; opacity: 1; }
+
+  .cl-burger { position: relative; width: 44px; height: 44px; border-radius: var(--radius-full); background: var(--color-olive-950); color: var(--color-bone); display: grid; place-items: center; border: 0; cursor: pointer; }
+  .cl-burger span { position: absolute; width: 16px; height: 1.5px; background: currentColor; transition: transform var(--duration-base) var(--ease-out); }
+  .cl-burger span:first-child { transform: translateY(-3px); }
+  .cl-burger span:last-child { transform: translateY(3px); }
+  .cl-burger[aria-expanded="true"] span:first-child { transform: rotate(45deg); }
+  .cl-burger[aria-expanded="true"] span:last-child { transform: rotate(-45deg); }
+
+  /* Scroll progress hairline under the header. */
+  .cl-progress {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 2px;
+    z-index: 71;
+    transform-origin: 0 50%;
+    background: var(--color-olive-950);
+    pointer-events: none;
+  }
+
+  /* ---- Custom cursor (fine pointers only; set up in cursor.tsx) ---- */
+  html.has-cursor, html.has-cursor * { cursor: none !important; }
+  html.has-cursor input, html.has-cursor textarea, html.has-cursor select,
+  html.has-cursor [contenteditable="true"] { cursor: text !important; }
+  .cl-cursor { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; }
+  /* The arrow's tip sits on the pointer: the path's tip is at (3, 2.5) in a 22px box. */
+  .cl-cursor-arrow { position: fixed; left: 0; top: 0; width: 22px; height: 22px; margin: -2px 0 0 -3px; pointer-events: none; z-index: 9999; transition: opacity var(--duration-fast) linear; }
+  .cl-cursor-arrow svg { display: block; transform-origin: 3px 2.5px; transition: transform 250ms var(--ease-out); filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--color-ink) 35%, transparent)); }
+  .cl-cursor[data-state="link"] .cl-cursor-arrow svg { transform: scale(1.5) rotate(-12deg); }
+  .cl-cursor[data-pressed="true"] .cl-cursor-arrow svg { transform: scale(0.85); }
+  .cl-cursor[data-state="link"][data-pressed="true"] .cl-cursor-arrow svg { transform: scale(1.25) rotate(-12deg); }
+  .cl-cursor[data-state="text"] .cl-cursor-arrow,
+  .cl-cursor[data-state="hide"] .cl-cursor-arrow,
+  .cl-cursor[data-visible="false"] .cl-cursor-arrow { opacity: 0; }
+
+  /* ---- Marquee ---- */
+  .cl-marquee { overflow: hidden; white-space: nowrap; user-select: none; }
+  .cl-marquee-track { display: inline-flex; align-items: center; will-change: transform; }
+
+  /* ---- FAQ disclosure with animated height (grid rows trick) ---- */
+  .cl-faq-item { border-top: 1px solid var(--color-divider-light); }
+  .cl-faq-item:last-child { border-bottom: 1px solid var(--color-divider-light); }
+  .cl-faq-q {
+    width: 100%;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    padding: 24px 0;
+    background: none; border: 0; text-align: left; cursor: pointer;
+    font: inherit; font-size: var(--text-h4); font-weight: 700; letter-spacing: -0.015em; color: inherit;
+  }
+  .cl-faq-icon { position: relative; width: 36px; height: 36px; flex: none; border-radius: var(--radius-full); border: 1px solid var(--color-divider-light); transition: background-color var(--duration-base) var(--ease-out), transform var(--duration-slow) var(--ease-out); }
+  .cl-faq-icon::before, .cl-faq-icon::after { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 1.5px; margin: -0.75px 0 0 -6px; background: currentColor; transition: transform var(--duration-slow) var(--ease-out); }
+  .cl-faq-icon::after { transform: rotate(90deg); }
+  .cl-faq-item[data-open="true"] .cl-faq-icon { background: var(--color-lime); border-color: rgba(32, 61, 67, 0.3); transform: rotate(180deg); }
+  .cl-faq-item[data-open="true"] .cl-faq-icon::after { transform: rotate(0deg); }
+  .cl-faq-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--duration-slow) var(--ease-out); }
+  .cl-faq-item[data-open="true"] .cl-faq-a { grid-template-rows: 1fr; }
+  .cl-faq-a > div { overflow: hidden; }
+
+  /* ---- Split words for reveals (rendered by <Split>) ---- */
+  .cl-line { display: block; text-wrap: balance; }
+  .cl-w {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    /* Display sizes are line-height ~0.9; give descenders room inside the mask. */
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+  }
+  .cl-wi { display: inline-block; will-change: transform; }
+
+  /* ---- Intro screen (first visit per session) ---- */
+  .cl-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    place-items: center;
+    background: var(--color-olive-950);
+    color: var(--color-bone);
+  }
+  html[data-intro] .cl-intro { display: grid; }
+  .cl-intro[data-phase="out"] { animation: cl-intro-out 900ms var(--ease-in-out) forwards; }
+  @keyframes cl-intro-out { to { clip-path: inset(0 0 100% 0); } }
+  .cl-intro-mark { width: 72px; height: 72px; animation: cl-intro-mark 900ms var(--ease-out) both; }
+  @keyframes cl-intro-mark { from { opacity: 0; transform: scale(0.6) rotate(-30deg); } to { opacity: 1; transform: none; } }
+  .cl-intro-word { margin-top: 18px; height: 28px; overflow: hidden; }
+  .cl-intro-word img { display: block; height: 28px; width: auto; animation: cl-intro-word 700ms var(--ease-out) 250ms both; }
+  @keyframes cl-intro-word { from { transform: translateY(100%); } to { transform: none; } }
+  .cl-intro-bar { margin-top: 24px; width: 120px; height: 2px; background: rgba(236, 238, 232, 0.15); overflow: hidden; }
+  .cl-intro-bar span { display: block; height: 100%; background: var(--color-lime); transform-origin: 0 50%; animation: cl-intro-bar 1000ms var(--ease-in-out) both; }
+  @keyframes cl-intro-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  /* ---- Tag chips ---- */
+  .cl-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 30px; padding: 0 12px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-divider-light);
+    background: var(--color-paper);
+    font-size: var(--text-small); font-weight: 500; line-height: 1;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+  /* Leaf chips keep a faint Emerald edge: Leaf alone barely separates from paper. */
+  .cl-chip--lime { background: var(--color-lime); border-color: rgba(32, 61, 67, 0.22); color: var(--color-olive-950); }
+  .cl-chip--ink { background: var(--color-olive-950); border-color: transparent; color: var(--color-bone); }
+  .on-dark .cl-chip, .section-dark .cl-chip { background: var(--color-olive-800); border-color: var(--color-olive-600); color: var(--color-bone); }
+  .on-dark .cl-chip--lime, .section-dark .cl-chip--lime { background: var(--color-lime); color: var(--color-ink); border-color: transparent; }
+
+  /* Hairline */
+  .cl-rule { height: 1px; background: var(--color-divider-light); border: 0; }
+  .on-dark .cl-rule, .section-dark .cl-rule { background: rgba(255, 255, 255, 0.1); }
+}
+
+/* ---- Reveal states (only with JS and motion allowed) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-js] [data-reveal="up"] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 900ms var(--ease-out), transform 900ms var(--ease-out);
+    transition-delay: calc(var(--d, 0) * 1ms);
+  }
+  html[data-js] [data-reveal="fade"] {
+    opacity: 0;
+    transition: opacity 1100ms var(--ease-out);
+    transition-delay: calc(var(--d, 0) * 1ms);
+  }
+  html[data-js] [data-reveal="scale"] {
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 900ms var(--ease-out), transform 1200ms var(--ease-out);
+    transition-delay: calc(var(--d, 0) * 1ms);
+  }
+  html[data-js] [data-reveal="clip"] {
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 1200ms var(--ease-in-out);
+    transition-delay: calc(var(--d, 0) * 1ms);
+  }
+  html[data-js] [data-reveal="clip"] > * { transform: scale(1.15); transition: transform 1600ms var(--ease-out); transition-delay: calc(var(--d, 0) * 1ms); }
+  html[data-js] [data-reveal="line"] {
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 1200ms var(--ease-in-out);
+    transition-delay: calc(var(--d, 0) * 1ms);
+  }
+  html[data-js] [data-reveal="words"] .cl-wi {
+    transform: translateY(110%) rotate(4deg);
+    transform-origin: 0 100%;
+    transition: transform 1000ms var(--ease-out);
+    transition-delay: calc(var(--d, 0) * 1ms + var(--i, 0) * 45ms);
+  }
+  html[data-js] [data-reveal="stagger"] > * {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 800ms var(--ease-out), transform 800ms var(--ease-out);
+    transition-delay: calc(var(--d, 0) * 1ms + var(--i, 0) * 70ms);
+  }
+
+  html[data-js] [data-reveal][data-in="true"],
+  html[data-js] [data-reveal="stagger"][data-in="true"] > * { opacity: 1; transform: none; }
+  html[data-js] [data-reveal="clip"][data-in="true"] { clip-path: inset(0 0 0 0); }
+  html[data-js] [data-reveal="clip"][data-in="true"] > * { transform: none; }
+  html[data-js] [data-reveal="words"][data-in="true"] .cl-wi { transform: none; }
+
+  /* While the intro screen is up, nothing has entered yet. */
+  html[data-intro] [data-reveal][data-in="true"] { opacity: 0; }
+  html[data-intro] [data-reveal="words"][data-in="true"] { opacity: 1; }
+  html[data-intro] [data-reveal="words"][data-in="true"] .cl-wi { transform: translateY(110%) rotate(4deg); }
+  html[data-intro] [data-reveal="clip"][data-in="true"] { opacity: 1; clip-path: inset(100% 0 0 0); }
+  html[data-intro] [data-reveal="stagger"][data-in="true"] > * { opacity: 0; transform: translateY(24px); }
+}
+
+@layer components {
+  .cl-intro[data-phase="out"] { display: grid; }
+  .cl-footer-name {
+    font-family: var(--font-display);
+    font-synthesis: none;
+    text-transform: uppercase;
+    font-size: clamp(2.5rem, 10.1vw, 10rem);
+    letter-spacing: -0.03em;
+    line-height: 0.8;
+    white-space: nowrap;
+  }
+}
+
+/* ---- Display type (rebrand, owner 2026-11-05). Archivo Black for the big
+   moments: every public page's h1, the closing offer, the footer name, the
+   marquee and the promise figures. Satoshi carries everything else. The face
+   has one weight; font-synthesis: none stops the browser faking a bolder one
+   when a text-* utility asks for 900. Capitals only on short lines (the home
+   headline, the footer name, the marquee). ---- */
+@layer components {
+  .site-light main h1,
+  .cl-display {
+    font-family: var(--font-display);
+    font-synthesis: none;
+    letter-spacing: -0.02em;
+  }
+  .cl-caps { text-transform: uppercase; }
+}
+
+/* ---- Arrow fill button (owner, 2026-11-07; component in
+   src/components/ui/arrow-fill-button.tsx). A puck with an arrow at the right
+   end; hover or keyboard focus sweeps it over the whole pill, the label's
+   clipped copy rides on the fill so the words change colour as it passes, one
+   arrow flies out right and another flies in from the left. Tones only swap
+   the variables. ---- */
+@layer components {
+  .arrow-fill {
+    --af-h: 52px; --af-pk: 40px; --af-gap: 6px; --af-pl: 24px;
+    --af-bg: var(--color-lime); --af-tx: var(--color-olive-950); --af-fill: var(--color-olive-950); --af-ftx: var(--color-lime);
+    --af-e: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+    --af-pi: calc((var(--af-h) - 2px - var(--af-pk)) / 2);
+    --af-pr: calc(var(--af-pk) + var(--af-gap) + 18px);
+    position: relative; isolation: isolate; display: inline-flex; align-items: center; height: var(--af-h);
+    padding: 0 var(--af-pr) 0 var(--af-pl); border-radius: var(--radius-full); border: 1px solid var(--af-bg);
+    background: var(--af-bg); color: var(--af-tx); font: inherit; font-size: 0.9375rem; font-weight: 700; line-height: 1;
+    white-space: nowrap; text-decoration: none; overflow: hidden; cursor: pointer;
+  }
+  .arrow-fill--emerald { --af-bg: var(--color-olive-950); --af-tx: var(--color-lime); --af-fill: var(--color-lime); --af-ftx: var(--color-olive-950); }
+  .arrow-fill--sm { --af-h: 42px; --af-pk: 32px; --af-gap: 5px; --af-pl: 18px; font-size: var(--text-small); }
+  .arrow-fill-fill {
+    position: absolute; z-index: 1; border-radius: var(--radius-full); background: var(--af-fill);
+    inset: var(--af-pi) var(--af-gap) var(--af-pi) calc(100% - var(--af-gap) - var(--af-pk));
+    transition: inset 450ms var(--af-e);
+  }
+  .arrow-fill-copy {
+    position: absolute; z-index: 2; inset: 0; display: flex; align-items: center; padding: 0 var(--af-pr) 0 var(--af-pl);
+    color: var(--af-ftx); pointer-events: none;
+    clip-path: inset(var(--af-pi) var(--af-gap) var(--af-pi) calc(100% - var(--af-gap) - var(--af-pk)) round 999px);
+    transition: clip-path 450ms var(--af-e);
+  }
+  .arrow-fill-puck {
+    position: absolute; z-index: 3; right: var(--af-gap); top: 50%; width: var(--af-pk); height: var(--af-pk);
+    margin-top: calc(var(--af-pk) / -2); border-radius: var(--radius-full); background: var(--af-fill); color: var(--af-ftx);
+    overflow: hidden; pointer-events: none;
+  }
+  .arrow-fill-arrow { position: absolute; left: 50%; top: 50%; width: 16px; height: 16px; transition: transform 450ms var(--af-e); }
+  .arrow-fill--sm .arrow-fill-arrow { width: 14px; height: 14px; }
+  .arrow-fill-arrow-in { transform: translate(-170%, -50%) scale(0); }
+  .arrow-fill-arrow-out { transform: translate(-50%, -50%); }
+  .arrow-fill:is(:hover, :focus-visible, :active) .arrow-fill-fill { inset: 0; }
+  .arrow-fill:is(:hover, :focus-visible, :active) .arrow-fill-copy { clip-path: inset(0 round 999px); }
+  .arrow-fill:is(:hover, :focus-visible, :active) .arrow-fill-arrow-in { transform: translate(-50%, -50%); }
+  .arrow-fill:is(:hover, :focus-visible, :active) .arrow-fill-arrow-out { transform: translate(70%, -50%) scale(0); }
+  .arrow-fill:focus-visible { outline: 2px solid var(--color-lime); outline-offset: 4px; }
+  .arrow-fill--emerald:focus-visible { outline-color: var(--color-olive-950); }
+  @media (prefers-reduced-motion: reduce) {
+    .arrow-fill-fill, .arrow-fill-copy, .arrow-fill-arrow { transition: none; }
+  }
+}
+
+/* ---- Header tabs and the "Let's talk" pill (owner, 2026-11-07) ---- */
+@layer components {
+  .cl-tabs { position: relative; }
+  .cl-tabs-list { position: relative; display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+  .cl-tab {
+    display: flex; align-items: center; height: 34px; padding: 0 14px; border-radius: 8px;
+    font-size: var(--text-small); font-weight: 500; text-decoration: none; white-space: nowrap;
+    color: color-mix(in srgb, var(--color-ink) 62%, transparent);
+    transition: color var(--duration-base) var(--ease-out);
+  }
+  .cl-tab:hover, .cl-tab:focus-visible, .cl-tab[aria-current="page"] { color: var(--color-ink); }
+  .cl-tab:focus-visible { outline-offset: 2px; }
+  .cl-tabs-plate {
+    position: absolute; top: 0; height: 34px; border-radius: 8px; opacity: 0; pointer-events: none;
+    background: color-mix(in srgb, var(--color-ink) 7%, transparent);
+    transition: left 300ms var(--ease-out), width 300ms var(--ease-out), opacity 250ms;
+  }
+  .cl-tabs-line {
+    position: absolute; bottom: -8px; height: 2px; border-radius: 2px; opacity: 0; pointer-events: none;
+    background: var(--color-olive-950);
+    transition: left 350ms var(--ease-out), width 350ms var(--ease-out);
+  }
+  .cl-talk {
+    align-items: center; height: 40px; padding: 0 18px; border-radius: var(--radius-full);
+    font-size: var(--text-small); font-weight: 700; text-decoration: none;
+    background: var(--color-olive-950); color: var(--color-lime);
+    transition: transform var(--duration-base) var(--ease-out), background-color var(--duration-base);
+  }
+  .cl-talk:hover { transform: translateY(-1px); background: var(--color-olive-800); }
+
+  /* Dark tone: the black home page. */
+  .cl-header[data-tone="dark"] .cl-header-mark { color: var(--color-bone); }
+  .cl-header[data-tone="dark"] .cl-tab { color: color-mix(in srgb, var(--color-bone) 62%, transparent); }
+  .cl-header[data-tone="dark"] .cl-tab:is(:hover, :focus-visible, [aria-current="page"]) { color: var(--color-bone); }
+  .cl-header[data-tone="dark"] .cl-tab:focus-visible { outline-color: var(--color-lime); }
+  .cl-header[data-tone="dark"] .cl-tabs-plate { background: color-mix(in srgb, var(--color-bone) 10%, transparent); }
+  .cl-header[data-tone="dark"] .cl-tabs-line { background: var(--color-lime); }
+  .cl-header[data-tone="dark"] .cl-talk { background: var(--color-lime); color: var(--color-olive-950); }
+  .cl-header[data-tone="dark"] .cl-talk:hover { background: var(--color-lime); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-lime) 18%, transparent); }
+  .cl-header[data-tone="dark"] .cl-talk:focus-visible { outline-color: var(--color-lime); }
+  .cl-header[data-tone="dark"][data-scrolled="true"] .cl-header-bar {
+    background: color-mix(in srgb, var(--color-ink) 72%, transparent);
+    border-color: color-mix(in srgb, var(--color-bone) 12%, transparent);
+  }
+  .cl-header[data-tone="dark"] .cl-burger { background: var(--color-lime); color: var(--color-olive-950); }
+  @media (prefers-reduced-motion: reduce) {
+    .cl-tabs-plate, .cl-tabs-line { transition: none; }
+  }
+}
+
+/* The cursor root is a manual popover so it can sit in the top layer above
+   open dialogs (cursor.tsx re-shows it when one opens). Undo the UA's popover
+   box so it is just a fixed, invisible host for the arrow. */
+@layer components {
+  .cl-cursor[popover] { position: fixed; inset: auto; left: 0; top: 0; width: 0; height: 0; margin: 0; padding: 0; border: 0; background: transparent; overflow: visible; color: inherit; }
+}

@@ -37,7 +37,9 @@ const sizes: Record<Size, string> = {
 
 const variants: Record<Surface, Record<Variant, string>> = {
   light: {
-    primary: "bg-lime text-ink hover:bg-olive-400",
+    // Bright Leaf barely separates from bone (rebrand, 2026-11-05), so the
+    // light primary is Emerald with a Leaf label.
+    primary: "bg-olive-950 text-lime hover:bg-olive-800",
     secondary: "bg-transparent text-ink border border-ink hover:bg-ink hover:text-bone",
     ghost: "bg-transparent text-ash hover:text-ink px-2",
     destructive: "bg-status-error text-white hover:bg-status-error-hover",

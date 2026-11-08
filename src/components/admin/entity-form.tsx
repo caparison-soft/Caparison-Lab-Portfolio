@@ -105,7 +105,7 @@ export function EntityForm({ fields, initial, onSubmit, submitLabel = "Save", on
           if (f.type === "toggle") {
             return (
               <label key={f.name} htmlFor={id} className={`flex items-center gap-2 text-small ${span}`}>
-                <input id={id} type="checkbox" {...register(f.name)} className="w-2 h-2 accent-[#D6F631]" />
+                <input id={id} type="checkbox" {...register(f.name)} className="w-2 h-2 accent-[#CDFF9B]" />
                 {f.label}
               </label>
             );

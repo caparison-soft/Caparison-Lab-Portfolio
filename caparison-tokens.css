@@ -8,24 +8,27 @@
 @import "tailwindcss";
 
 @theme {
-  /* ---- Core palette ---- */
-  --color-lime: #D6F631;        /* brand accent, exact from logo */
-  --color-olive-950: #171B06;   /* primary dark surface = brand "black" */
-  --color-olive-800: #2B3110;   /* raised surface on dark */
-  --color-olive-600: #4A5410;   /* borders on dark */
-  --color-olive-400: #8EA320;   /* gradient mid-tone, quiet accent */
+  /* ---- Core palette ----
+     Rebranded 2026-11-05 (owner): Bright Leaf #CDFF9B and Emerald #203D43.
+     The token names are kept so nothing has to be renamed: "lime" is now
+     Bright Leaf, the "olive" scale is now the Emerald scale. ---- */
+  --color-lime: #CDFF9B;        /* Bright Leaf: brand accent, a fill, never text on light */
+  --color-olive-950: #203D43;   /* Emerald: primary dark surface and the main button on light */
+  --color-olive-800: #2A4C53;   /* raised surface on dark */
+  --color-olive-600: #3E646B;   /* borders on dark */
+  --color-olive-400: #6F9C77;   /* gradient mid-tone between Leaf and Emerald, quiet accent */
   --color-bone: #ECEEE8;        /* primary light surface */
   --color-paper: #FAFBF7;       /* raised surface on light */
   --color-ink: #000000;         /* text on light, matches wordmark */
   --color-ash: #5A6152;         /* secondary text on light, 5.5:1 on bone */
-  --color-sage: #A8B09C;        /* secondary text on dark, 7.8:1 on olive-950 */
+  --color-sage: #A9C2C4;        /* secondary text on dark, 6.2:1 on Emerald */
 
   /* ---- Support ---- */
   --color-cobalt: #2033A6;      /* links, info, second data series */
 
   /* ---- Status ---- */
-  --color-status-live: #D6F631;
-  --color-status-progress: #8EA320;
+  --color-status-live: #CDFF9B;
+  --color-status-progress: #6F9C77;
   --color-status-draft: #5A6152;
   --color-status-info: #2033A6;
   --color-status-warn: #B4740F;
@@ -71,11 +74,11 @@
   --spine-width: 180px; /* the narrow left orientation rail */
 
   --divider-light: rgba(0, 0, 0, 0.08);
-  --divider-dark: #4A5410;
+  --divider-dark: #3E646B;
 
   /* Reserved. Logo, and at most one large decorative mark per page.
      Never behind text. Never on a button. Never a section background. */
-  --gradient-signature: linear-gradient(135deg, #D6F631 0%, #8EA320 46%, #171B06 100%);
+  --gradient-signature: linear-gradient(135deg, #CDFF9B 0%, #6F9C77 46%, #203D43 100%);
 }
 
 @layer base {
@@ -161,11 +164,11 @@
 
 /* ============================================================
    HARD RULES — violating these breaks the brand
-   1. lime is NEVER text on bone/paper/white (1.05:1). It is a
+   1. lime (Bright Leaf) is NEVER text on bone/paper/white (1.02:1). It is a
       FILL with ink on top, or a small non-informational graphic.
-   2. lime as text is fine on olive-950 (14.3:1) and olive-800.
+   2. lime as text is fine on olive-950 (Emerald, 10.2:1) and olive-800.
    3. No colour outside this file. No violet. No terracotta.
-      No tinted near-black (#0B0B0B/#111) — use olive-950.
+      No tinted near-black (#0B0B0B/#111) — use olive-950 (Emerald).
    4. Elevation = borders and background steps. Real shadow only
       for overlapping UI: modals, dropdowns, toasts.
    5. Mono only where content is genuinely code or machine data.

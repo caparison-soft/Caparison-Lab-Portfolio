@@ -1,6 +1,16 @@
 # Caparison Lab — Brand Guide
 Version 1.0
 
+> **Rebrand, 2026-11-05 (owner).** The colours and the display face below
+> are superseded. Accent: Bright Leaf #CDFF9B (was lime #D6F631). Dark:
+> Emerald #203D43 (was olive-950 #171B06), with the scale 800 #2A4C53,
+> 600 #3E646B, 400 #6F9C77 and sage #A9C2C4. The mark keeps its geometry
+> with a Leaf to Emerald gradient and an Emerald spark. On light surfaces
+> the main button is Emerald with a Leaf label. A third face, Archivo
+> Black, sets the big moments (page h1s, the closing offer, the footer
+> name); Satoshi and JetBrains Mono keep their roles. Everything else in
+> this guide stands. Source of truth for values: caparison-tokens.css.
+
 ---
 
 ## 1. What the brand is

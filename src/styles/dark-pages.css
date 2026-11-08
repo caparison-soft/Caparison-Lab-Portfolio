@@ -1,0 +1,59 @@
+/* ============================================================
+   Dark pages (owner, 2026-11-07: "make Services and Work dark like home").
+   main.theme-dark flips the light palette's roles instead of restyling every
+   component: bone (the page) becomes ink, paper (raised) a near-black step,
+   ink (text) becomes bone, ash (secondary text) sage, hairlines go light.
+   Emerald and Leaf surfaces get the original roles back, so their contents
+   read as designed. The originals are captured on :root as --tk-* first, so
+   nothing refers to itself. Tokens only.
+   ============================================================ */
+:root {
+  --tk-ink: var(--color-ink);
+  --tk-bone: var(--color-bone);
+  --tk-paper: var(--color-paper);
+  --tk-ash: var(--color-ash);
+  --tk-sage: var(--color-sage);
+  --tk-raise: color-mix(in srgb, var(--color-bone) 6%, var(--color-ink));
+  --tk-line-light: var(--color-divider-light);
+}
+@layer components {
+  .theme-dark {
+    --color-bone: var(--tk-ink);
+    --color-paper: var(--tk-raise);
+    --color-ink: var(--tk-bone);
+    --color-ash: var(--tk-sage);
+    --color-divider-light: color-mix(in srgb, var(--tk-bone) 14%, transparent);
+    position: relative; isolation: isolate;
+    background: var(--tk-ink); color: var(--tk-bone);
+  }
+  /* Emerald bands, Leaf fills and anything marked dark keep the real roles. */
+  .theme-dark :is(.section-dark, .on-dark, .bg-olive-950, .bg-olive-800, .bg-lime, .cl-btn, .cl-chip--lime, .cl-chip--ink, .wk-filter[aria-current="page"], .wk-kind-note--concept) {
+    --color-bone: var(--tk-bone);
+    --color-paper: var(--tk-paper);
+    --color-ink: var(--tk-ink);
+    --color-ash: var(--tk-ash);
+    --color-divider-light: var(--tk-line-light);
+  }
+  .theme-dark :focus-visible { outline-color: var(--color-lime); }
+  /* Headings as on the home page: Satoshi medium, not Archivo caps. */
+  .site-light main.theme-dark :is(h1, h2, h3) { font-family: var(--font-sans); text-transform: none; font-synthesis: none; }
+  .site-light main.theme-dark h1 { font-weight: 500; letter-spacing: -0.035em; }
+}
+
+/* Type as on the home page (owner, 2026-11-07): Satoshi medium headings with
+   tight tracking instead of Archivo and 700-900 weights. Unlayered on purpose:
+   the text-* utilities carry their own weight and live in the utilities
+   layer, which outranks the components layer. Sizes are left as they were. */
+.theme-dark :is(h1, h2, h3, .cl-display, .text-mega, .text-display-xl, .text-display-l, .text-h2) {
+  font-family: var(--font-sans); font-weight: 500; text-transform: none; font-synthesis: none; letter-spacing: -0.035em; line-height: 1.04;
+}
+.theme-dark :is(h3, h4, .text-h3, .text-h4) { font-family: var(--font-sans); font-weight: 500; letter-spacing: -0.02em; }
+.theme-dark :is(.font-bold, .font-black) { font-weight: 500; }
+/* Large figures and titles drawn in CSS at 700-900. */
+.theme-dark :is(.sv-price-figure, .ind-calc-figure, .ind-fact-figure, .wk-next-title, .wk-quote-mark, .wk-ph-title) { font-weight: 500; letter-spacing: -0.035em; }
+.theme-dark :is(.sv-tile-title, .sv-index-link[aria-current], .ind-band-item, .ind-cost-title, .ind-calc-heading, .ind-flow-title, .ind-scr-strong) { font-weight: 500; }
+
+/* Selected text: Leaf with black text. The base rule uses --color-ink, which
+   the dark pages turn into bone, leaving bone on Leaf (owner, 2026-11-08). */
+:is(.theme-dark, .home-black) ::selection,
+:is(.theme-dark, .home-black)::selection { background: var(--color-lime); color: var(--tk-ink); }

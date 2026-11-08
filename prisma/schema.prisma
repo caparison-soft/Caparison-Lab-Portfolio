@@ -69,6 +69,16 @@ enum ProjectStage {
   RETIRED
 }
 
+/// Whose project this is, shown as a label on every card and case page so a
+/// concept is never mistaken for a client result. CLIENT: built for a paying
+/// client. INTERNAL: the studio's own product. CONCEPT: a worked example for a
+/// fictional business, showing the approach rather than a measured outcome.
+enum ProjectKind {
+  CLIENT
+  INTERNAL
+  CONCEPT
+}
+
 enum MediaType {
   IMAGE
   VIDEO
@@ -194,6 +204,7 @@ model Project {
   /// e.g. ["web", "macOS", "Premiere Pro plugin"].
   platforms       String[]      @default([])
   stage           ProjectStage?
+  kind            ProjectKind   @default(CLIENT)
   launchedAt      DateTime?
   /// One line on what happened after launch, e.g. "retainer since month two".
   afterNote       String?

@@ -62,6 +62,7 @@ function Drawer({ q, siteName, onClose, onStatus }: { q: InquiryRow; siteName: s
       <div className="w-[200px]"><InquiryStatusSelect key={q.id + q.status} id={q.id} status={q.status} label="Status" onChanged={(s) => onStatus(q.id, s)} /></div>
       <p className="text-body text-ink whitespace-pre-wrap max-w-none border-t border-divider-light pt-2">{q.message}</p>
       <dl className="grid grid-cols-[110px_1fr] gap-x-2 gap-y-[2px] text-small border-t border-divider-light pt-2">
+        <dt className="text-ash">needs</dt><dd>{q.projectType ?? ""}</dd>
         <dt className="text-ash">budget</dt><dd className="data">{q.budgetBand ?? ""}</dd>
         <dt className="text-ash">timeline</dt><dd className="data">{q.timelineBand ?? ""}</dd>
         <dt className="text-ash">looking at</dt><dd>{q.sourceProject ? <Link href={`/admin/projects/${q.sourceProject.id}`}>{q.sourceProject.title}</Link> : ""}</dd>

@@ -66,9 +66,11 @@ export function InfiniteSlider({ children, gap = 16, duration = 25, durationOnHo
 
   return (
     <div
-      className={cx("overflow-hidden", !reduced && (grabbing ? "cursor-grabbing select-none" : "cursor-grab"), className)}
+      // The same markup on server and client (branching on reduced motion here
+      // broke hydration, 2026-11-07); reduced motion drops the grab cursor in CSS.
+      className={cx("overflow-hidden motion-reduce:cursor-auto", grabbing ? "cursor-grabbing select-none" : "cursor-grab", className)}
       // Vertical gestures still scroll the page; only sideways drags reach us.
-      style={reduced ? undefined : { touchAction: "pan-y" }}
+      style={{ touchAction: "pan-y" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}

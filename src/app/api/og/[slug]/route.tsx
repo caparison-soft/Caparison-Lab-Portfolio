@@ -20,14 +20,14 @@ function Mark({ size }: { size: number }) {
     <svg width={size} height={size} viewBox="0 0 100 100">
       <defs>
         <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#D6F631" />
-          <stop offset="0.46" stopColor="#8EA320" />
-          <stop offset="1" stopColor="#171B06" />
+          <stop offset="0" stopColor="#CDFF9B" />
+          <stop offset="0.46" stopColor="#6F9C77" />
+          <stop offset="1" stopColor="#203D43" />
         </linearGradient>
       </defs>
       <polygon points="50,8 86,29 86,71 50,92 14,71 14,29" fill="url(#g)" stroke="url(#g)" strokeWidth="9" strokeLinejoin="round" />
       <circle cx="50" cy="50" r="23.5" fill="#ECEEE8" />
-      <path d="M50 31 C52.2 43.5 56.5 47.8 69 50 C56.5 52.2 52.2 56.5 50 69 C47.8 56.5 43.5 52.2 31 50 C43.5 47.8 47.8 43.5 50 31 Z" fill="#D6F631" />
+      <path d="M50 31 C52.2 43.5 56.5 47.8 69 50 C56.5 52.2 52.2 56.5 50 69 C47.8 56.5 43.5 52.2 31 50 C43.5 47.8 47.8 43.5 50 31 Z" fill="#203D43" />
     </svg>
   );
 }
@@ -73,7 +73,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
             <div style={{ display: "flex", marginTop: 24, fontSize: 28, lineHeight: 1.35, color: "#5A6152", maxWidth: 700 }}>{sub}</div>
           </div>
           <div style={{ display: "flex", gap: 32, fontFamily: "JetBrains Mono", fontSize: 24, color: "#000000" }}>
-            {data.length > 0 ? data.map((d, i) => <div key={i} style={{ display: "flex" }}>{d}</div>) : <div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={{ width: 12, height: 12, borderRadius: 999, background: "#D6F631" }} />{settings.availabilityNote ?? ""}</div>}
+            {data.length > 0 ? data.map((d, i) => <div key={i} style={{ display: "flex" }}>{d}</div>) : <div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={{ width: 12, height: 12, borderRadius: 999, background: "#CDFF9B" }} />{settings.availabilityNote ?? ""}</div>}
           </div>
         </div>
       </div>

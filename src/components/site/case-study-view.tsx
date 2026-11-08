@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { Button, MediaFrame, SectionMarker } from "@/components/ui";
+import { MediaFrame } from "@/components/ui";
 import { StackMark } from "@/components/site/stack-logos";
 import { InfiniteSlider } from "@/components/site/infinite-slider";
 import { CaseCover } from "@/components/site/case-cover";
@@ -7,22 +6,28 @@ import { GalleryCarousel } from "@/components/site/gallery-carousel";
 import { VideoPlayer } from "@/components/site/video-player";
 import { CaseStory } from "@/components/site/case-story";
 import { ResultsBento } from "@/components/site/results-bento";
+import { CtaButton } from "@/components/site/cta-button";
+import { TransitionLink } from "@/components/site/view-transitions";
+import { Arrow, KindChip } from "@/components/site/work-card";
+import { Split, vars } from "@/components/motion/split";
 import type { Blocks } from "@/lib/queries/content";
 import { t } from "@/lib/queries/content";
 import type { CaseStudy, MediaItem } from "@/lib/queries/work";
 import { currencySymbol, formatBudget, formatDuration } from "@/lib/format";
 import { CaseHeader, type Fact } from "@/components/site/case-header";
 import { posterSrc, videoSrc } from "@/lib/media";
+import { cx } from "@/lib/cx";
+import { Starfield } from "@/components/site/home/black/starfield";
 
 function VideoItem({ m }: { m: MediaItem }) {
   return (
-    <figure className="m-0">
+    <figure className="m-0" data-reveal="up">
       <MediaFrame width={m.width ?? 16} height={m.height ?? 9}>
         <VideoPlayer src={videoSrc(m.keyPrefix)} poster={posterSrc(m.posterKey, m.keyPrefix)} label={m.alt ?? m.title ?? undefined} width={m.width ?? 16} height={m.height ?? 9} />
       </MediaFrame>
       {m.title || m.caption ? (
-        <figcaption className="mt-1">
-          {m.title ? <p className="text-body font-medium text-ink max-w-none">{m.title}</p> : null}
+        <figcaption className="mt-2">
+          {m.title ? <p className="text-h4 text-ink max-w-none">{m.title}</p> : null}
           {m.caption ? <p className="text-small text-ash max-w-[60ch]">{m.caption}</p> : null}
         </figcaption>
       ) : null}
@@ -30,15 +35,23 @@ function VideoItem({ m }: { m: MediaItem }) {
   );
 }
 
+/** A section heading whose words rise in as it scrolls into view. */
+function Heading({ id, text, className }: { id: string; text: string; className?: string }) {
+  return <Split as="h2" id={id} text={text} className={cx("text-display-l", className)} />;
+}
+
 export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; blocks: Blocks; preview?: boolean }) {
+  const concept = p.kind === "CONCEPT";
   const budget = formatBudget(p);
   const duration = formatDuration(p, "long");
   const stageLabel = p.stage ? t(blocks, `case.stage.${p.stage.toLowerCase()}`) : null;
   const unitLong = { DAYS: "days", WEEKS: "weeks", MONTHS: "months" } as const;
+  const budgetLabel = t(blocks, concept ? "case.meta.conceptBudget" : "case.meta.budget");
+  // Empty facts are left out, not shown as dashes: our products have no budget or client.
   const facts: Fact[] = [
     ...(budget ? [p.budgetDisplay || p.budgetMin == null
-      ? { kind: "money" as const, label: t(blocks, "case.meta.budget"), symbol: "", min: 0, max: null, display: budget }
-      : { kind: "money" as const, label: t(blocks, "case.meta.budget"), symbol: currencySymbol(p.budgetCurrency), min: p.budgetMin, max: p.budgetMax }] : []),
+      ? { kind: "money" as const, label: budgetLabel, symbol: "", min: 0, max: null, display: budget }
+      : { kind: "money" as const, label: budgetLabel, symbol: currencySymbol(p.budgetCurrency), min: p.budgetMin, max: p.budgetMax }] : []),
     ...(duration ? [p.durationDisplay || p.durationValue == null
       ? { kind: "count" as const, label: t(blocks, "case.meta.duration"), value: 0, display: duration }
       : { kind: "count" as const, label: t(blocks, "case.meta.duration"), value: p.durationValue, unit: p.durationValue === 1 ? unitLong[p.durationUnit].slice(0, -1) : unitLong[p.durationUnit] }] : []),
@@ -48,24 +61,36 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
   ];
 
   const ctaLabel = p.ctaLabel ?? t(blocks, "case.ctaDefaultLabel");
+  const kindNote = p.kind === "CONCEPT" ? t(blocks, "work.kind.conceptNote") : p.kind === "INTERNAL" ? t(blocks, "work.kind.internalNote") : null;
 
   return (
-    <main id="main">
+    <main id="main" className="theme-dark">
+      <Starfield />
       {preview ? (
-        <div className="section-dark on-dark px-3 md:px-[48px] py-1">
-          <p className="max-w-layout mx-auto text-small text-bone max-w-none">Draft preview. Only people with this link can see it. Status: {p.status.toLowerCase()}.</p>
+        <div className="section-dark on-dark px-3 md:px-[48px] pt-[88px] pb-1">
+          <p className="max-w-layout mx-auto text-small text-bone max-w-none">{t(blocks, "case.previewNote")} ({p.status.toLowerCase()})</p>
         </div>
       ) : null}
-      <section className="px-3 md:px-[48px] pt-[80px] lg:pt-6 pb-6">
+      <section className={cx("px-3 md:px-[48px] pb-6 lg:pb-7", preview ? "pt-5" : "wk-top")}>
         <div className="max-w-layout mx-auto">
           <article className="min-w-0">
-            <Link href="/work" className="inline-flex items-center gap-1 text-body font-medium text-ash hover:text-ink no-underline">
+            <TransitionLink href="/#work" className="cl-link inline-flex items-center gap-1 text-body text-ink">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M10 3L5 8l5 5" /></svg>
               {t(blocks, "case.backLabel")}
-            </Link>
-            <div className="mt-3">
+            </TransitionLink>
+
+            {kindNote ? (
+              <div className={cx("wk-kind-note mt-3", concept && "wk-kind-note--concept")} role="note" data-reveal="fade">
+                <KindChip kind={p.kind} blocks={blocks} className="flex-none" />
+                <p className="text-body text-ink max-w-[80ch]">{kindNote}</p>
+              </div>
+            ) : null}
+
+            <div className="mt-4">
               <CaseHeader
-                category={p.category ? p.category.name.toLowerCase() : null}
+                category={p.category ? p.category.name : null}
+                kindLabel={kindNote ? null : t(blocks, `work.kind.${p.kind.toLowerCase()}`)}
+                kind={p.kind}
                 title={p.title}
                 summary={p.summary}
                 outcome={p.outcome}
@@ -73,23 +98,22 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
                 pills={[...(p.role ? p.role.split(",").map((r) => r.trim()).filter(Boolean) : []), ...p.platforms]}
                 facts={facts}
                 live={p.liveUrl ? { href: p.liveUrl, label: t(blocks, "case.meta.liveLabel") } : null}
-                labels={{ client: t(blocks, "case.meta.client") }}
+                labels={{ client: t(blocks, concept ? "case.meta.conceptClient" : "case.meta.client"), facts: t(blocks, "case.meta.factsLabel") }}
               />
             </div>
 
             {p.stack.length > 0 ? (
-              <div className="mt-5 border-t border-divider-light pt-3">
-                <p className="text-small text-ash max-w-none text-center mb-2">{t(blocks, "case.meta.stack")}</p>
-                {/* Five tiles across: 5 x 64px + 4 x 24px gap = 416px, plus room for the edge fade. */}
-                <InfiniteSlider gap={24} duration={40} durationOnHover={120} reverse className="mx-auto max-w-[520px] [mask-image:linear-gradient(to_right,transparent,black_18%,black_82%,transparent)] py-2">
-                  {/* Repeat short stacks so the loop never shows a gap. */}
-                  {Array.from({ length: Math.max(1, Math.ceil(12 / p.stack.length)) }, () => p.stack).flat().map((s, i) => <StackMark key={`${s}-${i}`} name={s} />)}
+              <div className="mt-5 pt-3 border-t border-divider-light flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                <p className="cl-kicker flex-none">{t(blocks, "case.meta.stack")}</p>
+                {/* Repeat short stacks so the loop never shows a gap. */}
+                <InfiniteSlider gap={16} duration={40} durationOnHover={120} reverse className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] py-1">
+                  {Array.from({ length: Math.max(1, Math.ceil(14 / p.stack.length)) }, () => p.stack).flat().map((s, i) => <StackMark key={`${s}-${i}`} name={s} />)}
                 </InfiniteSlider>
               </div>
             ) : null}
 
             {p.hero || (p.videoUrl && p.videoProvider !== "R2") ? (
-              <div className="mt-4 case-hero-wrap lg:max-w-[880px] lg:mx-auto">
+              <div className="mt-5 case-hero-wrap" data-reveal="scale">
                 <CaseCover slug={p.slug} hero={p.hero} videoUrl={p.videoUrl} videoProvider={p.videoProvider} title={p.title} />
               </div>
             ) : null}
@@ -97,31 +121,35 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             {/* The story panel replaced the single body block (owner, 2026-09-16).
                 Nothing written yet means no section, not an empty heading. */}
             {p.brief || p.whatWeBuilt ? (
-              <CaseStory
-                brief={p.brief}
-                whatWeBuilt={p.whatWeBuilt}
-                image={p.storyImage}
-                side={p.storySide}
-                labels={{ brief: t(blocks, "case.briefHeading"), whatWeBuilt: t(blocks, "case.builtHeading"), close: t(blocks, "case.closeLabel") }}
-              />
+              <div className="wk-sec">
+                <CaseStory
+                  brief={p.brief}
+                  whatWeBuilt={p.whatWeBuilt}
+                  image={p.storyImage}
+                  side={p.storySide}
+                  labels={{ brief: t(blocks, "case.briefHeading"), whatWeBuilt: t(blocks, "case.builtHeading"), close: t(blocks, "case.closeLabel") }}
+                />
+              </div>
             ) : null}
 
             {p.media.length > 0 ? (
-              <section className="mt-5" aria-labelledby="gallery-heading">
-                <SectionMarker as="h2" id="gallery-heading" className="border-t border-divider-light pt-2 mb-3">{t(blocks, "case.galleryHeading")}</SectionMarker>
-                <GalleryCarousel items={p.media} labels={{ slide: t(blocks, "case.carouselSlide") }} />
+              <section className="wk-sec" aria-labelledby="gallery-heading">
+                <Heading id="gallery-heading" text={t(blocks, "case.galleryHeading")} className="mb-4" />
+                <div data-reveal="fade">
+                  <GalleryCarousel items={p.media} labels={{ slide: t(blocks, "case.carouselSlide") }} />
+                </div>
               </section>
             ) : null}
 
             {p.decisions.length > 0 ? (
-              <section className="mt-5" aria-labelledby="decisions-heading">
-                <SectionMarker as="h2" id="decisions-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.decisionsHeading")}</SectionMarker>
-                <ol className="list-none m-0 p-0 mt-3 grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-3">
+              <section className="wk-sec" aria-labelledby="decisions-heading">
+                <Heading id="decisions-heading" text={t(blocks, "case.decisionsHeading")} />
+                <ol className="list-none m-0 p-0 mt-4 grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-2" data-reveal="stagger">
                   {p.decisions.map((d, i) => (
-                    <li key={i} className="border-l border-divider-light pl-3">
-                      <p className="data text-ash max-w-none">{String(i + 1).padStart(2, "0")}</p>
-                      <h3 className="text-h4 font-medium text-ink mt-1">{d.title}</h3>
-                      <p className="mt-1 text-body text-ash max-w-[36ch]">{d.reason}</p>
+                    <li key={i} className="wk-decision cl-spot">
+                      <span className="wk-decision-n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                      <h3 className="text-h4 font-bold text-ink mt-3">{d.title}</h3>
+                      <p className="mt-1 text-body text-ash max-w-[40ch]">{d.reason}</p>
                     </li>
                   ))}
                 </ol>
@@ -129,13 +157,13 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             ) : null}
 
             {p.phases.length > 0 ? (
-              <section className="mt-5" aria-labelledby="timeline-heading">
-                <SectionMarker as="h2" id="timeline-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.timelineHeading")}</SectionMarker>
-                <ol className="list-none m-0 p-0 mt-3 flex flex-col md:flex-row gap-3 md:gap-0 md:divide-x divide-divider-light">
+              <section className="wk-sec" aria-labelledby="timeline-heading">
+                <Heading id="timeline-heading" text={t(blocks, "case.timelineHeading")} />
+                <ol className="wk-phases mt-4" data-reveal="stagger">
                   {p.phases.map((f, i) => (
-                    <li key={i} className="md:flex-1 md:px-3 first:md:pl-0">
+                    <li key={i} className="wk-phase">
                       <p className="data text-ash max-w-none">{f.when}</p>
-                      <p className="text-body font-medium text-ink max-w-none mt-[4px]">{f.label}</p>
+                      <p className="text-h4 text-ink max-w-none mt-[4px]">{f.label}</p>
                       {f.note ? <p className="text-small text-ash max-w-[32ch] mt-[4px]">{f.note}</p> : null}
                     </li>
                   ))}
@@ -144,10 +172,11 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             ) : null}
 
             {p.metrics.length > 0 ? (
-              <section className="mt-5" aria-labelledby="metrics-heading">
-                <SectionMarker as="h2" id="metrics-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.metricsHeading")}</SectionMarker>
-                <div className="mt-3">
-                  <ResultsBento metrics={p.metrics} blocks={blocks} />
+              <section className="wk-sec" aria-labelledby="metrics-heading">
+                <Heading id="metrics-heading" text={t(blocks, concept ? "case.metricsHeadingConcept" : "case.metricsHeading")} />
+                {concept ? <p className="mt-2 text-body-l text-ash max-w-[56ch]" data-reveal="up">{t(blocks, "case.metricsConceptNote")}</p> : null}
+                <div className="mt-4" data-reveal="up">
+                  <ResultsBento metrics={p.metrics} blocks={blocks} target={concept ? t(blocks, "case.metricTargetLabel") : null} />
                 </div>
                 {p.afterNote ? (
                   <p className="mt-3 text-body text-ash max-w-[60ch]"><span className="text-small text-ash">{t(blocks, "case.afterLabel")}</span> <span className="text-ink">{p.afterNote}</span></p>
@@ -156,13 +185,14 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             ) : null}
 
             {p.testimonials.length > 0 ? (
-              <section className="mt-5" aria-label="Client testimonial">
+              <section className="wk-sec" aria-label={t(blocks, "case.testimonialLabel")}>
                 {p.testimonials.slice(0, 1).map((q, i) => (
-                  <figure key={i} className="m-0 border-l-2 border-lime pl-3 md:pl-4 max-w-[64ch]">
-                    <blockquote className="m-0 text-h3 font-medium text-ink leading-snug">{q.quote}</blockquote>
-                    <figcaption className="mt-2 flex items-center gap-2">
-                      {q.avatarUrl ? <img src={q.avatarUrl} alt="" width={32} height={32} className="w-[32px] h-[32px] rounded-full object-cover" loading="lazy" /> : null}
-                      <span className="text-small text-ash"><span className="text-ink font-medium">{q.authorName}</span>{q.authorRole ? `, ${q.authorRole}` : ""}{q.company ? `, ${q.company}` : ""}</span>
+                  <figure key={i} className="wk-quote m-0" data-reveal="up">
+                    <span className="wk-quote-mark" aria-hidden="true">&ldquo;</span>
+                    <blockquote className="m-0 text-h2 text-ink max-w-[30ch]">{q.quote}</blockquote>
+                    <figcaption className="mt-3 flex items-center gap-2">
+                      {q.avatarUrl ? <img src={q.avatarUrl} alt="" width={40} height={40} className="w-[40px] h-[40px] rounded-full object-cover" loading="lazy" /> : null}
+                      <span className="text-body text-ash"><span className="text-ink font-medium">{q.authorName}</span>{q.authorRole ? `, ${q.authorRole}` : ""}{q.company ? `, ${q.company}` : ""}</span>
                     </figcaption>
                   </figure>
                 ))}
@@ -170,21 +200,21 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             ) : null}
 
             {p.videos.length > 0 ? (
-              <section className="mt-5" aria-labelledby="videos-heading">
-                <SectionMarker as="h2" id="videos-heading" className="border-t border-divider-light pt-2 mb-3">{t(blocks, "case.videosHeading")}</SectionMarker>
-                <div className="flex flex-col gap-3">
+              <section className="wk-sec" aria-labelledby="videos-heading">
+                <Heading id="videos-heading" text={t(blocks, "case.videosHeading")} className="mb-4" />
+                <div className="flex flex-col gap-4">
                   {p.videos.map((m) => <VideoItem key={m.id} m={m} />)}
                 </div>
               </section>
             ) : null}
 
             {p.team.length > 0 ? (
-              <section className="mt-5" aria-labelledby="team-heading">
-                <SectionMarker as="h2" id="team-heading" className="border-t border-divider-light pt-2">{t(blocks, "case.teamHeading")}</SectionMarker>
-                <ul className="list-none m-0 p-0 mt-3 flex flex-wrap gap-3">
+              <section className="wk-sec" aria-labelledby="team-heading">
+                <Heading id="team-heading" text={t(blocks, "case.teamHeading")} />
+                <ul className="list-none m-0 p-0 mt-4 flex flex-wrap gap-3" data-reveal="stagger">
                   {p.team.map((m) => (
-                    <li key={m.name} className="flex items-center gap-2">
-                      {m.avatarUrl ? <img src={m.avatarUrl} alt="" width={40} height={40} className="w-[40px] h-[40px] rounded-full object-cover" loading="lazy" /> : <span aria-hidden="true" className="w-[40px] h-[40px] rounded-full bg-paper border border-divider-light" />}
+                    <li key={m.name} className="flex items-center gap-2 pr-3">
+                      {m.avatarUrl ? <img src={m.avatarUrl} alt="" width={48} height={48} className="w-[48px] h-[48px] rounded-full object-cover" loading="lazy" /> : <span aria-hidden="true" className="w-[48px] h-[48px] rounded-full bg-paper border border-divider-light grid place-items-center font-bold text-ink">{m.name.slice(0, 1)}</span>}
                       <span><span className="block text-body font-medium text-ink">{m.name}</span><span className="block text-small text-ash">{m.role}</span></span>
                     </li>
                   ))}
@@ -193,27 +223,31 @@ export function CaseStudyView({ p, blocks, preview = false }: { p: CaseStudy; bl
             ) : null}
 
             {p.ctaMode !== "NONE" ? (
-              <aside className="mt-6 bg-paper border border-divider-light rounded-lg p-3 md:p-4 md:flex md:items-end md:justify-between md:gap-4">
-                <div>
-                  <p className="text-h3 font-bold text-ink max-w-none">{t(blocks, "case.ctaHeading")}</p>
-                  {p.ctaNote ? <p className="mt-1 text-body text-ash max-w-[48ch]">{p.ctaNote}</p> : null}
-                </div>
-                <div className="mt-3 md:mt-0 flex-none">
-                  {p.ctaMode === "ENQUIRY" ? (
-                    <Button href={`/contact?project=${encodeURIComponent(p.slug)}`}>{ctaLabel}</Button>
-                  ) : p.ctaHref ? (
-                    <Button href={p.ctaHref} rel="noopener noreferrer" target="_blank">{ctaLabel}</Button>
-                  ) : null}
+              <aside className="wk-sec" aria-labelledby="case-cta-heading">
+                <div className="wk-band on-dark md:flex md:items-end md:justify-between md:gap-4" data-reveal="up">
+                  <span className="wk-band-hex" aria-hidden="true" />
+                  <div className="relative">
+                    <h2 id="case-cta-heading" className="text-display-l text-bone max-w-[18ch]">{t(blocks, "case.ctaHeading")}</h2>
+                    {p.ctaNote ? <p className="mt-2 text-body-l text-sage max-w-[48ch]">{p.ctaNote}</p> : null}
+                  </div>
+                  <div className="relative mt-4 md:mt-0 flex-none">
+                    {p.ctaMode === "ENQUIRY" ? (
+                      <CtaButton href={`/contact?project=${encodeURIComponent(p.slug)}`}>{ctaLabel}</CtaButton>
+                    ) : p.ctaHref ? (
+                      <CtaButton href={p.ctaHref} external>{ctaLabel}</CtaButton>
+                    ) : null}
+                  </div>
                 </div>
               </aside>
             ) : null}
 
             {p.next ? (
-              <nav className="mt-5 border-t border-divider-light pt-3" aria-label="Next project">
-                <SectionMarker as="p">{t(blocks, "case.nextLabel")}</SectionMarker>
-                <Link href={`/work/${p.next.slug}`} className="mt-1 inline-block text-h3 font-bold text-ink no-underline hover:text-ash transition-colors dur-fast">
-                  {p.next.title}
-                </Link>
+              <nav className="wk-sec" aria-label={t(blocks, "case.nextLabel")}>
+                <p className="cl-kicker">{t(blocks, "case.nextLabel")}</p>
+                <TransitionLink href={`/work/${p.next.slug}`} className="wk-next mt-2" data-cursor="view" data-reveal="up" style={vars({ "--d": 80 })}>
+                  <span className="wk-next-title">{p.next.title}</span>
+                  <span className="wk-card-arrow" aria-hidden="true"><Arrow /></span>
+                </TransitionLink>
               </nav>
             ) : null}
           </article>

@@ -1,0 +1,277 @@
+/* ============================================================
+   Work index, case pages, about, contact and the 404: light redesign
+   (owner, 2026-11-05). See src/styles/site.css for conventions. Class names
+   start with wk- so they never meet the home page's work-* classes.
+   Lime is a fill with ink on it, never text on a light surface. Elevation is
+   a border and a background step, never a soft grey shadow.
+   ============================================================ */
+
+@layer components {
+  /* ---- Page top: room for the fixed header ---- */
+  .wk-top { padding-top: 136px; }
+  @media (min-width: 1024px) { .wk-top { padding-top: 168px; } }
+
+  /* ---- Filter pills (URL-driven links) ---- */
+  .wk-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; list-style: none; margin: 0; padding: 0; }
+  .wk-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 18px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-divider-light);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-size: var(--text-small);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out);
+  }
+  .wk-filter:hover { border-color: rgba(0, 0, 0, 0.24); }
+  .wk-filter[aria-current="page"] { background: var(--color-olive-950); border-color: var(--color-olive-950); color: var(--color-bone); }
+  .wk-filter-count { font-family: var(--font-mono); font-size: var(--text-mono-s); color: var(--color-ash); }
+  .wk-filter[aria-current="page"] .wk-filter-count { color: var(--color-sage); }
+  .wk-filter--sm { height: 36px; padding: 0 14px; background: transparent; }
+  .wk-filter--sm[aria-current="page"] { background: var(--color-lime); border-color: var(--color-lime); color: var(--color-ink); }
+  .wk-filter--sm[aria-current="page"] .wk-filter-count { color: var(--color-ink); }
+
+  /* ---- Project grid: two columns, the right one dropped for rhythm ---- */
+  .wk-grid { display: grid; grid-template-columns: 1fr; gap: 64px 40px; list-style: none; margin: 0; padding: 0; }
+  @media (min-width: 768px) { .wk-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1024px) {
+    .wk-grid { gap: 96px 64px; }
+    .wk-grid > li:nth-child(even) { margin-top: 128px; }
+    .wk-grid > li:nth-child(even):last-child { margin-top: 128px; }
+  }
+
+  .wk-card { display: block; color: var(--color-ink); text-decoration: none; }
+  .wk-card:focus-visible { outline: 2px solid var(--color-olive-950); outline-offset: 6px; border-radius: var(--radius-lg); }
+  .wk-media {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-lg);
+    background: var(--color-paper);
+    border: 1px solid var(--color-divider-light);
+  }
+  .wk-media-inner { position: absolute; inset: 0; transition: transform 1200ms var(--ease-out); }
+  /* color: transparent hides alt text if a picture fails to load. */
+  .wk-media-inner > img { width: 100%; height: 100%; object-fit: cover; display: block; color: transparent; }
+  .wk-card:hover .wk-media-inner, .wk-card:focus-visible .wk-media-inner { transform: scale(1.06); }
+  .wk-media-chips { position: absolute; top: 16px; left: 16px; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; }
+  /* The ink chip needs an edge where it sits on the olive placeholder or a dark picture. */
+  .wk-media-chips .cl-chip--ink { border-color: rgba(255, 255, 255, 0.22); }
+
+  .wk-card-title { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .wk-card-arrow {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-divider-light);
+    color: var(--color-ink);
+    transition: background-color var(--duration-base) var(--ease-out), border-color var(--duration-base) var(--ease-out), transform var(--duration-slow) var(--ease-out);
+  }
+  .wk-card-arrow svg { width: 16px; height: 16px; }
+  .wk-card:hover .wk-card-arrow, .wk-card:focus-visible .wk-card-arrow { background: var(--color-lime); border-color: var(--color-lime); transform: rotate(45deg); }
+  .wk-card-name { background-image: linear-gradient(currentColor, currentColor); background-size: 0% 2px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size var(--duration-slow) var(--ease-out); }
+  .wk-card:hover .wk-card-name, .wk-card:focus-visible .wk-card-name { background-size: 100% 2px; }
+
+  /* ---- Placeholder panel: the project has no picture yet ---- */
+  .wk-ph {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px;
+    overflow: hidden;
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .wk-ph::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(color-mix(in srgb, currentColor 9%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, currentColor 9%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: -1px -1px;
+    mask-image: radial-gradient(ellipse 90% 80% at 100% 0%, black 30%, transparent 80%);
+  }
+  .wk-ph-hex {
+    position: absolute;
+    right: -6%;
+    top: -10%;
+    width: 52%;
+    aspect-ratio: 1 / 1.1;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background: currentColor;
+    opacity: 0.07;
+    transition: transform 1200ms var(--ease-out);
+  }
+  .wk-card:hover .wk-ph-hex { transform: rotate(30deg) scale(1.08); }
+  .wk-ph-title {
+    position: relative;
+    font-size: clamp(2rem, 4.4vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    max-width: 10ch;
+  }
+  .wk-ph--concept { background: var(--color-lime); color: var(--color-ink); }
+  .wk-ph--internal { background: var(--color-olive-950); color: var(--color-bone); }
+  .wk-ph--internal .wk-ph-hex { background: var(--color-lime); opacity: 0.16; }
+
+  /* ---- Case page: kind banner ---- */
+  .wk-kind-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-divider-light);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .wk-kind-note p { margin: 0; }
+  .wk-kind-note--concept { background: var(--color-lime); border-color: transparent; }
+  .wk-kind-note--concept .cl-chip { background: var(--color-olive-950); color: var(--color-lime); border-color: transparent; }
+  @media (max-width: 639px) { .wk-kind-note { flex-direction: column; gap: 10px; } }
+
+  /* ---- Case page: the facts card, dark on the light page ---- */
+  .wk-facts {
+    position: relative;
+    border-radius: 24px;
+    background: var(--color-olive-950);
+    color: var(--color-bone);
+    border: 1px solid var(--color-olive-800);
+  }
+  .wk-facts dt { color: var(--color-sage); font-size: var(--text-small); }
+  .wk-facts dd { color: var(--color-bone); }
+  .wk-facts-rule { border-color: rgba(255, 255, 255, 0.1); }
+
+  /* ---- Case hero frame on light ---- */
+  .wk-hero-frame { border-radius: var(--radius-lg); }
+
+  /* ---- Story picture stage: a dark panel so a transparent logo or the 3D
+     mark reads, and so the light page has one deep surface beside the text. */
+  .wk-story-stage {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    background: var(--color-olive-950);
+    aspect-ratio: 1 / 1;
+    max-width: 520px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .wk-story-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -1px -1px;
+    mask-image: radial-gradient(circle at 50% 50%, black 20%, transparent 75%);
+  }
+
+  /* ---- Decision cards ---- */
+  .wk-decision { position: relative; padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--color-divider-light); background: var(--color-paper); }
+  .wk-decision-n { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-full); background: var(--color-olive-950); color: var(--color-lime); font-family: var(--font-mono); font-size: var(--text-mono); }
+
+  /* ---- Timeline ---- */
+  .wk-phases { list-style: none; margin: 0; padding: 0; display: grid; gap: 24px; }
+  @media (min-width: 768px) { .wk-phases { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; } }
+  .wk-phase { position: relative; padding-top: 28px; }
+  .wk-phase::before { content: ""; position: absolute; left: 0; right: 0; top: 7px; height: 1px; background: var(--color-divider-light); }
+  .wk-phase::after { content: ""; position: absolute; left: 0; top: 2px; width: 11px; height: 12px; background: var(--color-lime); box-shadow: inset 0 0 0 1px var(--color-olive-950); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+  @media (min-width: 768px) { .wk-phase { padding-right: 24px; } }
+
+  /* ---- Pull quote ---- */
+  .wk-quote { position: relative; padding: 40px; border-radius: 24px; background: var(--color-paper); border: 1px solid var(--color-divider-light); }
+  @media (max-width: 767px) { .wk-quote { padding: 24px; } }
+  .wk-quote-mark { font-size: 6rem; line-height: 0.6; font-weight: 900; color: var(--color-ink); display: block; height: 40px; }
+
+  /* ---- Dark band: closing calls to action ---- */
+  .wk-band { position: relative; overflow: hidden; border-radius: 24px; background: var(--color-olive-950); color: var(--color-bone); padding: 40px; }
+  @media (min-width: 1024px) { .wk-band { padding: 64px; } }
+  @media (max-width: 767px) { .wk-band { padding: 24px; border-radius: var(--radius-lg); } }
+  /* On phones the hex turns behind the text; fainter there keeps sage at 4.5:1 (axe, 2026-11-07). */
+  @media (max-width: 767px) { .wk-band .wk-band-hex { opacity: 0.06; } }
+  .wk-band-hex {
+    position: absolute;
+    right: -80px;
+    bottom: -120px;
+    width: 360px;
+    aspect-ratio: 1 / 1.1;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    background: var(--color-lime);
+    opacity: 0.12;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .wk-band-hex { animation: wk-spin 40s linear infinite; }
+  }
+  @keyframes wk-spin { to { transform: rotate(360deg); } }
+
+  /* ---- Next project ---- */
+  .wk-next { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; color: var(--color-ink); text-decoration: none; padding: 40px 0; border-top: 1px solid var(--color-divider-light); border-bottom: 1px solid var(--color-divider-light); }
+  .wk-next-title { font-size: var(--text-display-xl); font-weight: 900; letter-spacing: -0.035em; line-height: 0.95; transition: transform var(--duration-slow) var(--ease-out); }
+  .wk-next:hover .wk-next-title, .wk-next:focus-visible .wk-next-title { transform: translateX(12px); }
+  .wk-next .wk-card-arrow { width: 64px; height: 64px; }
+  .wk-next:hover .wk-card-arrow, .wk-next:focus-visible .wk-card-arrow { background: var(--color-lime); border-color: var(--color-lime); transform: rotate(45deg); }
+
+  /* ---- Section heading row on the case page ---- */
+  .wk-sec { padding-top: 96px; }
+  @media (max-width: 767px) { .wk-sec { padding-top: 64px; } }
+
+  /* ---- About: value cards and the process list ---- */
+  .wk-values { display: grid; gap: 16px; list-style: none; margin: 0; padding: 0; }
+  @media (min-width: 768px) { .wk-values { grid-template-columns: 1fr 1fr; } }
+  .wk-value { position: relative; padding: 32px; overflow: hidden; }
+  .wk-value-n { font-family: var(--font-mono); font-size: var(--text-mono); color: var(--color-ash); }
+
+  .wk-steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  .wk-step { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; padding: 28px 0; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+  .wk-step:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+  @media (min-width: 1024px) { .wk-step { grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1.3fr); gap: 40px; align-items: baseline; } }
+  .wk-step-n { font-family: var(--font-mono); font-size: var(--text-mono); color: var(--color-lime); }
+
+  .wk-team { display: grid; gap: 16px; list-style: none; margin: 0; padding: 0; }
+  @media (min-width: 768px) { .wk-team { grid-template-columns: repeat(3, 1fr); } }
+  .wk-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    background: var(--color-bone);
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: var(--text-h4);
+    color: var(--color-ink);
+    border: 1px solid var(--color-divider-light);
+  }
+
+  /* ---- Contact ---- */
+  .wk-form-card { padding: 32px; border-radius: 24px; background: var(--color-paper); border: 1px solid var(--color-divider-light); }
+  @media (max-width: 767px) { .wk-form-card { padding: 20px; border-radius: var(--radius-lg); } }
+  .wk-next-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+  .wk-next-steps li { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+  .wk-next-steps .wk-n { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: var(--radius-full); background: var(--color-olive-950); color: var(--color-lime); font-family: var(--font-mono); font-size: var(--text-mono-s); }
+
+  /* ---- 404 ---- */
+  .wk-404 { display: flex; align-items: center; font-size: clamp(7rem, 26vw, 22rem); font-weight: 900; letter-spacing: -0.07em; line-height: 0.8; color: var(--color-ink); }
+  .wk-404-mark { flex: none; width: 0.74em; height: 0.74em; margin: 0 0.02em; }
+  @media (prefers-reduced-motion: no-preference) {
+    .wk-404-mark { animation: wk-spin 24s linear infinite; }
+  }
+}

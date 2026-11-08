@@ -19,6 +19,7 @@ export type IndexProject = {
   durationUnit: "DAYS" | "WEEKS" | "MONTHS";
   durationDisplay: string | null;
   year: number | null;
+  kind: "CLIENT" | "INTERNAL" | "CONCEPT";
   stack: string[];
   category: { name: string; slug: string } | null;
   cover: { keyPrefix: string; alt: string | null; width: number | null; height: number | null; blurDataUrl: string | null; variants: Record<string, string> | null } | null;
@@ -27,7 +28,7 @@ export type IndexProject = {
 const indexSelect = {
   id: true, slug: true, title: true, summary: true, clientName: true,
   budgetMin: true, budgetMax: true, budgetCurrency: true, budgetDisplay: true,
-  durationValue: true, durationUnit: true, durationDisplay: true, year: true,
+  durationValue: true, durationUnit: true, durationDisplay: true, year: true, kind: true,
   category: { select: { name: true, slug: true } },
   cover: { select: { keyPrefix: true, alt: true, width: true, height: true, blurDataUrl: true, variants: true } },
   tags: { select: { tag: { select: { name: true, kind: true, order: true } } } },
@@ -37,6 +38,7 @@ type Row = {
   id: string; slug: string; title: string; summary: string; clientName: string | null;
   budgetMin: number | null; budgetMax: number | null; budgetCurrency: string; budgetDisplay: string | null;
   durationValue: number | null; durationUnit: "DAYS" | "WEEKS" | "MONTHS"; durationDisplay: string | null; year: number | null;
+  kind: "CLIENT" | "INTERNAL" | "CONCEPT";
   category: { name: string; slug: string } | null;
   cover: { keyPrefix: string; alt: string | null; width: number | null; height: number | null; blurDataUrl: string | null; variants: unknown } | null;
   tags: { tag: { name: string; kind: "STACK" | "INDUSTRY" | "SERVICE"; order: number } }[];

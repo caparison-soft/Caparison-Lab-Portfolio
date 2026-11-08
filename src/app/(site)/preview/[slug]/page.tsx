@@ -12,7 +12,7 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 export default async function PreviewPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ token?: string }> }) {
   const [{ slug }, { token }] = await Promise.all([params, searchParams]);
   if (!verifyPreview(slug, token)) notFound();
-  const [p, blocks] = await Promise.all([getCaseStudyPreview(slug), getBlocks(["Case study", "Homepage"])]);
+  const [p, blocks] = await Promise.all([getCaseStudyPreview(slug), getBlocks(["Case study", "Work", "Homepage"])]);
   if (!p) notFound();
   return <CaseStudyView p={p} blocks={blocks} preview />;
 }

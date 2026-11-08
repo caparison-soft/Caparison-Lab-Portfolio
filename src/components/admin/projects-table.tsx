@@ -40,7 +40,7 @@ export function ProjectsTable({ rows: initialRows, categories, initialStatus }: 
         id: "select",
         header: () => <span className="sr-only">Select</span>,
         cell: ({ row }) => (
-          <input type="checkbox" aria-label={`Select ${row.original.title}`} checked={Boolean(selected[row.original.id])} onChange={(e) => setSelected((s) => ({ ...s, [row.original.id]: e.target.checked }))} className="w-2 h-2 accent-[#D6F631]" />
+          <input type="checkbox" aria-label={`Select ${row.original.title}`} checked={Boolean(selected[row.original.id])} onChange={(e) => setSelected((s) => ({ ...s, [row.original.id]: e.target.checked }))} className="w-2 h-2 accent-[#CDFF9B]" />
         ),
       },
       {

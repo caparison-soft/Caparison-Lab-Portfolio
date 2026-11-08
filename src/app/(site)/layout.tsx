@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Nav } from "@/components/site/nav";
-import { Footer } from "@/components/site/footer";
+import { SiteHeader } from "@/components/site/site-header";
+import { SiteFooter } from "@/components/site/site-footer";
 import { ViewTransitions } from "@/components/site/view-transitions";
 import { JsonLd } from "@/components/site/json-ld";
-import { Preloader } from "@/components/site/preloader";
+import { Intro } from "@/components/site/intro";
+import { ChatSlot } from "@/components/site/chat/chat-slot";
+import { PrefetchRoutes } from "@/components/site/prefetch-routes";
+import { SiteMotion } from "@/components/motion/site-motion";
+import { SmoothScroll } from "@/components/motion/smooth-scroll";
+import { RevealObserver } from "@/components/motion/reveal-observer";
+import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { ButtonStyleProvider, Section } from "@/components/ui";
 import { getBlocks, getSettings, t } from "@/lib/queries/content";
 
@@ -29,6 +35,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const BOOT = [
+  "(function(){var h=document.documentElement;h.setAttribute('data-js','');",
+  "try{if(location.pathname==='/'&&!sessionStorage.getItem('cl-intro')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)h.setAttribute('data-intro','')}catch(e){}",
+  // Should hydration never arrive, show everything rather than a blank page.
+  "setTimeout(function(){if(!h.hasAttribute('data-reveal-ready')){h.removeAttribute('data-js');h.removeAttribute('data-intro')}},5000)})()",
+].join("");
+
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [settings, blocks] = await Promise.all([getSettings(), getBlocks(["Navigation", "Footer", "Errors", "Homepage"])]);
 
@@ -44,36 +57,55 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     sameAs: Object.values(settings.socials),
   };
 
+  // One-page site (owner's boss, 2026-11-07): the links are sections of the
+  // home page. About, Home services and Contact are reached from the footer.
+  const links = [
+    { href: "/", label: t(blocks, "nav.home") },
+    { href: "/#services", label: t(blocks, "nav.services") },
+    { href: "/#work", label: t(blocks, "nav.work") },
+    { href: "/#pricing", label: t(blocks, "nav.pricing") },
+  ];
+
   return (
-    <ButtonStyleProvider value="metal">
-      <JsonLd data={organization} />
-      {/* Load screen: hold the hero's reveals before the first paint (only when
-          JS runs, so no-JS visitors see the page as is), and lift everything
-          after 8s no matter what, should hydration never arrive. */}
-      <script dangerouslySetInnerHTML={{ __html: 'document.documentElement.setAttribute("data-preload","on");setTimeout(function(){document.documentElement.removeAttribute("data-preload");var p=document.querySelector(".preloader");if(p)p.setAttribute("data-phase","off")},8000)' }} />
-      <Preloader />
-      <a href="#main" className="skip-link">{t(blocks, "nav.skipToContent")}</a>
-      <Nav blocks={blocks} siteName={settings.siteName} />
-      {/* Everything under the header sits on the matte black ground (see .site-ground in globals.css). */}
-      <div className="site-ground">
-        {settings.maintenanceMode ? (
-          <main id="main">
-            <Section pad="tall" innerClassName="min-h-[60svh] flex flex-col items-start justify-center">
-              <h1 className="text-display-l">{t(blocks, "maintenance.heading")}</h1>
-              <p className="mt-3 text-body-l text-ash">{t(blocks, "maintenance.body")}</p>
-            </Section>
-          </main>
-        ) : (
-          <ViewTransitions>{children}</ViewTransitions>
-        )}
-        <Footer blocks={blocks} settings={settings} />
-      </div>
-      {settings.analyticsEnabled && settings.gaId ? (
-        <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(settings.gaId)}`} strategy="afterInteractive" />
-          <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${settings.gaId.replace(/[^A-Za-z0-9_-]/g, "")}',{anonymize_ip:true});`}</Script>
-        </>
-      ) : null}
+    <ButtonStyleProvider value="plain">
+      <SiteMotion>
+        <JsonLd data={organization} />
+        {/* data-js gates the reveal states; data-intro holds them under the first-visit intro. */}
+        <script dangerouslySetInnerHTML={{ __html: BOOT }} />
+        <Intro />
+        <a href="#main" className="skip-link">{t(blocks, "nav.skipToContent")}</a>
+        <SiteHeader
+          siteName={settings.siteName}
+          links={links}
+          cta={{ href: "/#contact", label: t(blocks, "nav.cta") }}
+          labels={{ menuOpen: t(blocks, "nav.menuOpen"), menuClose: t(blocks, "nav.menuClose"), email: settings.email }}
+          email={settings.email}
+        />
+        <ScrollProgress />
+        <div className="site-light">
+          {settings.maintenanceMode ? (
+            <main id="main">
+              <Section pad="tall" innerClassName="min-h-[60svh] flex flex-col items-start justify-center">
+                <h1 className="text-display-l">{t(blocks, "maintenance.heading")}</h1>
+                <p className="mt-3 text-body-l text-ash">{t(blocks, "maintenance.body")}</p>
+              </Section>
+            </main>
+          ) : (
+            <ViewTransitions>{children}</ViewTransitions>
+          )}
+          <SiteFooter blocks={blocks} settings={settings} />
+        </div>
+        <PrefetchRoutes hrefs={["/", "/#contact", "/about"]} />
+        <ChatSlot />
+        <SmoothScroll />
+        <RevealObserver />
+        {settings.analyticsEnabled && settings.gaId ? (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(settings.gaId)}`} strategy="afterInteractive" />
+            <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${settings.gaId.replace(/[^A-Za-z0-9_-]/g, "")}',{anonymize_ip:true});`}</Script>
+          </>
+        ) : null}
+      </SiteMotion>
     </ButtonStyleProvider>
   );
 }

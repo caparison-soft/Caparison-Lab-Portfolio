@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CasePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [p, blocks] = await Promise.all([getCaseStudy(slug), getBlocks(["Case study", "Homepage"])]);
+  const [p, blocks] = await Promise.all([getCaseStudy(slug), getBlocks(["Case study", "Work", "Homepage"])]);
   if (!p) notFound();
   const creativeWork = {
     "@context": "https://schema.org",

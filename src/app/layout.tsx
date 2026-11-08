@@ -25,6 +25,16 @@ const jetbrains = localFont({
   fallback: ["ui-monospace", "SF Mono", "Menlo", "monospace"],
 });
 
+// Display face for the big moments (rebrand, owner 2026-11-05): page h1s,
+// the closing offer, the footer name. One weight; Satoshi stays for the rest.
+// SIL Open Font License, see public/fonts/ArchivoBlack-OFL.txt.
+const archivo = localFont({
+  src: [{ path: "../../public/fonts/ArchivoBlack-Regular.woff2", weight: "400", style: "normal" }],
+  variable: "--font-archivo",
+  display: "swap",
+  fallback: ["Arial Black", "system-ui", "sans-serif"],
+});
+
 // Title and description move to SiteSettings in Phase 3.
 export const metadata: Metadata = {
   title: "Caparison Lab",
@@ -32,8 +42,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html suppressHydrationWarning lang="en" className={`${satoshi.variable} ${jetbrains.variable}`}>
-      <body>{children}</body>
+    <html suppressHydrationWarning lang="en" className={`${satoshi.variable} ${jetbrains.variable} ${archivo.variable}`}>
+      {/* Browser extensions (ColorZilla's cz-shortcut-listen, Grammarly) write attributes on
+          <body> before React loads; this silences that mismatch for body's own attributes only. */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

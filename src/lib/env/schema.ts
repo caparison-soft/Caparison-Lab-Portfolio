@@ -51,6 +51,13 @@ export const serverSchema = z.object({
   // answers 503 rather than writing plaintext.
   BACKUP_KEY: optional(z.string().regex(/^[0-9a-f]{64}$/i, "BACKUP_KEY must be 32 bytes as 64 hex characters")),
 
+  // Anthropic API for the site assistant (/api/chat). Optional: without it the
+  // assistant answers 503 and the widget points visitors to the studio email.
+  // Server-only, never NEXT_PUBLIC_.
+  ANTHROPIC_API_KEY: optional(nonEmpty),
+  // Optional model override for the assistant, e.g. claude-sonnet-5-5.
+  CHAT_MODEL: optional(nonEmpty),
+
   // Vercel Cron bearer secret and draft preview signing secret.
   CRON_SECRET: z.string().min(16, "CRON_SECRET must be at least 16 characters"),
   DRAFT_PREVIEW_SECRET: z.string().min(16, "DRAFT_PREVIEW_SECRET must be at least 16 characters"),
@@ -71,6 +78,7 @@ const SERVER_ONLY_SECRETS = [
   "R2_SECRET_ACCESS_KEY",
   "R2_ACCESS_KEY_ID",
   "RESEND_API_KEY",
+  "ANTHROPIC_API_KEY",
   "CRON_SECRET",
   "DRAFT_PREVIEW_SECRET",
   "DATABASE_URL",

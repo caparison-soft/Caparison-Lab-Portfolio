@@ -60,7 +60,7 @@ export function MediaLibrary({ rows: initial, report }: { rows: MediaRow[]; repo
           <label htmlFor="mt" className="sr-only">Type</label>
           <Select id="mt" value={type} onChange={(e) => setType(e.target.value)} className="h-[32px] text-small"><option value="">All types</option><option value="IMAGE">Images</option><option value="VIDEO">Videos</option></Select>
         </div>
-        <label className="inline-flex items-center gap-1 text-small h-[32px]"><input type="checkbox" checked={orphans} onChange={(e) => setOrphans(e.target.checked)} className="w-2 h-2 accent-[#D6F631]" />Unused only</label>
+        <label className="inline-flex items-center gap-1 text-small h-[32px]"><input type="checkbox" checked={orphans} onChange={(e) => setOrphans(e.target.checked)} className="w-2 h-2 accent-[#CDFF9B]" />Unused only</label>
         <span className="text-small text-ash">{filtered.length} of {rows.length}</span>
         <Button size="sm" variant="secondary" className="ml-auto" onClick={() => setShowUpload((s) => !s)}>{showUpload ? "Close upload" : "Upload to library"}</Button>
       </div>

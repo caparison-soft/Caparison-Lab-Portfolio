@@ -6,12 +6,13 @@ import type { IndexProject } from "./home";
 
 // ---- Index ------------------------------------------------------------
 
-export type WorkFilters = { category?: string; stack?: string };
+export type ProjectKind = "CLIENT" | "INTERNAL" | "CONCEPT";
+export type WorkFilters = { category?: string; stack?: string; kind?: ProjectKind };
 
 const indexSelect = {
   id: true, slug: true, title: true, summary: true, clientName: true,
   budgetMin: true, budgetMax: true, budgetCurrency: true, budgetDisplay: true,
-  durationValue: true, durationUnit: true, durationDisplay: true, year: true,
+  durationValue: true, durationUnit: true, durationDisplay: true, year: true, kind: true,
   category: { select: { name: true, slug: true } },
   cover: { select: { keyPrefix: true, alt: true, width: true, height: true, blurDataUrl: true, variants: true } },
   tags: { select: { tag: { select: { name: true, kind: true, order: true } } } },
@@ -23,6 +24,7 @@ export const getProjectIndex = unstable_cache(
       where: {
         status: "PUBLISHED",
         deletedAt: null,
+        ...(filters.kind ? { kind: filters.kind } : {}),
         ...(filters.category ? { category: { slug: filters.category } } : {}),
         ...(filters.stack ? { tags: { some: { tag: { slug: filters.stack, kind: "STACK" } } } } : {}),
       },
@@ -38,22 +40,24 @@ export const getProjectIndex = unstable_cache(
       };
     });
   },
-  ["project-index"],
+  ["project-index-kind"],
   { tags: [CACHE_TAGS.projects] },
 );
 
 export type FilterOption = { slug: string; name: string; count: number };
 
-/** Categories and stack tags that at least one published project uses, with counts. */
+/** Categories, stack tags and kinds that at least one published project uses, with counts. */
 export const getWorkFilters = unstable_cache(
-  async (): Promise<{ categories: FilterOption[]; stack: FilterOption[] }> => {
+  async (): Promise<{ categories: FilterOption[]; stack: FilterOption[]; kinds: Record<ProjectKind, number> }> => {
     const projects = await prisma.project.findMany({
       where: { status: "PUBLISHED", deletedAt: null },
-      select: { category: { select: { slug: true, name: true, order: true } }, tags: { select: { tag: { select: { slug: true, name: true, kind: true, order: true } } } } },
+      select: { kind: true, category: { select: { slug: true, name: true, order: true } }, tags: { select: { tag: { select: { slug: true, name: true, kind: true, order: true } } } } },
     });
     const cat = new Map<string, FilterOption & { order: number }>();
     const stack = new Map<string, FilterOption & { order: number }>();
+    const kinds: Record<ProjectKind, number> = { CLIENT: 0, INTERNAL: 0, CONCEPT: 0 };
     for (const p of projects) {
+      kinds[p.kind]++;
       if (p.category) {
         const c = cat.get(p.category.slug) ?? { slug: p.category.slug, name: p.category.name, count: 0, order: p.category.order };
         c.count++;
@@ -71,9 +75,10 @@ export const getWorkFilters = unstable_cache(
     return {
       categories: Array.from(cat.values()).sort(byOrder).map(strip),
       stack: Array.from(stack.values()).sort(byOrder).map(strip),
+      kinds,
     };
   },
-  ["work-filters"],
+  ["work-filters-kind"],
   { tags: [CACHE_TAGS.projects] },
 );
 
@@ -101,6 +106,8 @@ export type CaseStudy = {
   slug: string;
   title: string;
   summary: string;
+  /** Whose project this is: shown as a label, and a concept's figures read as targets. */
+  kind: ProjectKind;
   /** The story panel: two fields beside a picture, side chosen in the admin. */
   brief: unknown;
   whatWeBuilt: unknown;
@@ -166,7 +173,7 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
     const p = await prisma.project.findFirst({
       where: { slug, deletedAt: null, ...(publishedOnly ? { status: "PUBLISHED" } : {}) },
       select: {
-        id: true, status: true, slug: true, title: true, summary: true, clientName: true, clientLogoUrl: true, year: true,
+        id: true, status: true, slug: true, title: true, summary: true, kind: true, clientName: true, clientLogoUrl: true, year: true,
         brief: true, whatWeBuilt: true, storySide: true,
         budgetMin: true, budgetMax: true, budgetCurrency: true, budgetDisplay: true,
         durationValue: true, durationUnit: true, durationDisplay: true, teamSize: true,
@@ -219,7 +226,7 @@ async function loadCaseStudy(slug: string, publishedOnly: boolean): Promise<Case
     };
 }
 
-export const getCaseStudy = unstable_cache(async (slug: string) => loadCaseStudy(slug, true), ["case-study"], { tags: [CACHE_TAGS.projects] });
+export const getCaseStudy = unstable_cache(async (slug: string) => loadCaseStudy(slug, true), ["case-study-kind"], { tags: [CACHE_TAGS.projects] });
 
 /** Uncached, any status. Only reachable through a signed preview link. */
 export async function getCaseStudyPreview(slug: string): Promise<CaseStudy | null> {

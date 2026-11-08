@@ -1,15 +1,15 @@
 "use client";
-// Client component: the case-page header (owner's brief, 2026-09-15). Two
-// columns: category pill, title (letters rise in one by one) with the
-// live-site button beside it, summary, role and platform pills on the left; a raised facts
-// card on the right with the client logo and the numbers, which count up
-// when the card enters view. One choreographed load sequence; reduced
-// motion renders everything in place.
+// Client component: the case-page header (owner's brief, 2026-09-15; light
+// redesign 2026-11-05). Two columns: category and kind chips, title (letters
+// rise in one by one) with the live-site button beside it, summary, role and
+// platform chips on the left; a dark facts card on the right with the client
+// logo and the numbers, which count up when the card enters view. One
+// choreographed load sequence; reduced motion renders everything in place.
 
 import { useEffect, useRef, useState } from "react";
 import { animate, motion, useInView, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { cx } from "@/lib/cx";
-import { ArrowFillButton } from "@/components/ui/arrow-fill-button";
+import { CtaButton } from "@/components/site/cta-button";
 
 export type Fact =
   | { kind: "money"; label: string; symbol: string; min: number; max: number | null; display?: string | null }
@@ -19,6 +19,9 @@ export type Fact =
 
 type Props = {
   category: string | null;
+  kind: "CLIENT" | "INTERNAL" | "CONCEPT";
+  /** Null when the kind banner above already says it. */
+  kindLabel: string | null;
   title: string;
   summary: string;
   outcome: string | null;
@@ -26,7 +29,7 @@ type Props = {
   pills: string[];
   facts: Fact[];
   live: { href: string; label: string } | null;
-  labels: { client: string };
+  labels: { client: string; facts: string };
 };
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -70,7 +73,7 @@ function FactValue({ f, run }: { f: Fact; run: boolean }) {
   }
 }
 
-export function CaseHeader({ category, title, summary, outcome, client, pills, facts, live, labels }: Props) {
+export function CaseHeader({ category, kind, kindLabel, title, summary, outcome, client, pills, facts, live, labels }: Props) {
   const reduced = useReducedMotion() ?? false;
   const cardRef = useRef<HTMLDivElement>(null);
   const inView = useInView(cardRef, { once: true, amount: 0.4 });
@@ -102,11 +105,10 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
   return (
     <header className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr)_minmax(280px,2fr)] gap-4 lg:gap-6 items-start">
       <div className="min-w-0">
-        {category ? (
-          <motion.span initial={reduced ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={t(0)} className="inline-flex items-center h-[28px] px-2 rounded-full bg-lime text-small font-medium text-ink">
-            {category}
-          </motion.span>
-        ) : null}
+        <motion.div initial={reduced ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={t(0)} className="flex flex-wrap items-center gap-1">
+          {kindLabel ? <span className={cx("cl-chip", kind === "CONCEPT" && "cl-chip--lime", kind === "INTERNAL" && "cl-chip--ink")}>{kindLabel}</span> : null}
+          {category ? <span className="cl-chip">{category}</span> : null}
+        </motion.div>
         {/* The live site is what a visitor most wants from this page, so the
             button sits beside the title rather than trailing the metadata
             (owner, 2026-09-19). It is inside the heading, so it follows the
@@ -114,7 +116,7 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
             line of its own by a flex row (owner, 2026-09-19). The letters are
             hidden from assistive tech and the plain title is read instead, so
             the link keeps its own name inside the heading. */}
-        <h1 className="mt-2 text-display-l">
+        <h1 className="mt-3 text-display-xl">
           {reduced ? title : <span className="sr-only">{title}</span>}
           {reduced ? null : words.map((w, wi) => (
             <span key={wi} className={cx("inline-block whitespace-nowrap", wi < words.length - 1 && "mr-[0.25em]")} aria-hidden="true">
@@ -135,16 +137,16 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
             </span>
           ))}
           {live ? (
-            <motion.span initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.5)} className="inline-flex align-middle ml-[0.25em]">
-              <ArrowFillButton label={live.label} href={live.href} external />
+            <motion.span initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.5)} className="inline-flex align-middle ml-[0.25em] tracking-normal">
+              <CtaButton href={live.href} external variant="ink" size="sm">{live.label}</CtaButton>
             </motion.span>
           ) : null}
         </h1>
-        <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.35)} className="mt-2 text-body-l text-ash max-w-[52ch]">{summary}</motion.p>
+        <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.35)} className="mt-3 text-body-l text-ash max-w-[52ch]">{summary}</motion.p>
         {outcome ? <motion.p initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.45)} className="mt-3 text-h3 font-bold text-ink max-w-[40ch] leading-tight">{outcome}</motion.p> : null}
         {pills.length > 0 ? (
           <motion.div initial={reduced ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.6)} className="mt-4 flex flex-wrap items-center gap-1">
-            {pills.map((p) => <span key={p} className="data inline-flex items-center h-[28px] px-2 rounded-full bg-paper border border-divider-light text-ink">{p}</span>)}
+            {pills.map((p) => <span key={p} className="cl-chip">{p}</span>)}
           </motion.div>
         ) : null}
       </div>
@@ -155,28 +157,27 @@ export function CaseHeader({ category, title, summary, outcome, client, pills, f
         style={reduced ? undefined : { rotateX, rotateY, transformStyle: "preserve-3d" }}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
-        className="relative rounded-[24px] bg-paper border border-divider-light p-3 md:p-4 shadow-[0_24px_48px_rgb(0_0_0/0.35)]"
-        aria-label={labels.client}
+        className="wk-facts on-dark p-3 md:p-4"
+        aria-label={labels.facts}
       >
         {/* Sheen that follows the pointer, and a faint inner edge for the top face. */}
         {!reduced ? <motion.span aria-hidden="true" className="pointer-events-none inset-0 rounded-[24px]" style={{ position: "absolute", background: sheen }} /> : null}
-        <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[24px] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]" />
         <span aria-hidden="true" className="pointer-events-none absolute top-0 left-[32px] right-[32px] h-[1px] bg-gradient-to-r from-transparent via-lime/70 to-transparent" />
         <div style={reduced ? undefined : { transform: "translateZ(24px)" }}>
         {client.name || client.logoUrl ? (
-          <div className="flex items-center gap-2 pb-3 mb-3 border-b border-divider-light">
+          <div className="flex items-center gap-2 pb-3 mb-3 border-b border-white/10">
             {client.logoUrl ? <img src={client.logoUrl} alt="" className="h-[28px] w-auto max-w-[140px] object-contain" loading="eager" decoding="async" /> : null}
             <div className="min-w-0">
-              <p className="text-small text-ash max-w-none">{labels.client}</p>
-              {client.name ? <p className="text-body font-medium text-ink max-w-none truncate">{client.name}</p> : null}
+              <p className="text-small text-sage max-w-none">{labels.client}</p>
+              {client.name ? <p className="text-body font-medium text-bone max-w-none truncate">{client.name}</p> : null}
             </div>
           </div>
         ) : null}
         <dl className="m-0 grid grid-cols-2 gap-x-3 gap-y-3">
           {facts.map((f, i) => (
             <div key={i} className={cx("min-w-0", f.kind === "text" && f.value.length > 18 && "col-span-2")}>
-              <dt className="text-small text-ash">{f.label}</dt>
-              <dd className="data m-0 mt-[2px] text-h4 text-ink tabular-nums leading-tight"><FactValue f={f} run={run} /></dd>
+              <dt>{f.label}</dt>
+              <dd className="data m-0 mt-[2px] text-h4 tabular-nums leading-tight"><FactValue f={f} run={run} /></dd>
             </div>
           ))}
         </dl>

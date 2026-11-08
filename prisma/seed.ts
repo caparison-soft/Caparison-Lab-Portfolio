@@ -26,9 +26,9 @@ const ul = (...items: string[]): Node => ({ type: "bulletList", content: items.m
 const doc = (...content: Node[]): Prisma.InputJsonObject => ({ type: "doc", content: content as unknown as Prisma.InputJsonArray });
 
 // ---- Content blocks ---------------------------------------------------
-type Block = { key: string; group: string; label: string; value: string; helpText?: string; type?: "TEXT" | "RICHTEXT" | "URL" | "NUMBER" | "IMAGE" };
+import { redesignBlocks, type Block } from "./blocks";
 
-const blocks: Block[] = [
+const baseBlocks: Block[] = [
   // Navigation
   { key: "nav.work", group: "Navigation", label: "Work link", value: "work" },
   { key: "nav.capabilities", group: "Navigation", label: "Capabilities link", value: "capabilities" },
@@ -163,19 +163,26 @@ const blocks: Block[] = [
   { key: "maintenance.body", group: "Errors", label: "Maintenance body", value: "We're making a change to the site. Email hello@caparisonlab.com if it's urgent." },
 ];
 
+// The redesign's copy replaces a base block with the same key.
+const blocks: Block[] = Array.from(new Map([...baseBlocks, ...redesignBlocks].map((b) => [b.key, b])).values());
+
 // ---- Taxonomy ---------------------------------------------------------
 const categories = [
   { slug: "web-application", name: "Web application", description: "Browser-based products, portals and internal tools.", order: 1 },
   { slug: "mobile-app", name: "Mobile app", description: "iOS and Android, usually one codebase.", order: 2 },
   { slug: "automation", name: "Automation", description: "Pipelines, integrations and back-office scripts that remove manual work.", order: 3 },
   { slug: "design-system", name: "Design system", description: "Component libraries and the documentation that keeps them used.", order: 4 },
+  { slug: "saas-product", name: "SaaS product", description: "Software we sell or run as a subscription.", order: 5 },
+  { slug: "website-and-booking", name: "Website and booking", description: "A business website with booking, follow-up and the tools behind it.", order: 6 },
+  { slug: "video-production", name: "Video production", description: "Launch films, reels and ad cuts, shot and edited by the studio.", order: 7 },
+  { slug: "video-production", name: "Video production", description: "Promotional, product and social video.", order: 7 },
 ];
 
 const tags = [
   // stack
-  ...["react", "next.js", "react-native", "typescript", "node", "python", "postgres", "supabase", "aws", "cloudflare", "stripe", "storybook", "redis"].map((s, i) => ({ slug: s.replace(".", "-"), name: s, kind: "STACK" as const, order: i + 1 })),
+  ...["react", "next.js", "react-native", "typescript", "node", "python", "postgres", "supabase", "aws", "cloudflare", "stripe", "storybook", "redis", "twilio", "openai"].map((s, i) => ({ slug: s.replace(".", "-"), name: s, kind: "STACK" as const, order: i + 1 })),
   // industry
-  ...["logistics", "healthcare", "manufacturing", "fintech", "property", "coworking"].map((s, i) => ({ slug: s, name: s, kind: "INDUSTRY" as const, order: i + 1 })),
+  ...["logistics", "healthcare", "manufacturing", "fintech", "property", "coworking", "home-services", "hr", "creative"].map((s, i) => ({ slug: s, name: s, kind: "INDUSTRY" as const, order: i + 1 })),
   // service
   ...["build", "design", "integration", "migration"].map((s, i) => ({ slug: `svc-${s}`, name: s, kind: "SERVICE" as const, order: i + 1 })),
 ];
@@ -187,17 +194,69 @@ type ProjectSeed = {
   stack: string[]; industry: string[]; status: "DRAFT" | "PUBLISHED"; featured: boolean; order: number;
   liveUrl?: string; currentlyBuilding?: boolean; buildNote?: string;
   ctaMode?: "ENQUIRY" | "EXTERNAL" | "NONE"; ctaLabel?: string; ctaHref?: string; ctaNote?: string;
-  metrics: { label: string; value: string; note?: string }[];
+  metrics: { label: string; value: string; note?: string; period?: string; source?: string }[];
   body: Prisma.InputJsonObject;
+  kind?: "CLIENT" | "INTERNAL" | "CONCEPT";
+  showInHero?: boolean;
+  brief?: Prisma.InputJsonObject;
+  whatWeBuilt?: Prisma.InputJsonObject;
+  role?: string;
+  platforms?: string[];
 };
 
 const projects: ProjectSeed[] = [
+  // Light redesign (owner, 2026-11-05). The studio's real work is its own
+  // products plus concept builds; each says which it is. Summaries for the
+  // two products are short starting points for the owner to fill in.
+  {
+    slug: "officeday", title: "OfficeDay", summary: "Our HR and team management platform: people, tasks, projects, meetings and onboarding in one place.",
+    category: "saas-product", client: "Caparison Lab", year: 2026, kind: "INTERNAL", showInHero: true,
+    budgetMin: 0, budgetMax: 0, durationValue: 0, teamSize: 4,
+    stack: ["next-js", "typescript", "postgres", "node"], industry: ["hr"],
+    status: "PUBLISHED", featured: true, order: 1,
+    role: "product, design, frontend, backend, mobile", platforms: ["web", "iOS", "Android"],
+    ctaMode: "ENQUIRY", ctaLabel: "Talk to us about a platform like this",
+    metrics: [],
+    brief: doc(p("Small teams run on spreadsheets, chat threads and memory. We wanted one place where a team's people, work and meetings live together, without the setup weight of enterprise HR software.")),
+    whatWeBuilt: doc(p("A web and mobile platform covering people records, tasks and projects, meeting notes and workflows, with an onboarding flow that gets a new team running on day one."), ul("HR and team records", "Task and project management", "Meetings and workflow features", "Onboarding for new teams and new hires")),
+    body: doc(p("See the brief and what we built.")),
+  },
+  {
+    slug: "assetbender", title: "AssetBender", summary: "Our SaaS marketplace for digital assets, from the product to its launch videos and customer support.",
+    category: "saas-product", client: "Caparison Lab", year: 2026, kind: "INTERNAL", showInHero: true,
+    budgetMin: 0, budgetMax: 0, durationValue: 0, teamSize: 4,
+    stack: ["next-js", "typescript", "postgres", "stripe"], industry: ["creative"],
+    status: "PUBLISHED", featured: true, order: 2,
+    role: "product, development, marketing, video, support", platforms: ["web"],
+    ctaMode: "ENQUIRY",
+    metrics: [],
+    brief: doc(p("A marketplace is two products at once: one for the people selling and one for the people buying. It also has to be marketed and supported once it ships.")),
+    whatWeBuilt: doc(p("The platform itself, plus everything around it: product marketing, promotional and product videos, and the customer support and operations that keep it running."), ul("SaaS platform and marketplace", "Product marketing", "Video production and promotional content", "Customer support and operations")),
+    body: doc(p("See the brief and what we built.")),
+  },
+  {
+    slug: "lone-star-plumbing", title: "Lone Star Plumbing", summary: "A concept build: website, online booking and after-hours text follow-up for a made-up plumbing company in Austin.",
+    category: "website-and-booking", client: "Lone Star Plumbing", year: 2026, kind: "CONCEPT", showInHero: false,
+    budgetMin: 2500, budgetMax: 4000, durationValue: 4, teamSize: 3,
+    stack: ["next-js", "typescript", "supabase", "twilio"], industry: ["home-services"],
+    status: "PUBLISHED", featured: false, order: 3, // off the home page (owner, 2026-11-07); still on /work
+    role: "website, booking, automation, content plan", platforms: ["web", "SMS"],
+    ctaMode: "ENQUIRY", ctaLabel: "Get this for your business", ctaNote: "A setup like this usually lands in the $2,500 – $4,000 band, with a fixed price before we start.",
+    metrics: [
+      { label: "reply time to an after-hours request", value: "under 1 min", period: "target", source: "built into the automation" },
+      { label: "page load on a mid-range phone", value: "under 2s", period: "target", source: "Lighthouse, mobile" },
+      { label: "steps from search to booked slot", value: "3", period: "as designed" },
+    ],
+    brief: doc(p("A five-van plumbing company. The work is good and the reviews that exist are good. But the website is hard to use on a phone, calls after 6 pm go to voicemail, and quotes are followed up when someone remembers."), p("This is a made-up business. We built it to show how we would approach a real one.")),
+    whatWeBuilt: doc(p("A fast website built around one action, booking a visit, with an automation that answers every request within a minute, day or night."), ul("Website with service pages for each area they cover", "Request form that books a real slot from the calendar", "Automatic text reply with a booking link, after hours included", "Lead dashboard showing every request and where it came from", "Review request sent two hours after each job")),
+    body: doc(p("See the brief and what we built.")),
+  },
   {
     slug: "nexus-crm", title: "Nexus CRM", summary: "Internal sales tooling for a 40-person freight-forwarding team.",
     category: "web-application", client: "Tarn Logistics", year: 2025,
     budgetMin: 12000, budgetMax: 18000, durationValue: 9, teamSize: 3,
     stack: ["react", "next-js", "postgres", "aws", "typescript"], industry: ["logistics"],
-    status: "PUBLISHED", featured: true, order: 1, liveUrl: "https://example.com/nexus",
+    status: "DRAFT", featured: false, order: 11, liveUrl: "https://example.com/nexus",
     ctaMode: "ENQUIRY", ctaLabel: "Build something like Nexus", ctaNote: "Internal tools usually land in the $10k – $20k band. Tell us the team size and what they do all day.",
     metrics: [
       { label: "faster quote turnaround", value: "40%", note: "median time from enquiry to sent quote, before and after" },
@@ -224,7 +283,7 @@ const projects: ProjectSeed[] = [
     category: "web-application", client: "Orbit Workspaces", year: 2024,
     budgetMin: 6000, budgetMax: 9000, durationValue: 5, teamSize: 2,
     stack: ["next-js", "supabase", "stripe", "typescript"], industry: ["coworking", "property"],
-    status: "PUBLISHED", featured: true, order: 2, liveUrl: "https://example.com/orbit",
+    status: "DRAFT", featured: false, order: 12, liveUrl: "https://example.com/orbit",
     ctaMode: "ENQUIRY",
     metrics: [
       { label: "front-desk booking calls", value: "-70%", note: "first month after launch" },
@@ -243,7 +302,7 @@ const projects: ProjectSeed[] = [
     category: "mobile-app", client: "Meridian Health", year: 2025,
     budgetMin: 15000, budgetMax: 22000, durationValue: 10, teamSize: 3,
     stack: ["react-native", "node", "postgres", "aws"], industry: ["healthcare"],
-    status: "PUBLISHED", featured: true, order: 3,
+    status: "DRAFT", featured: false, order: 13,
     ctaMode: "ENQUIRY", ctaNote: "Healthcare projects need a data-handling conversation first. Mention where patients are and where data must stay.",
     metrics: [
       { label: "average check-in", value: "11 min to 3 min", note: "measured across all six clinics in month two" },
@@ -263,7 +322,7 @@ const projects: ProjectSeed[] = [
     category: "automation", client: "Halda Apparel", year: 2024,
     budgetMin: 9000, budgetMax: 14000, durationValue: 8, teamSize: 2,
     stack: ["python", "postgres", "next-js"], industry: ["manufacturing"],
-    status: "PUBLISHED", featured: false, order: 4,
+    status: "DRAFT", featured: false, order: 4,
     ctaMode: "ENQUIRY",
     metrics: [
       { label: "monthly payroll run", value: "2 days to 4 hours" },
@@ -282,7 +341,7 @@ const projects: ProjectSeed[] = [
     category: "design-system", client: "Sable Pay", year: 2025,
     budgetMin: 7000, budgetMax: 10000, durationValue: 6, teamSize: 2,
     stack: ["react", "typescript", "storybook"], industry: ["fintech"],
-    status: "PUBLISHED", featured: false, order: 5,
+    status: "DRAFT", featured: false, order: 5,
     ctaMode: "ENQUIRY",
     metrics: [
       { label: "components documented", value: "48" },
@@ -301,7 +360,7 @@ const projects: ProjectSeed[] = [
     category: "web-application", client: "Harbor Line", year: 2024,
     budgetMin: 8000, budgetMax: 12000, durationValue: 7, teamSize: 2,
     stack: ["next-js", "node", "postgres", "redis", "cloudflare"], industry: ["logistics"],
-    status: "PUBLISHED", featured: false, order: 6, liveUrl: "https://example.com/harbor",
+    status: "DRAFT", featured: false, order: 6, liveUrl: "https://example.com/harbor",
     ctaMode: "EXTERNAL", ctaLabel: "Read Harbor's write-up", ctaHref: "https://example.com/harbor/blog",
     metrics: [
       { label: "where-is-my-container calls", value: "-55%" },
@@ -329,44 +388,44 @@ const projects: ProjectSeed[] = [
 ];
 
 // ---- Studio -----------------------------------------------------------
+// Light redesign (owner, 2026-11-05): a capability is one of four service
+// groups; its deliverables are the services inside it. Prices are starting
+// points for the owner to confirm in the admin.
 const capabilities = [
   {
-    slug: "web-applications", title: "Web applications", weight: 3, order: 1,
-    blurb: "Internal tools, customer portals and dashboards. Next.js and Postgres by default. If your problem needs something else, we'll say so in the scoping week.",
-    startingPrice: "from $8k", typicalTimeline: "6 – 10 weeks",
-    deliverables: [
-      "A scoped backlog with a fixed price band before any build starts",
-      "A staging environment you can open from week one",
-      "Production deploy with monitoring and error alerts",
-      "A handover document and a recorded walkthrough",
-      "30 days of fixes after launch, included",
-    ],
+    slug: "digital-presence", title: "Digital presence", weight: 3, order: 1,
+    blurb: "A fast website that turns a search into a call or a booking, and shows up when someone nearby searches for what you do.",
+    startingPrice: "from $1,500", typicalTimeline: "2 – 4 weeks",
+    deliverables: ["Business website", "Web apps and customer portals", "Mobile apps", "Landing pages for ads", "SEO and local SEO"],
   },
   {
-    slug: "mobile-apps", title: "Mobile apps", weight: 1, order: 2,
-    blurb: "iOS and Android from one React Native codebase. Offline-first when the network is unreliable, which in our markets is often.",
-    startingPrice: "from $12k", typicalTimeline: "8 – 12 weeks",
-    deliverables: ["App Store and Play Store submission handled", "Offline sync where it matters", "Crash reporting wired in from day one", "30 days of fixes after launch, included"],
+    slug: "business-automation", title: "Business automation", weight: 2, order: 2,
+    blurb: "The admin that eats your evenings, done by software: bookings, reminders, follow-ups, quotes, and a dashboard that shows where the jobs are.",
+    startingPrice: "from $2,000", typicalTimeline: "3 – 6 weeks",
+    deliverables: ["A CRM set up for how you work", "AI chat that answers and books", "Workflow automation", "Admin dashboards", "Booking and job management"],
   },
   {
-    slug: "automation", title: "Automation and integrations", weight: 1, order: 3,
-    blurb: "The two-day monthly job that should take twenty minutes. Pipelines, syncs between systems, and the small back-office tools around them.",
-    startingPrice: "from $3k", typicalTimeline: "2 – 6 weeks",
-    deliverables: ["Every rule written down in reviewable config", "Exception handling that asks a human instead of guessing", "Run history for audits", "Runs on your infrastructure or ours"],
+    slug: "content-and-branding", title: "Content and branding", weight: 1, order: 3,
+    blurb: "Video and photos of your real work, crews and vans, so people see who will turn up at their door before they call.",
+    startingPrice: "from $800 a month", typicalTimeline: "monthly",
+    deliverables: ["Video production", "Social media content", "Brand identity", "Promotional videos", "Content planning"],
   },
   {
-    slug: "design-systems", title: "Design systems", weight: 2, order: 4,
-    blurb: "Component libraries your engineers keep using after we leave. Tokens, components, documentation, and a handover where your team builds a real screen on it.",
-    startingPrice: "from $6k", typicalTimeline: "4 – 8 weeks",
-    deliverables: ["Tokens exported for code and Figma", "Storybook with plain-language usage rules", "Accessibility checks in CI", "A contribution guide, and a handover day"],
+    slug: "marketing-and-growth", title: "Marketing and growth", weight: 1, order: 4,
+    blurb: "Ads, local search and social, run against one number: how many booked jobs they bring in each month.",
+    startingPrice: "from $600 a month", typicalTimeline: "monthly",
+    deliverables: ["Social media management", "Google and Meta ads", "Lead generation", "SEO", "Campaign management"],
   },
 ];
+/** The pre-redesign capabilities. Unpublished, not deleted, so their images and edits survive. */
+const retiredCapabilities = ["web-applications", "mobile-apps", "automation", "design-systems"];
 
 const processSteps = [
-  { order: 1, title: "Scope", duration: "week 1", description: "A working session, then a written scope with a price band and a date. You can take it elsewhere. Most people don't." },
-  { order: 2, title: "Build", duration: "weeks 2 – 8", description: "Staging is live from the first week. You see progress as software, not slide decks. Weekly call, written notes, no surprises at the end." },
-  { order: 3, title: "Ship", duration: "week 9", description: "Production deploy, monitoring, a recorded walkthrough and a handover document. Your team can run it without us." },
-  { order: 4, title: "Iterate", duration: "after launch", description: "Thirty days of fixes are included. After that, a monthly retainer if you want one, or nothing if you don't." },
+  { order: 1, title: "Free review", duration: "day 1", description: "We look at your website, Google listing and reviews the way a customer would, and send a short video with the three things we would fix first. No call needed." },
+  { order: 2, title: "Plan and price", duration: "week 1", description: "A 30-minute call, then a written plan with a fixed price and a launch date. The plan is yours, even if you take it elsewhere." },
+  { order: 3, title: "Build", duration: "weeks 2 – 4", description: "A preview link from the first week, so you see the work as it happens. A written update every week." },
+  { order: 4, title: "Launch", duration: "week 4 – 5", description: "We go live, connect your phone, calendar and Google listing, and record a walkthrough your team can watch later." },
+  { order: 5, title: "Grow", duration: "monthly", description: "Optional. Content, ads and improvements each month, reported against booked jobs, not clicks." },
 ];
 
 const testimonials = [
@@ -391,11 +450,12 @@ const team = [
 ];
 
 const faqs = [
-  { order: 1, question: "How do you price a project?", answer: "As a band, after a one-week scoping engagement. The band is fixed once you approve the scope. If the scope changes, the band changes, in writing, before we do the work." },
-  { order: 2, question: "What happens in the scoping week?", answer: "One working session with you, a written scope with a price band and a delivery date, and often a clickable prototype. You can take the scope to another studio. It is yours." },
-  { order: 3, question: "Who owns the code?", answer: "You do, from the first commit. It lives in a repository you control, and we hand over the infrastructure at launch." },
-  { order: 4, question: "Do you work with clients outside Bangladesh?", answer: "Yes. About half our work is in the Gulf. We overlap the Gulf working day fully and the European morning." },
-  { order: 5, question: "What if we need changes after launch?", answer: "Thirty days of fixes are included in every project. After that, a monthly retainer if you want one, or nothing if you don't." },
+  { order: 1, question: "How much does a website cost?", answer: "Most home service websites land between $1,500 and $4,000, depending on the pages, booking and connections to your other tools. You get a fixed price in writing before any work starts." },
+  { order: 2, question: "You're in Dhaka and we're in the US. How does that work?", answer: "We overlap your morning or your evening every working day, reply within one working day, and book calls at a time that suits you. Most of the work happens in writing, so nothing gets lost between calls." },
+  { order: 3, question: "Have you worked with businesses like ours?", answer: "Not yet in home services, and we won't pretend otherwise. Our work so far is our own products and video production, and the home service builds on this site are labelled as concepts. That is why the first review is free." },
+  { order: 4, question: "Who owns the website?", answer: "You do. The domain, the code, the content and every account are in your name from day one." },
+  { order: 5, question: "Can you work with what we already have?", answer: "Yes. If your website is fine and the problem is follow-up or reviews, we fix that and leave the rest alone." },
+  { order: 6, question: "What happens after launch?", answer: "Thirty days of fixes are included. After that, monthly content, ads and improvements if you want them, or nothing if you don't." },
 ];
 
 const inquiries = [
@@ -408,11 +468,15 @@ const inquiries = [
 async function main() {
   console.log("Seeding content blocks…");
   for (const [i, b] of blocks.entries()) {
+    const existing = await prisma.contentBlock.findUnique({ where: { key: b.key }, select: { value: true, defaultValue: true } });
+    // Never overwrite an edited value on re-seed. A value nobody edited (still
+    // equal to the old default) follows the new default, so a redesign's copy
+    // actually reaches the page.
+    const unedited = existing && (existing.value === null || existing.value === existing.defaultValue);
     await prisma.contentBlock.upsert({
       where: { key: b.key },
       create: { key: b.key, label: b.label, group: b.group, type: b.type ?? "TEXT", value: b.value, defaultValue: b.value, helpText: b.helpText, order: i },
-      // Never overwrite an edited value on re-seed; only refresh label, help and default.
-      update: { label: b.label, group: b.group, type: b.type ?? "TEXT", defaultValue: b.value, helpText: b.helpText, order: i },
+      update: { label: b.label, group: b.group, type: b.type ?? "TEXT", defaultValue: b.value, helpText: b.helpText, order: i, ...(unedited ? { value: b.value } : {}) },
     });
   }
 
@@ -460,6 +524,7 @@ async function main() {
   for (const c of capabilities) {
     await prisma.capability.upsert({ where: { slug: c.slug }, create: { ...c, status: "PUBLISHED" }, update: { ...c, status: "PUBLISHED" } });
   }
+  await prisma.capability.updateMany({ where: { slug: { in: retiredCapabilities } }, data: { status: "DRAFT" } });
   await prisma.processStep.deleteMany({});
   await prisma.processStep.createMany({ data: processSteps.map((s) => ({ ...s, status: "PUBLISHED" })) });
 
@@ -478,6 +543,10 @@ async function main() {
       durationValue: pr.durationValue, durationUnit: "WEEKS" as const, teamSize: pr.teamSize,
       liveUrl: pr.liveUrl, status: pr.status, featured: pr.featured, order: pr.order,
       currentlyBuilding: pr.currentlyBuilding ?? false, buildNote: pr.buildNote,
+      kind: pr.kind ?? "CLIENT", showInHero: pr.showInHero ?? false,
+      brief: pr.brief, whatWeBuilt: pr.whatWeBuilt, role: pr.role, platforms: pr.platforms ?? [],
+      // Our own products have no budget band to show.
+      ...(pr.kind === "INTERNAL" ? { budgetMin: null, budgetMax: null, durationValue: null, clientName: null } : {}),
       ctaMode: pr.ctaMode ?? "ENQUIRY", ctaLabel: pr.ctaLabel, ctaHref: pr.ctaHref, ctaNote: pr.ctaNote,
       publishedAt: pr.status === "PUBLISHED" ? new Date(`${pr.year}-06-01T00:00:00Z`) : null,
     };
@@ -506,11 +575,14 @@ async function main() {
   console.log("Seeding testimonials, stats, team, faqs…");
   await prisma.testimonial.deleteMany({});
   await prisma.testimonial.createMany({
-    data: testimonials.map(({ project, ...t }) => ({ ...t, projectId: project ? projectIds[project] : null, status: "PUBLISHED" })),
+    // Invented quotes for invented projects: kept as drafts so they never show
+    // beside the honest positioning (light redesign, 2026-11-05).
+    data: testimonials.map(({ project, ...t }) => ({ ...t, projectId: project ? projectIds[project] : null, status: "DRAFT" })),
   });
 
   await prisma.stat.deleteMany({});
-  await prisma.stat.createMany({ data: stats.map((s) => ({ ...s, status: "PUBLISHED" })) });
+  // Invented figures; drafts until the owner enters real ones.
+  await prisma.stat.createMany({ data: stats.map((s) => ({ ...s, status: "DRAFT" })) });
 
   await prisma.teamMember.deleteMany({});
   await prisma.teamMember.createMany({ data: team.map((m) => ({ ...m, status: "PUBLISHED" })) });

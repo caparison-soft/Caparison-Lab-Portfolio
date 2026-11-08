@@ -22,6 +22,16 @@ const nextConfig: NextConfig = {
     // optimiser must never sit in front of it (quota, and it redoes sharp's work).
     unoptimized: true,
   },
+  // One-page site (owner, 2026-11-07): Services and Work are sections of the
+  // home page now, so their old addresses land on those sections.
+  async redirects() {
+    return [
+      { source: "/services", destination: "/#services", permanent: true },
+      { source: "/work", destination: "/#work", permanent: true },
+      // Contact is a section too; a link from a case page (?project=) keeps the page, which names the project.
+      { source: "/contact", missing: [{ type: "query", key: "project" }], destination: "/#contact", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {
