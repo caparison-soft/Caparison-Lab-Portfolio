@@ -31,7 +31,13 @@ type SiteHeaderProps = {
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 export function SiteHeader({ siteName, links, cta, labels, email }: SiteHeaderProps) {
-  const pathname = usePathname();
+  // When Vercel regenerates the static home page (the hourly ISR window), the
+  // server render sees "/index" where the browser sees "/". The header then
+  // rendered its light tone on the server and its dark tone in the browser, and
+  // that mismatch made React rebuild the whole page, wiping the boot script's
+  // html[data-js] and with it the orbit's layout (found live, 2026-11-08).
+  const raw = usePathname();
+  const pathname = raw === "/index" || raw.endsWith("/index") ? raw.slice(0, -"/index".length) || "/" : raw;
   // Dark tone on the black pages: home, services, work and the case pages (owner, 2026-11-07).
   const dark = pathname === "/" || pathname.startsWith("/services") || pathname.startsWith("/work");
   const [scrolled, setScrolled] = useState(false);

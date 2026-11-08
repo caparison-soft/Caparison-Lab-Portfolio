@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { lines, getBlocks, getSettings, t } from "@/lib/queries/content";
 import { getFeaturedProjects, getProcessSteps } from "@/lib/queries/home";
 import { getFaqs } from "@/lib/queries/about";
@@ -22,6 +23,12 @@ import { LogoStrip } from "@/components/site/home/black/logo-strip";
 import { VoicesBlack } from "@/components/site/home/black/voices-black";
 
 export const revalidate = 3600;
+
+// The layout's canonical is "./", which Vercel's ISR regeneration resolved to
+// /index for the home page (live, 2026-11-08); the home states its own.
+export const metadata: Metadata = {
+  alternates: { canonical: "/", types: { "application/rss+xml": "/feed.xml" } },
+};
 
 /**
  * Homepage on black (owner, 2026-11-07): the orbit hero, the mission row, the
