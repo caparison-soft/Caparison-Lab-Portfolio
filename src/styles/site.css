@@ -403,13 +403,14 @@
   .cl-wi { display: inline-block; will-change: transform; }
 
   /* ---- Intro screen (first visit per session) ---- */
+  /* Black, the home page's ground (owner, 2026-11-08: Emerald clashed with the black site). */
   .cl-intro {
     position: fixed;
     inset: 0;
     z-index: 200;
     display: none;
     place-items: center;
-    background: var(--color-olive-950);
+    background: var(--color-ink);
     color: var(--color-bone);
   }
   html[data-intro] .cl-intro { display: grid; }
